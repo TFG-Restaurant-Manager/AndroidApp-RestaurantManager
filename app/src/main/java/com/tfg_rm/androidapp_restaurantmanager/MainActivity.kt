@@ -20,6 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AndroidAppRestaurantManagerTheme {
                 Text("Text")
+                Test("test")
             }
         }
     }
