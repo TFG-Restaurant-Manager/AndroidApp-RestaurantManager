@@ -9,4 +9,5 @@ package com.tfg_rm.androidapp_restaurantmanager.navigation
  */
 sealed class AppScreens (val route : String){
     object LoginScreen : AppScreens("login_screen")
+    object OrdersScreen: AppScreens("orders_screen")
 }

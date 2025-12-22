@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">AndroidApp-RestaurantManager</string>
+    <string name="OrdersTitle">Active Orders</string>
+    <string name="OrdersSubtitle">Order management and tracking</string>
 </resources>

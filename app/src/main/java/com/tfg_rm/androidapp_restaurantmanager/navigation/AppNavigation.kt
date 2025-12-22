@@ -6,6 +6,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
+import com.tfg_rm.androidapp_restaurantmanager.ui.screens.OrdersScreen
+import com.tfg_rm.androidapp_restaurantmanager.viewmodels.OrdersViewModel
 
 /**
  * Funcion Composable para mostrar todas las pantallas de la aplicacion
@@ -21,7 +23,8 @@ import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
  */
 @Composable
 fun AppNavigation(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    orderViewModel: OrdersViewModel = OrdersViewModel()
 ) {
     NavHost(
         navController = navController,
@@ -29,6 +32,9 @@ fun AppNavigation(
     ) {
         composable(AppScreens.LoginScreen.route) {
             LoginScreen()
+        }
+        composable (AppScreens.OrdersScreen.route) {
+            OrdersScreen(orderViewModel)
         }
     }
 }
