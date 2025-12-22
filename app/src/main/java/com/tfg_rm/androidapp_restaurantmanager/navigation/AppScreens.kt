@@ -1,0 +1,12 @@
+package com.tfg_rm.androidapp_restaurantmanager.navigation
+
+
+/**
+ * Clase de tipo sealed para poder crear una clase que guarde clases
+ * En esta clase se guardan clases heredadas de AppScreen
+ * con una ruta para poder navegar con facilidad utilizando AppNavigation
+ * @see AppNavigation
+ */
+sealed class AppScreens (val route : String){
+    object LoginScreen : AppScreens("login_screen")
+}

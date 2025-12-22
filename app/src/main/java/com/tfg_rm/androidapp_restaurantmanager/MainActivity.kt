@@ -4,22 +4,26 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.tfg_rm.androidapp_restaurantmanager.navigation.AppNavigation
 import com.tfg_rm.androidapp_restaurantmanager.ui.theme.AndroidAppRestaurantManagerTheme
 
+/**
+ * Clase principal del programa la cual inicializa el contenido mediante la navegacion
+ * @see AppNavigation
+ * Y con la configuracion del Thema predefinido
+ * @see AndroidAppRestaurantManagerTheme
+ *
+ * @author Equipo Restaurant Manager
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Funcion para hacer que la aplicacion ocupe toda la pantalla
         enableEdgeToEdge()
         setContent {
             AndroidAppRestaurantManagerTheme {
-                Text("Text")
+                // Inicializo la navegacion
+                AppNavigation()
             }
         }
     }
