@@ -1,11 +1,25 @@
 package com.tfg_rm.androidapp_restaurantmanager.navigation
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 /**
  * Funcion Composable para mostrar todas las pantallas de la aplicacion
@@ -23,13 +37,53 @@ import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
 fun AppNavigation(
     navController: NavHostController = rememberNavController()
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = AppScreens.LoginScreen.route
-    ) {
-        composable(AppScreens.LoginScreen.route) {
-            LoginScreen()
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    Scaffold(
+        bottomBar = {
+            if (currentRoute in AppScreens.allBottomBarScreens()) {
+                BottomBar(navController)
+            }
+        }
+    ) { padding ->
+        NavHost(
+            navController = navController,
+            startDestination = AppScreens.LoginScreen.route,
+            modifier = Modifier.padding(padding)
+        ) {
+            composable(AppScreens.LoginScreen.route) {
+                LoginScreen(navController)
+            }
+
         }
     }
+
 }
 
+@Composable
+fun BottomBar(navController: NavController) {
+    NavigationBar {
+        NavigationBarItem(
+            selected = false,
+            onClick = { navController.navigate("home") },
+            icon = { Icon(Icons.Default.Home, null) },
+            label = { Text("Home") }
+        )
+
+        NavigationBarItem(
+            selected = false,
+            onClick = { navController.navigate("orders") },
+            icon = { Icon(Icons.AutoMirrored.Filled.List, null) },
+            label = { Text("Orders") }
+        )
+
+        NavigationBarItem(
+            selected = false,
+            onClick = { navController.navigate("profile") },
+            icon = { Icon(Icons.Default.Person, null) },
+            label = { Text("Profile") }
+        )
+    }
+}
