@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">AndroidApp-RestaurantManager</string>
-    <string name="OrdersTitle">Active Orders</string>
-    <string name="OrdersSubtitle">Order management and tracking</string>
+    <string name="ordersTitle">Active Orders</string>
+    <string name="ordersSubtitle">Order management and tracking</string>
+    <string name="orderStatusCreated">Created</string>
+    <string name="orderStatusCooked">Cooked</string>
+    <string name="orderStatusDelivered">Delivered</string>
+    <string name="orderStatusPaid">Paid</string>
+    <string name="orderStatusError">Error</string>
 </resources>

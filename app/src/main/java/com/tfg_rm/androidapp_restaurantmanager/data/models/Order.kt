@@ -13,5 +13,6 @@ data class Order(
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val orderTypeId: Int,
     val deliveryAddress: String?,
-    val deliveryNotes: String?
+    val deliveryNotes: String?,
+    val orderItemsList: MutableList<OrderItem> = mutableListOf()
 )
