@@ -1,6 +1,9 @@
 package com.tfg_rm.androidapp_restaurantmanager.navigation
 
+import android.widget.Space
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -12,7 +15,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
@@ -20,6 +22,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.tfg_rm.androidapp_restaurantmanager.ui.screens.ProfileScreen
 
 /**
  * Funcion Composable para mostrar todas las pantallas de la aplicacion
@@ -50,20 +53,19 @@ fun AppNavigation(
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = AppScreens.LoginScreen.route,
+            startDestination = AppScreens.ProfileScreen.route,
             modifier = Modifier.padding(padding)
         ) {
-            composable(AppScreens.LoginScreen.route) {
-                LoginScreen(navController)
+            composable(AppScreens.ProfileScreen.route) {
+                ProfileScreen()
             }
-
         }
     }
-
 }
 
 @Composable
 fun BottomBar(navController: NavController) {
+    Text("Adsa")
     NavigationBar {
         NavigationBarItem(
             selected = false,
