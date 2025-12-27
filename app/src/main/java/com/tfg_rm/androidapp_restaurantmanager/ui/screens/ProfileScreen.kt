@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -44,7 +46,7 @@ fun ProfileScreen() {
         email = "email@email.com",
         numberPhone = "123456789",
         dni = "12345678A",
-        workSchedules = listOf("De 1 a 2", "Descansa", "De 3 a 4"),
+        workSchedules = listOf("De 1 a 2", "Descansa", "De 3 a 4", "De 1 a 2", "Descansa", "De 3 a 4", "Yo q se"),
     )
     Scaffold(
         topBar = { TopBar(empleado) }
@@ -53,6 +55,7 @@ fun ProfileScreen() {
             .padding(paddingValues)
             .fillMaxWidth()){
             PersonalInformation(empleado)
+            ScheduleInformation(empleado)
             Button(
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonColors(
@@ -152,6 +155,57 @@ fun PersonalInformation(empleado: Employees) {
             // Teléfono
             Text(text = "Teléfono", fontWeight = FontWeight.Medium, color = Color.Gray)
             Text(text = empleado.numberPhone, fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+@Composable
+fun ScheduleInformation(empleado: Employees) {
+    val days = listOf("Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabados", "Domingos")
+    val pairedList = days.zip(empleado.workSchedules)
+
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(16.dp)
+        ) {
+            Row(modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.log_out_icon),
+                    modifier = Modifier.size(16.dp),
+                    contentDescription = "Horario Semanal",
+                )
+                Spacer(modifier = Modifier.width(2.dp))
+                Text(
+                    text = "Horario Semanal",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                items(pairedList
+                ) { (days, workSchedules) ->
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(days)
+                        Text(workSchedules)
+                    }
+                }
+            }
         }
     }
 }
