@@ -1,5 +1,6 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -20,9 +24,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.data.models.Employees
 
 /**
@@ -43,15 +49,42 @@ fun ProfileScreen() {
     Scaffold(
         topBar = { TopBar(empleado) }
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues).fillMaxWidth()){
+        Column(modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxWidth()){
             PersonalInformation(empleado)
+            Button(
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonColors(
+                    contentColor = Color.White,
+                    containerColor = Color.White,
+                    disabledContainerColor = Color.White,
+                    disabledContentColor = Color.White
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                border = BorderStroke(width = 1.dp, color = Color.Red),
+                onClick = {println("Cerrar sesion")}
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.log_out_icon),
+                    modifier = Modifier.size(16.dp),
+                    contentDescription = "Log Out",
+                    tint = Color.Red
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(text = "Cerrar sesion", color = Color.Red)
+            }
         }
     }
 }
 
 @Composable
 fun TopBar(empleado : Employees) {
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp)) {
         Text(
             text = "Mi perfil",
             style = MaterialTheme.typography.titleMedium,
@@ -67,18 +100,19 @@ fun TopBar(empleado : Employees) {
                 .size(48.dp)
                 .background(
                     color = Color.Black,
-                    shape = RoundedCornerShape(48.dp))
+                    shape = RoundedCornerShape(48.dp)
+                )
             ) {
                 Text(
                     text = empleado.name.take(2),
-                    modifier = Modifier
-                        .align(alignment = Alignment.Center),
+                    modifier = Modifier.align(alignment = Alignment.Center),
                     color = Color.White)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column() {
                 Text(empleado.name)
-                Text(empleado.name)
+                Text(text = empleado.name,
+                        style = MaterialTheme.typography.bodySmall,)
             }
         }
     }
