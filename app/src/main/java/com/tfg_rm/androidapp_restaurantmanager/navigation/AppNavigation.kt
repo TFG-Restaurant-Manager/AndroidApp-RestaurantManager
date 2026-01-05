@@ -1,9 +1,6 @@
 package com.tfg_rm.androidapp_restaurantmanager.navigation
 
-import android.widget.Space
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -22,6 +19,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.ProfileScreen
 
 /**
@@ -53,11 +51,14 @@ fun AppNavigation(
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = AppScreens.ProfileScreen.route,
+            startDestination = AppScreens.LoginScreen.route,
             modifier = Modifier.padding(padding)
         ) {
+            composable(AppScreens.LoginScreen.route) {
+                LoginScreen(navController)
+            }
             composable(AppScreens.ProfileScreen.route) {
-                ProfileScreen()
+                ProfileScreen(navController)
             }
         }
     }

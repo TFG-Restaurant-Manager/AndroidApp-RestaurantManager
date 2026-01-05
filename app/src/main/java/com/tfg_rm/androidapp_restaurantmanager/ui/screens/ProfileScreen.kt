@@ -30,15 +30,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.data.models.Employees
+import com.tfg_rm.androidapp_restaurantmanager.navigation.AppScreens
 
 /**
  * Funcion Composable para mostrar el apartado de login de la aplicacion
  */
-@Preview(showBackground = true)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(navController: NavHostController) {
     val empleado = Employees(
         id = 1,
         roleName = "Camarero",
@@ -68,7 +69,7 @@ fun ProfileScreen() {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 border = BorderStroke(width = 1.dp, color = Color.Red),
-                onClick = {println("Cerrar sesion")}
+                onClick = {navController.navigate(AppScreens.LoginScreen.route)}
             ) {
                 Icon(
                     painter = painterResource(R.drawable.log_out_icon),

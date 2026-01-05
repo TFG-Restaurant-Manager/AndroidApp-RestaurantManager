@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.tfg_rm.androidapp_restaurantmanager.navigation.AppScreens
 
 /**
  * Funcion Composable para mostrar el apartado de login de la aplicacion
@@ -98,7 +99,7 @@ fun LoginScreen(navController: NavHostController) {
                 }
                 Button(
                     onClick = {
-
+                        navController.navigate(AppScreens.ProfileScreen.route)
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
