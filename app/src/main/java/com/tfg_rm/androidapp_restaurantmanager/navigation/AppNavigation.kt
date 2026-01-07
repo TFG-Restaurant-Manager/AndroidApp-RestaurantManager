@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.ProfileScreen
+import com.tfg_rm.androidapp_restaurantmanager.ui.screens.TableScreen
 
 /**
  * Funcion Composable para mostrar todas las pantallas de la aplicacion
@@ -60,6 +61,9 @@ fun AppNavigation(
             composable(AppScreens.ProfileScreen.route) {
                 ProfileScreen(navController)
             }
+            composable(AppScreens.TableScreen.route) {
+                TableScreen()
+            }
         }
     }
 }
@@ -70,7 +74,7 @@ fun BottomBar(navController: NavController) {
     NavigationBar {
         NavigationBarItem(
             selected = false,
-            onClick = { navController.navigate("home") },
+            onClick = { navController.navigate(AppScreens.TableScreen.route) },
             icon = { Icon(Icons.Default.Home, null) },
             label = { Text("Home") }
         )
@@ -84,7 +88,7 @@ fun BottomBar(navController: NavController) {
 
         NavigationBarItem(
             selected = false,
-            onClick = { navController.navigate("profile") },
+            onClick = { navController.navigate(AppScreens.ProfileScreen.route) },
             icon = { Icon(Icons.Default.Person, null) },
             label = { Text("Profile") }
         )
