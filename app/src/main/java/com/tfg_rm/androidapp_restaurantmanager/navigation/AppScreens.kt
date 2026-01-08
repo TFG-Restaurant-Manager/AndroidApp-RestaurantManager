@@ -11,6 +11,7 @@ sealed class AppScreens (val route : String){
     object LoginScreen : AppScreens("login_screen")
     object ProfileScreen : AppScreens("profile_screen")
     object TableScreen : AppScreens("table_screen")
+    object FoodScreen : AppScreens("food_screen")
 
     // companion object es un objeto que pertenece a la clase y no a una instancia concreta
     // Es como una funcion estatica
@@ -19,7 +20,8 @@ sealed class AppScreens (val route : String){
         fun allBottomBarScreens(): List<String> {
             return listOf(
                 ProfileScreen.route,
-                TableScreen.route)
+                TableScreen.route,
+                FoodScreen.route)
         }
     }
 }

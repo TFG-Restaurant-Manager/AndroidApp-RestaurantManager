@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.tfg_rm.androidapp_restaurantmanager.ui.screens.FoodScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.ProfileScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.TableScreen
@@ -64,13 +65,15 @@ fun AppNavigation(
             composable(AppScreens.TableScreen.route) {
                 TableScreen()
             }
+            composable(AppScreens.FoodScreen.route) {
+                FoodScreen()
+            }
         }
     }
 }
 
 @Composable
 fun BottomBar(navController: NavController) {
-    Text("Adsa")
     NavigationBar {
         NavigationBarItem(
             selected = false,
@@ -81,7 +84,7 @@ fun BottomBar(navController: NavController) {
 
         NavigationBarItem(
             selected = false,
-            onClick = { navController.navigate("orders") },
+            onClick = { navController.navigate(AppScreens.FoodScreen.route) },
             icon = { Icon(Icons.AutoMirrored.Filled.List, null) },
             label = { Text("Orders") }
         )
