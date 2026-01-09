@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">AndroidApp-RestaurantManager</string>
+    <string name="ordersTitle">Active Orders</string>
+    <string name="ordersSubtitle">Order management and tracking</string>
+    <string name="orderStatusCreated">Created</string>
+    <string name="orderStatusCooked">In kitchen</string>
+    <string name="orderStatusReady">Ready</string>
+    <string name="orderStatusDelivered">Delivered</string>
+    <string name="orderStatusPaid">Paid</string>
+    <string name="orderStatusError">Error</string>
+    <string name="tableLabel">Table %1$d</string>
+    <string name="timeAgo">%1$d minutes ago</string>
+    <string name="itemQuantityFormat">%1$dx %2$s</string>
+    <string name="currencyFormat">%.2f €</string>
+    <string name="markDelivered">Mark Delivered</string>
 </resources>
