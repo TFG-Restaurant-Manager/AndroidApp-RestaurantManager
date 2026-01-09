@@ -10,4 +10,16 @@ package com.tfg_rm.androidapp_restaurantmanager.navigation
 sealed class AppScreens (val route : String){
     object LoginScreen : AppScreens("login_screen")
     object OrdersScreen: AppScreens("orders_screen")
+    object ProfileScreen : AppScreens("profile_screen")
+
+    // companion object es un objeto que pertenece a la clase y no a una instancia concreta
+    // Es como una funcion estatica
+    companion object {
+        // Devuelve todas las rutas que tienen BottomBar
+        fun allBottomBarScreens(): List<String> {
+            return listOf(
+                ProfileScreen.route,
+                OrdersScreen.route)
+        }
+    }
 }
