@@ -1,5 +1,6 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,12 +25,13 @@ import com.tfg_rm.androidapp_restaurantmanager.data.models.OrderItem
 import com.tfg_rm.androidapp_restaurantmanager.ui.theme.Typography
 import com.tfg_rm.androidapp_restaurantmanager.viewmodels.OrdersViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@ExperimentalMaterial3Api
 @Composable
 fun OrdersScreen(ordersViewModel: OrdersViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
+                windowInsets = WindowInsets(),
                 title = {
                     Column {
                         Text(
@@ -214,6 +216,8 @@ fun StatusBadge(statusId: Int, viewModel: OrdersViewModel) {
 
 
 
+@SuppressLint("ViewModelConstructorInComposable")
+@ExperimentalMaterial3Api
 @Preview(showBackground = true)
 @Composable
 fun OrdersScreenPreview() {

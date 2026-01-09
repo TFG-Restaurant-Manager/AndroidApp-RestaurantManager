@@ -7,8 +7,9 @@ import com.tfg_rm.androidapp_restaurantmanager.data.models.OrderItem
 import java.time.Duration
 import java.time.LocalDateTime
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.ViewModel
 
-class OrdersViewModel() {
+class OrdersViewModel() : ViewModel() {
     val ordersList = mutableStateListOf<Order>()
 
     init {
@@ -54,18 +55,20 @@ class OrdersViewModel() {
 
         ordersList.add(order1)
         ordersList.add(order2)
+        ordersList.add(order2)
+        ordersList.add(order2)
+        ordersList.add(order2)
+
     }
 
-    fun getStatusStringRes(statusId: Int): Int {
-        return when (statusId) {
-            1 -> R.string.orderStatusCreated
-            2 -> R.string.orderStatusCooked
-            3 -> R.string.orderStatusReady
-            4 -> R.string.orderStatusDelivered
-            5 -> R.string.orderStatusPaid
-            else -> R.string.orderStatusError
-        }
-    }
+    fun getStatusStringRes(statusId: Int) = when (statusId) {
+       1 -> R.string.orderStatusCreated
+       2 -> R.string.orderStatusCooked
+       3 -> R.string.orderStatusReady
+       4 -> R.string.orderStatusDelivered
+       5 -> R.string.orderStatusPaid
+       else -> R.string.orderStatusError
+   }
 
     fun getMinutesAgo(createdAt: LocalDateTime): Long {
         return Duration.between(createdAt, LocalDateTime.now()).toMinutes()

@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.OrdersScreen
@@ -39,7 +40,7 @@ import com.tfg_rm.androidapp_restaurantmanager.ui.screens.ProfileScreen
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController(),
-    orderViewModel: OrdersViewModel = OrdersViewModel()
+    orderViewModel: OrdersViewModel = viewModel()
 ) {
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -63,16 +64,15 @@ fun AppNavigation(
             composable(AppScreens.ProfileScreen.route) {
                 ProfileScreen(navController)
             }
-        }
-        composable (AppScreens.OrdersScreen.route) {
-            OrdersScreen(orderViewModel)
+            composable (AppScreens.OrdersScreen.route) {
+                OrdersScreen(orderViewModel)
+            }
         }
     }
 }
 
 @Composable
 fun BottomBar(navController: NavController) {
-    Text("Adsa")
     NavigationBar {
         NavigationBarItem(
             selected = false,
@@ -83,14 +83,14 @@ fun BottomBar(navController: NavController) {
 
         NavigationBarItem(
             selected = false,
-            onClick = { navController.navigate("orders") },
+            onClick = { navController.navigate(AppScreens.OrdersScreen.route) },
             icon = { Icon(Icons.AutoMirrored.Filled.List, null) },
             label = { Text("Orders") }
         )
 
         NavigationBarItem(
             selected = false,
-            onClick = { navController.navigate("profile") },
+            onClick = { navController.navigate(AppScreens.ProfileScreen.route) },
             icon = { Icon(Icons.Default.Person, null) },
             label = { Text("Profile") }
         )
