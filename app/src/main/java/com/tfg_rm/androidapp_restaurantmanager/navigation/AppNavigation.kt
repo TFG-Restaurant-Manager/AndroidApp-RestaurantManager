@@ -65,8 +65,12 @@ fun AppNavigation(
             composable(AppScreens.TableScreen.route) {
                 TableScreen()
             }
-            composable(AppScreens.FoodScreen.route) {
-                FoodScreen()
+            composable(AppScreens.FoodScreen.route) { backStackEntry ->
+                val tableId = backStackEntry.arguments?.getString("tableId")?.toInt() ?: 0
+                FoodScreen(
+                    tableId = tableId,
+                    navController = navController
+                )
             }
         }
     }
@@ -84,7 +88,7 @@ fun BottomBar(navController: NavController) {
 
         NavigationBarItem(
             selected = false,
-            onClick = { navController.navigate(AppScreens.FoodScreen.route) },
+            onClick = { navController.navigate(AppScreens.FoodScreen.createRoute(1)) },
             icon = { Icon(Icons.AutoMirrored.Filled.List, null) },
             label = { Text("Orders") }
         )

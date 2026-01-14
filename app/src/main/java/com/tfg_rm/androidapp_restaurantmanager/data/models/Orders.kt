@@ -8,5 +8,5 @@ data class Orders (
     val status: String,
     val total: Double,
     val createdAt: LocalDate,
-    val orderDishes: List<OrderItems>
+    val orderDishes: MutableList<OrderItems>
 )

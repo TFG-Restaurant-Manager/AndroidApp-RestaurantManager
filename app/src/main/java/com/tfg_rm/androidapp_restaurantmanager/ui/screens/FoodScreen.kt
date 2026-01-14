@@ -40,20 +40,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.tfg_rm.androidapp_restaurantmanager.controller.FoodController
 import com.tfg_rm.androidapp_restaurantmanager.data.models.Dishes
 import com.tfg_rm.androidapp_restaurantmanager.data.models.Orders
-import com.tfg_rm.androidapp_restaurantmanager.data.models.OrdersStatus
 import com.tfg_rm.androidapp_restaurantmanager.data.models.Tables
 import java.time.LocalDate
 import java.util.Locale
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
-fun FoodScreen () {
-    val tableExample : Tables = Tables(3, 4, 1,
-        10, 10, true)
+fun FoodScreenPreview() {
+    FoodScreen(
+        tableId = 1,
+        navController = rememberNavController()
+    )
+}
+@Composable
+fun FoodScreen (
+    tableId: Int,
+    navController: NavHostController,
+    controller: FoodController = FoodController()
+) {
     val dishesExamples : List<Dishes> = listOf(
         Dishes(1, "Puré de patata", "Patatas cocidas con varios condimentos", "Principales", 8.5, true),
         Dishes(2, "Ensalada César", "Lechuga romana con pollo, crutones y salsa césar", "Entrantes", 7.5, true),
@@ -76,7 +86,7 @@ fun FoodScreen () {
     val orderExample = remember { mutableStateOf(
         Orders(
             1,
-            tableExample.id,
+            tableId,
             "Creado",
             0.toDouble(),
             LocalDate.now(),
@@ -86,7 +96,7 @@ fun FoodScreen () {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        TopTableBar("Mesa ${tableExample.id}")
+        TopTableBar("Mesa $tableId", navController)
 
         var searchedDishe by remember { mutableStateOf("") }
 
@@ -110,19 +120,20 @@ fun FoodScreen () {
         DishesList(dishesExamples,
             searchedDishe,
             selectedCategory,
+            controller,
             orderExample)
     }
 }
 
 @Composable
-fun TopTableBar (tableName: String) {
+fun TopTableBar (tableName: String, navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
     ) {
         IconButton (
-            onClick = {},
+            onClick = { navController.popBackStack() },
             modifier = Modifier.align(Alignment.CenterStart)
         ) {
             Icon(
@@ -178,18 +189,10 @@ fun DishesList (
     dishes: List<Dishes>,
     searchedDishe: String,
     selectedCategory: String,
+    controller: FoodController,
     order: MutableState<Orders>
 ) {
-    val filteredDishes = dishes.filter { dish ->
-        val matchesCategory =
-            selectedCategory == "Todo" || dish.category == selectedCategory
-
-        val matchesSearch =
-            searchedDishe.isBlank() ||
-                    dish.name.contains(searchedDishe, ignoreCase = true)
-
-        matchesCategory && matchesSearch
-    }
+    val filteredDishes = controller.filterDishes(dishes, searchedDishe, selectedCategory)
 
     LazyColumn(
         modifier = Modifier.fillMaxWidth()
@@ -219,23 +222,26 @@ fun DishesList (
                                 color = Color(0xFFF59E0B))
 
                         }
-                        if (!(order.value.orderDishes.map { it.dishId }.contains(dish.id)
-                                    && order.value.orderDishes.fil)) {
+                        if (order.value.orderDishes.map { it.dishId }
+                            .contains(dish.id)
+                            && order.value.orderDishes.first {
+                            it.dishId == dish.id
+                            }.quantity > 0) {
                             Row (
                                 verticalAlignment = Alignment.CenterVertically
                             ){
                                 IconButton(
-                                    onClick = {orderDishes.replace(dish.id,
-                                        orderDishes[dish.id]?.minus(1) ?: 1
-                                    )}
+                                    onClick = {
+                                        controller.minusDishOnOrder(order, dish)
+                                    }
                                 ) {
                                     Text("-")
                                 }
-                                Text("${orderDishes[dish.id]}")
+                                Text("${order.value.orderDishes[dish.id]}")
                                 IconButton(
-                                    onClick = {orderDishes.replace(dish.id,
-                                        orderDishes[dish.id]?.plus(1) ?: 1
-                                    )}
+                                    onClick = {
+                                        controller.plusDishOnOrder(order, dish)
+                                    }
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Add,
@@ -247,7 +253,9 @@ fun DishesList (
                             }
                         } else {
                             Button(
-                                onClick = { orderDishes[dish.id] = 1 },
+                                onClick = {
+                                    controller.addDishToOrder(order, dish)
+                                },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(0xFFF59E0B)
                                 ),
@@ -264,7 +272,11 @@ fun DishesList (
                             }
                         }
                     }
-                    if (!(orderDishes.keys.contains(dish.id) && orderDishes[dish.id]!! > 0)) {
+                    if (order.value.orderDishes.map { it.dishId }
+                            .contains(dish.id)
+                                && order.value.orderDishes.first {
+                            it.dishId == dish.id
+                        }.quantity > 0) {
                         HorizontalDivider(
                             thickness = 1.dp,
                             modifier = Modifier.fillMaxWidth()
@@ -276,7 +288,9 @@ fun DishesList (
                             ),
                             shape = RoundedCornerShape(6.dp),
                             border = BorderStroke(1.dp, Color.LightGray),
-                            onClick = {}
+                            onClick = {
+                                //Abrir notas del pedido
+                            }
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
