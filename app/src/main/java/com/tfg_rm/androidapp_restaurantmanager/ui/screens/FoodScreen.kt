@@ -23,7 +23,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -32,8 +31,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,7 +42,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tfg_rm.androidapp_restaurantmanager.data.models.Dishes
+import com.tfg_rm.androidapp_restaurantmanager.data.models.Orders
+import com.tfg_rm.androidapp_restaurantmanager.data.models.OrdersStatus
 import com.tfg_rm.androidapp_restaurantmanager.data.models.Tables
+import java.time.LocalDate
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,7 +73,16 @@ fun FoodScreen () {
     val dishesCategories = dishesExamples.map { it.category }
         .distinct().let { listOf("Todo") + it }
     var selectedCategory by remember { mutableStateOf(dishesCategories[0]) }
-    val orderDishes = remember { mutableStateMapOf<Int, Int>() }
+    val orderExample = remember { mutableStateOf(
+        Orders(
+            1,
+            tableExample.id,
+            "Creado",
+            0.toDouble(),
+            LocalDate.now(),
+            mutableListOf()
+        ))
+    }
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -99,7 +110,7 @@ fun FoodScreen () {
         DishesList(dishesExamples,
             searchedDishe,
             selectedCategory,
-            orderDishes)
+            orderExample)
     }
 }
 
@@ -163,10 +174,12 @@ fun CategorySelector(
 }
 
 @Composable
-fun DishesList (dishes : List<Dishes>,
-                searchedDishe : String,
-                selectedCategory: String,
-                orderDishes: MutableMap<Int, Int>) {
+fun DishesList (
+    dishes: List<Dishes>,
+    searchedDishe: String,
+    selectedCategory: String,
+    order: MutableState<Orders>
+) {
     val filteredDishes = dishes.filter { dish ->
         val matchesCategory =
             selectedCategory == "Todo" || dish.category == selectedCategory
@@ -189,64 +202,91 @@ fun DishesList (dishes : List<Dishes>,
                 ),
                 border = BorderStroke(1.dp, Color.LightGray)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Column (
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Column(
-
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(dish.name)
-                        Text(String.format(Locale.getDefault(), "%.2f €", dish.price),
-                            color = Color(0xFFF59E0B))
+                        Column(
 
-                    }
-                    if (orderDishes.keys.contains(dish.id) && orderDishes[dish.id]!! > 0) {
-                        Row (
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            IconButton(
-                                onClick = {orderDishes.replace(dish.id,
-                                    orderDishes[dish.id]?.minus(1) ?: 1
-                                )}
-                            ) {
-                                Text("-")
+                        ) {
+                            Text(dish.name)
+                            Text(String.format(Locale.getDefault(), "%.2f €", dish.price),
+                                color = Color(0xFFF59E0B))
+
+                        }
+                        if (!(order.value.orderDishes.map { it.dishId }.contains(dish.id)
+                                    && order.value.orderDishes.fil)) {
+                            Row (
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                IconButton(
+                                    onClick = {orderDishes.replace(dish.id,
+                                        orderDishes[dish.id]?.minus(1) ?: 1
+                                    )}
+                                ) {
+                                    Text("-")
+                                }
+                                Text("${orderDishes[dish.id]}")
+                                IconButton(
+                                    onClick = {orderDishes.replace(dish.id,
+                                        orderDishes[dish.id]?.plus(1) ?: 1
+                                    )}
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Add product ${dish.name} to the order",
+                                        tint = Color.Black,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                }
                             }
-                            Text("${orderDishes[dish.id]}")
-                            IconButton(
-                                onClick = {orderDishes.replace(dish.id,
-                                    orderDishes[dish.id]?.plus(1) ?: 1
-                                )}
+                        } else {
+                            Button(
+                                onClick = { orderDishes[dish.id] = 1 },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFF59E0B)
+                                ),
+                                shape = RoundedCornerShape(6.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
                                     contentDescription = "Add product ${dish.name} to the order",
-                                    tint = Color.Black,
+                                    tint = Color.White,
                                     modifier = Modifier.size(14.dp)
                                 )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Agregar")
                             }
                         }
+                    }
+                    if (!(orderDishes.keys.contains(dish.id) && orderDishes[dish.id]!! > 0)) {
                         HorizontalDivider(
                             thickness = 1.dp,
-                            color = Color.LightGray)
-                    }else {
+                            modifier = Modifier.fillMaxWidth()
+                        )
                         Button(
-                            onClick = { orderDishes[dish.id] = 1 },
+                            modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFF59E0B)
+                                containerColor = Color.White
                             ),
-                            shape = RoundedCornerShape(6.dp)
+                            shape = RoundedCornerShape(6.dp),
+                            border = BorderStroke(1.dp, Color.LightGray),
+                            onClick = {}
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = "Add product ${dish.name} to the order",
-                                tint = Color.White,
+                                tint = Color.DarkGray,
                                 modifier = Modifier.size(14.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Agregar")
+                            Text("Agregar observaciones",
+                                color = Color.DarkGray)
                         }
                     }
                 }
