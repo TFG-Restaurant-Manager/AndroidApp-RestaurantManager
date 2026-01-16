@@ -63,7 +63,7 @@ fun AppNavigation(
                 ProfileScreen(navController)
             }
             composable(AppScreens.TableScreen.route) {
-                TableScreen()
+                TableScreen(navController)
             }
             composable(AppScreens.FoodScreen.route) { backStackEntry ->
                 val tableId = backStackEntry.arguments?.getString("tableId")?.toInt() ?: 0

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.DropdownMenu
@@ -34,12 +35,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.tfg_rm.androidapp_restaurantmanager.controller.TableController
 import com.tfg_rm.androidapp_restaurantmanager.data.models.Tables
 import com.tfg_rm.androidapp_restaurantmanager.ui.models.TableInfoUi
 
 @Preview(showBackground = true)
 @Composable
-fun TableScreen() {
+fun TableScreenPreview() {
+    TableScreen(
+        navController = rememberNavController()
+    )
+}
+
+@Composable
+fun TableScreen(
+    navController: NavController,
+    controller: TableController = TableController()
+) {
     val actualSection = remember { mutableIntStateOf(2) }
     val sectionsList = listOf("Seccion 1", "Seccion 2")
     //val cards = viewModel.getTableInfo(actualSection)
@@ -67,6 +81,20 @@ fun TableScreen() {
                         .aspectRatio(1f)
                 )
             }
+        }
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                controller.goToFood(
+                    navController,
+                    1 /*Example value, in a future it will need to be
+                    attached to a real id from a list of table items
+                    */
+                )
+            }
+        ) {
+            Text("Example button of navigation to food screen")
         }
     }
 }

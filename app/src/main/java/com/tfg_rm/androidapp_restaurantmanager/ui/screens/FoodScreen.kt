@@ -1,6 +1,7 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -24,12 +26,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -40,14 +42,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.tfg_rm.androidapp_restaurantmanager.controller.FoodController
 import com.tfg_rm.androidapp_restaurantmanager.data.models.Dishes
+import com.tfg_rm.androidapp_restaurantmanager.data.models.OrderItems
 import com.tfg_rm.androidapp_restaurantmanager.data.models.Orders
-import com.tfg_rm.androidapp_restaurantmanager.data.models.Tables
 import java.time.LocalDate
 import java.util.Locale
 @Preview(showBackground = true)
@@ -64,39 +65,16 @@ fun FoodScreen (
     navController: NavHostController,
     controller: FoodController = FoodController()
 ) {
-    val dishesExamples : List<Dishes> = listOf(
-        Dishes(1, "Puré de patata", "Patatas cocidas con varios condimentos", "Principales", 8.5, true),
-        Dishes(2, "Ensalada César", "Lechuga romana con pollo, crutones y salsa césar", "Entrantes", 7.5, true),
-        Dishes(3, "Croquetas caseras", "Croquetas cremosas de jamón", "Entrantes", 6.0, true),
-        Dishes(4, "Carpaccio de ternera", "Finas láminas de ternera con parmesano y aceite de oliva", "Entrantes", 9.0, true),
-        Dishes(5, "Solomillo al Roquefort", "Solomillo de ternera con salsa de queso Roquefort", "Principales", 18.5, true),
-        Dishes(6, "Lubina a la sal", "Lubina horneada con costra de sal", "Principales", 17.0, true),
-        Dishes(7, "Paella valenciana", "Paella tradicional de pollo y verduras", "Principales", 15.0, true),
-        Dishes(8, "Risotto de setas", "Arroz cremoso con setas y parmesano", "Principales", 14.0, true),
-        Dishes(9, "Tarta de queso", "Tarta cremosa de queso al horno", "Postres", 5.5, true),
-        Dishes(10, "Tiramisú", "Postre italiano con café y cacao", "Postres", 6.0, true),
-        Dishes(11, "Coulant de chocolate", "Bizcocho de chocolate con corazón fundente", "Postres", 6.5, true),
-        Dishes(12, "Agua mineral", "Botella de agua mineral", "Bebidas", 2.0, true),
-        Dishes(13, "Vino tinto crianza", "Copa de vino tinto crianza", "Bebidas", 4.5, true),
-        Dishes(14, "Cerveza", "Cerveza fría", "Bebidas", 3.0, true)
-    )
-    val dishesCategories = dishesExamples.map { it.category }
+    val dishes : List<Dishes> = controller.getDishes()
+    val dishesCategories = dishes.map { it.category }
         .distinct().let { listOf("Todo") + it }
     var selectedCategory by remember { mutableStateOf(dishesCategories[0]) }
-    val orderExample = remember { mutableStateOf(
-        Orders(
-            1,
-            tableId,
-            "Creado",
-            0.toDouble(),
-            LocalDate.now(),
-            mutableListOf()
-        ))
-    }
+    val order = remember { mutableStateOf(controller.getOrder(tableId)) }
+
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        TopTableBar("Mesa $tableId", navController)
+        TopTableBar("Mesa $tableId", navController, controller)
 
         var searchedDishe by remember { mutableStateOf("") }
 
@@ -117,23 +95,23 @@ fun FoodScreen (
             onCategorySelected = {selectedCategory = it}
             )
 
-        DishesList(dishesExamples,
+        DishesList(dishes,
             searchedDishe,
             selectedCategory,
             controller,
-            orderExample)
+            order)
     }
 }
 
 @Composable
-fun TopTableBar (tableName: String, navController: NavHostController) {
+fun TopTableBar (tableName: String, navController: NavHostController, controller: FoodController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
     ) {
         IconButton (
-            onClick = { navController.popBackStack() },
+            onClick = { controller.backToTables(navController) },
             modifier = Modifier.align(Alignment.CenterStart)
         ) {
             Icon(
@@ -198,6 +176,7 @@ fun DishesList (
         modifier = Modifier.fillMaxWidth()
     ) {
         items( filteredDishes ) { dish ->
+            val notesOpen = remember { mutableStateOf(false) }
             Card(
                 modifier = Modifier.padding(12.dp).fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -226,7 +205,7 @@ fun DishesList (
                             .contains(dish.id)
                             && order.value.orderDishes.first {
                             it.dishId == dish.id
-                            }.quantity > 0) {
+                            }.quantity.value > 0) {
                             Row (
                                 verticalAlignment = Alignment.CenterVertically
                             ){
@@ -237,7 +216,8 @@ fun DishesList (
                                 ) {
                                     Text("-")
                                 }
-                                Text("${order.value.orderDishes[dish.id]}")
+                                Text("${order.value.orderDishes
+                                    .first { it.dishId == dish.id }.quantity.value}")
                                 IconButton(
                                     onClick = {
                                         controller.plusDishOnOrder(order, dish)
@@ -276,31 +256,103 @@ fun DishesList (
                             .contains(dish.id)
                                 && order.value.orderDishes.first {
                             it.dishId == dish.id
-                        }.quantity > 0) {
+                        }.quantity.value > 0) {
                         HorizontalDivider(
                             thickness = 1.dp,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White
-                            ),
-                            shape = RoundedCornerShape(6.dp),
-                            border = BorderStroke(1.dp, Color.LightGray),
-                            onClick = {
-                                //Abrir notas del pedido
+                        if (!notesOpen.value) {
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.White
+                                ),
+                                shape = RoundedCornerShape(6.dp),
+                                border = BorderStroke(1.dp, Color.LightGray),
+                                onClick = {
+                                    notesOpen.value = true
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Add product ${dish.name} to the order",
+                                    tint = Color.DarkGray,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Agregar observaciones",
+                                    color = Color.DarkGray)
                             }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Add product ${dish.name} to the order",
-                                tint = Color.DarkGray,
-                                modifier = Modifier.size(14.dp)
+                        } else {
+                            BasicTextField(
+                                value = order.value.orderDishes.first {
+                                    it.dishId == dish.id
+                                }.notes.value,
+                                onValueChange = { newValue ->
+                                    order.value.orderDishes.first {
+                                        it.dishId == dish.id
+                                    }.notes.value = newValue
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                singleLine = false,
+                                decorationBox = { innerTextField ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
+                                            .padding(12.dp)
+                                    ) {
+                                        if (order.value.orderDishes.first {
+                                                it.dishId == dish.id
+                                            }.notes.value.isEmpty()
+                                        ) {
+                                            Text(
+                                                text = "Observaciones (sin cebolla, sin sal, alergias, etc.)",
+                                                color = Color.Gray
+                                            )
+                                        }
+                                        innerTextField()
+                                    }
+                                }
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Agregar observaciones",
-                                color = Color.DarkGray)
+
+                            Row (
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Button(
+                                    onClick = {
+                                        notesOpen.value = false
+                                    },
+                                    modifier = Modifier.weight(0.7f),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF10B981),
+                                        contentColor = Color.White
+                                    ),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text("Guardar")
+                                }
+
+                                Button(
+                                    onClick = {
+                                        notesOpen.value = false
+                                        order.value.orderDishes.first {
+                                            it.dishId == dish.id
+                                        }.notes.value = ""
+                                    },
+                                    modifier = Modifier.weight(0.3f),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.White,
+                                        contentColor = Color.DarkGray
+                                    ),
+                                    shape = RoundedCornerShape(6.dp),
+                                    border = BorderStroke(1.dp, Color.LightGray)
+                                ) {
+                                    Text("Cancelar")
+                                }
+                            }
                         }
                     }
                 }
