@@ -72,14 +72,15 @@ class FoodController {
             val listOrderItemsIds = order.value.orderDishes.map { it.id }
             order.value.orderDishes.add(
                 OrderItems(
-                    (1..if (listOrderItemsIds.isEmpty()) 1 else listOrderItemsIds.max())
+                    id = (1..if (listOrderItemsIds.isEmpty()) 1 else listOrderItemsIds.max())
                         .firstOrNull { it !in listOrderItemsIds }
                         ?: ((listOrderItemsIds.maxOrNull() ?: 0) + 1),
-                    dish.id,
+                    dishId = dish.id,
                     quantity = mutableIntStateOf(1),
-                    mutableStateOf("")
+                    notes = mutableStateOf("")
                 )
             )
+            order.value.total += dish.price
         }
     }
 
@@ -87,6 +88,7 @@ class FoodController {
         if (order.value.orderDishes.map { it.dishId }.contains(dish.id)) {
             order.value.orderDishes.first { it.dishId == dish.id }
                 .let { it.quantity.value++ }
+            order.value.total += dish.price
         }
     }
 
@@ -94,6 +96,7 @@ class FoodController {
         if (order.value.orderDishes.map { it.dishId }.contains(dish.id)) {
             val orderDishLocation = order.value.orderDishes.first { it.dishId == dish.id }
             orderDishLocation.let { it.quantity.value-- }
+            order.value.total -= dish.price
             if (orderDishLocation.quantity.value == 0) {
                 order.value.orderDishes.remove(orderDishLocation)
             }
@@ -111,6 +114,14 @@ class FoodController {
     fun getDishQuantityInOrder (order: MutableState<Orders>, dishId: Int): Int {
         return order.value.orderDishes
             .first { it.dishId == dishId }.quantity.value
+    }
+
+    fun getOrderDishesQuantity (order: MutableState<Orders>): Int {
+        return order.value.orderDishes.map { it.quantity }.sumOf { it.value }
+    }
+
+    fun getOrderTotalAmount (order: MutableState<Orders>): Double {
+        return order.value.total
     }
 
     fun backToTables (navController: NavController) {

@@ -30,6 +30,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -65,41 +67,92 @@ fun FoodScreen (
     var selectedCategory by remember { mutableStateOf(dishesCategories[0]) }
     val order = remember { mutableStateOf(controller.getOrder(tableId)) }
 
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        TopTableBar("Mesa $tableId", onBack = { controller.backToTables(navController) })
-
-        var searchedDish by remember { mutableStateOf("") }
-
-        OutlinedTextField(
-            value = searchedDish,
-            onValueChange = { searchedDish = it },
-            placeholder = { Text("Buscar producto...") },
-            leadingIcon = {
-                Icon(Icons.Default.Search, contentDescription = null)
-            },
-            singleLine = true,
-            shape = RoundedCornerShape(50),
+    Scaffold(
+        bottomBar = {
+            if (controller.getOrderDishesQuantity(order) > 0) {
+                BottomTableBar(
+                    getOrderDishesQuantity = { controller.getOrderDishesQuantity(order) },
+                    getOrderTotalAmount = { controller.getOrderTotalAmount(order) }
+                )
+            }
+        }
+    ) {paddingValues ->
+        Column(
             modifier = Modifier
-                .padding(horizontal = 10.dp)
                 .fillMaxWidth()
-        )
-        Spacer(Modifier.padding(5.dp))
-        CategorySelector(dishesCategories,
-            selectedCategory,
-            onCategorySelected = {selectedCategory = it}
+                .padding(paddingValues)
+        ) {
+            TopTableBar("Mesa $tableId", onBack = { controller.backToTables(navController) })
+
+            var searchedDish by remember { mutableStateOf("") }
+
+            OutlinedTextField(
+                value = searchedDish,
+                onValueChange = { searchedDish = it },
+                placeholder = { Text("Buscar producto...") },
+                leadingIcon = {
+                    Icon(Icons.Default.Search, contentDescription = null)
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(50),
+                modifier = Modifier
+                    .padding(horizontal = 10.dp)
+                    .fillMaxWidth()
+            )
+            Spacer(Modifier.padding(5.dp))
+            CategorySelector(dishesCategories,
+                selectedCategory,
+                onCategorySelected = {selectedCategory = it}
             )
 
-        DishesList(controller.filterDishes(dishes, searchedDish, selectedCategory),
-            onAddDish = {dishId -> controller.addDishToOrder(order, dishId)},
-            onPlusDish = {dishId -> controller.plusDishOnOrder(order, dishId)},
-            onMinusDish = {dishId -> controller.minusDishOnOrder(order, dishId)},
-            isDishInOrder = {dishId -> controller.isDishInOrder(order, dishId)},
-            getDishQuantityInOrder = {dishId-> controller.getDishQuantityInOrder(order, dishId)},
-            getNotes = {dishId -> controller.getNotes(dishId, order)},
-            isNoteEmpty = {dishId -> controller.isNoteEmpty(dishId, order)},
-            onUpdateNote = {dishId, newNote -> controller.updateNotes(dishId,newNote, order)})
+            DishesList(controller.filterDishes(dishes, searchedDish, selectedCategory),
+                onAddDish = {dishId -> controller.addDishToOrder(order, dishId)},
+                onPlusDish = {dishId -> controller.plusDishOnOrder(order, dishId)},
+                onMinusDish = {dishId -> controller.minusDishOnOrder(order, dishId)},
+                isDishInOrder = {dishId -> controller.isDishInOrder(order, dishId)},
+                getDishQuantityInOrder = {dishId-> controller.getDishQuantityInOrder(order, dishId)},
+                getNotes = {dishId -> controller.getNotes(dishId, order)},
+                isNoteEmpty = {dishId -> controller.isNoteEmpty(dishId, order)},
+                onUpdateNote = {dishId, newNote -> controller.updateNotes(dishId,newNote, order)})
+        }
+    }
+}
+
+@Composable
+fun BottomTableBar (
+    getOrderDishesQuantity: () -> Int,
+    getOrderTotalAmount: () -> Double
+) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        shape = RectangleShape,
+        border = BorderStroke(1.dp, Color.LightGray)
+    ) {
+        Column (
+            modifier = Modifier.padding(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("${getOrderDishesQuantity()} productos")
+                Text("${getOrderTotalAmount()} €")
+            }
+            Button(
+                onClick = {},
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF10B981),
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(6.dp)
+            ) {
+                Text("Enviar pedido a cocina")
+            }
+        }
     }
 }
 
@@ -151,7 +204,10 @@ fun CategorySelector(
                     contentColor = if (selectedCategory == category) Color.White else Color.DarkGray
                 ),
                 shape = RoundedCornerShape(6.dp),
-                border = if (selectedCategory != category) BorderStroke(1.dp, Color.LightGray) else null
+                border = if (selectedCategory != category) BorderStroke(1.dp, Color.LightGray) else null,
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 6.dp
+                )
             ) {
                 Text(category)
             }
@@ -188,7 +244,10 @@ fun DishesList (
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
                 ),
-                border = BorderStroke(1.dp, Color.LightGray)
+                border = BorderStroke(1.dp, Color.LightGray),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 3.dp
+                )
             ) {
                 Column (
                     modifier = Modifier

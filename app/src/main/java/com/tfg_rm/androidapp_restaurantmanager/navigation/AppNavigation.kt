@@ -88,7 +88,7 @@ fun BottomBar(navController: NavController) {
 
         NavigationBarItem(
             selected = false,
-            onClick = { navController.navigate(AppScreens.FoodScreen.createRoute(1)) },
+            onClick = { navController.navigate(AppScreens.TableScreen.route) },
             icon = { Icon(Icons.AutoMirrored.Filled.List, null) },
             label = { Text("Orders") }
         )

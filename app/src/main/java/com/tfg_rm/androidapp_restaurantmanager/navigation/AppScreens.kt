@@ -22,8 +22,7 @@ sealed class AppScreens (val route : String){
         fun allBottomBarScreens(): List<String> {
             return listOf(
                 ProfileScreen.route,
-                TableScreen.route,
-                FoodScreen.route)
+                TableScreen.route)
         }
     }
 }

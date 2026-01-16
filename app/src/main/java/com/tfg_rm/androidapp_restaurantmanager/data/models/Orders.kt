@@ -8,7 +8,7 @@ data class Orders (
     val id : Int,
     val tableId: Int,
     val status: String,
-    val total: Double,
+    var total: Double,
     val createdAt: LocalDateTime,
     val orderDishes: SnapshotStateList<OrderItems>
 )
