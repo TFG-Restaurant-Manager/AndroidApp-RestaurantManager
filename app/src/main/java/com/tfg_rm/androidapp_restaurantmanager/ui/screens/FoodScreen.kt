@@ -31,9 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,9 +45,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.tfg_rm.androidapp_restaurantmanager.controller.FoodController
 import com.tfg_rm.androidapp_restaurantmanager.data.models.Dishes
-import com.tfg_rm.androidapp_restaurantmanager.data.models.OrderItems
-import com.tfg_rm.androidapp_restaurantmanager.data.models.Orders
-import java.time.LocalDate
 import java.util.Locale
 @Preview(showBackground = true)
 @Composable
@@ -66,28 +61,29 @@ fun FoodScreen (
     controller: FoodController = FoodController()
 ) {
     val dishes : List<Dishes> = controller.getDishes()
-    val dishesCategories = dishes.map { it.category }
-        .distinct().let { listOf("Todo") + it }
+    val dishesCategories: List<String> = controller.getDishesCategories(dishes)
     var selectedCategory by remember { mutableStateOf(dishesCategories[0]) }
     val order = remember { mutableStateOf(controller.getOrder(tableId)) }
 
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        TopTableBar("Mesa $tableId", navController, controller)
+        TopTableBar("Mesa $tableId", onBack = { controller.backToTables(navController) })
 
-        var searchedDishe by remember { mutableStateOf("") }
+        var searchedDish by remember { mutableStateOf("") }
 
         OutlinedTextField(
-            value = searchedDishe,
-            onValueChange = { searchedDishe = it },
+            value = searchedDish,
+            onValueChange = { searchedDish = it },
             placeholder = { Text("Buscar producto...") },
             leadingIcon = {
                 Icon(Icons.Default.Search, contentDescription = null)
             },
             singleLine = true,
             shape = RoundedCornerShape(50),
-            modifier = Modifier.padding(horizontal = 10.dp).fillMaxWidth()
+            modifier = Modifier
+                .padding(horizontal = 10.dp)
+                .fillMaxWidth()
         )
         Spacer(Modifier.padding(5.dp))
         CategorySelector(dishesCategories,
@@ -95,23 +91,27 @@ fun FoodScreen (
             onCategorySelected = {selectedCategory = it}
             )
 
-        DishesList(dishes,
-            searchedDishe,
-            selectedCategory,
-            controller,
-            order)
+        DishesList(controller.filterDishes(dishes, searchedDish, selectedCategory),
+            onAddDish = {dishId -> controller.addDishToOrder(order, dishId)},
+            onPlusDish = {dishId -> controller.plusDishOnOrder(order, dishId)},
+            onMinusDish = {dishId -> controller.minusDishOnOrder(order, dishId)},
+            isDishInOrder = {dishId -> controller.isDishInOrder(order, dishId)},
+            getDishQuantityInOrder = {dishId-> controller.getDishQuantityInOrder(order, dishId)},
+            getNotes = {dishId -> controller.getNotes(dishId, order)},
+            isNoteEmpty = {dishId -> controller.isNoteEmpty(dishId, order)},
+            onUpdateNote = {dishId, newNote -> controller.updateNotes(dishId,newNote, order)})
     }
 }
 
 @Composable
-fun TopTableBar (tableName: String, navController: NavHostController, controller: FoodController) {
+fun TopTableBar (tableName: String,onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
     ) {
         IconButton (
-            onClick = { controller.backToTables(navController) },
+            onClick = { onBack() },
             modifier = Modifier.align(Alignment.CenterStart)
         ) {
             Icon(
@@ -137,7 +137,9 @@ fun CategorySelector(
         color = Color.LightGray
     )
     LazyRow(
-        modifier = Modifier.padding(vertical = 7.dp).fillMaxWidth(),
+        modifier = Modifier
+            .padding(vertical = 7.dp)
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         contentPadding = PaddingValues(horizontal = 14.dp)
     ) {
@@ -165,27 +167,33 @@ fun CategorySelector(
 @Composable
 fun DishesList (
     dishes: List<Dishes>,
-    searchedDishe: String,
-    selectedCategory: String,
-    controller: FoodController,
-    order: MutableState<Orders>
+    onAddDish: (dish: Dishes) -> Unit,
+    onPlusDish: (dish: Dishes) -> Unit,
+    onMinusDish: (dish: Dishes) -> Unit,
+    isDishInOrder: (dishId: Int) -> Boolean,
+    getDishQuantityInOrder: (dishId: Int) -> Int,
+    getNotes: (dishId: Int) -> String,
+    isNoteEmpty: (dishId: Int) -> Boolean,
+    onUpdateNote: (dishId: Int, newNote: String) -> Unit
 ) {
-    val filteredDishes = controller.filterDishes(dishes, searchedDishe, selectedCategory)
-
     LazyColumn(
         modifier = Modifier.fillMaxWidth()
     ) {
-        items( filteredDishes ) { dish ->
+        items( dishes ) { dish ->
             val notesOpen = remember { mutableStateOf(false) }
             Card(
-                modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(12.dp)
+                    .fillMaxWidth(),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
                 ),
                 border = BorderStroke(1.dp, Color.LightGray)
             ) {
                 Column (
-                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Row(
@@ -201,26 +209,21 @@ fun DishesList (
                                 color = Color(0xFFF59E0B))
 
                         }
-                        if (order.value.orderDishes.map { it.dishId }
-                            .contains(dish.id)
-                            && order.value.orderDishes.first {
-                            it.dishId == dish.id
-                            }.quantity.value > 0) {
+                        if (isDishInOrder(dish.id)) {
                             Row (
                                 verticalAlignment = Alignment.CenterVertically
                             ){
                                 IconButton(
                                     onClick = {
-                                        controller.minusDishOnOrder(order, dish)
+                                        onMinusDish(dish)
                                     }
                                 ) {
                                     Text("-")
                                 }
-                                Text("${order.value.orderDishes
-                                    .first { it.dishId == dish.id }.quantity.value}")
+                                Text("${getDishQuantityInOrder(dish.id)}")
                                 IconButton(
                                     onClick = {
-                                        controller.plusDishOnOrder(order, dish)
+                                        onPlusDish(dish)
                                     }
                                 ) {
                                     Icon(
@@ -234,7 +237,7 @@ fun DishesList (
                         } else {
                             Button(
                                 onClick = {
-                                    controller.addDishToOrder(order, dish)
+                                    onAddDish(dish)
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(0xFFF59E0B)
@@ -252,11 +255,7 @@ fun DishesList (
                             }
                         }
                     }
-                    if (order.value.orderDishes.map { it.dishId }
-                            .contains(dish.id)
-                                && order.value.orderDishes.first {
-                            it.dishId == dish.id
-                        }.quantity.value > 0) {
+                    if (isDishInOrder(dish.id)) {
                         HorizontalDivider(
                             thickness = 1.dp,
                             modifier = Modifier.fillMaxWidth()
@@ -285,13 +284,9 @@ fun DishesList (
                             }
                         } else {
                             BasicTextField(
-                                value = order.value.orderDishes.first {
-                                    it.dishId == dish.id
-                                }.notes.value,
+                                value = getNotes(dish.id),
                                 onValueChange = { newValue ->
-                                    order.value.orderDishes.first {
-                                        it.dishId == dish.id
-                                    }.notes.value = newValue
+                                    onUpdateNote(dish.id, newValue)
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth(),
@@ -303,10 +298,7 @@ fun DishesList (
                                             .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
                                             .padding(12.dp)
                                     ) {
-                                        if (order.value.orderDishes.first {
-                                                it.dishId == dish.id
-                                            }.notes.value.isEmpty()
-                                        ) {
+                                        if (isNoteEmpty(dish.id)) {
                                             Text(
                                                 text = "Observaciones (sin cebolla, sin sal, alergias, etc.)",
                                                 color = Color.Gray
@@ -338,9 +330,7 @@ fun DishesList (
                                 Button(
                                     onClick = {
                                         notesOpen.value = false
-                                        order.value.orderDishes.first {
-                                            it.dishId == dish.id
-                                        }.notes.value = ""
+                                        onUpdateNote(dish.id, "")
                                     },
                                     modifier = Modifier.weight(0.3f),
                                     colors = ButtonDefaults.buttonColors(

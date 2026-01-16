@@ -33,6 +33,10 @@ class FoodController {
         )
     }
 
+    fun getDishesCategories (dishes: List<Dishes>): List<String> {
+        return dishes.map { it.category }
+            .distinct().let { listOf("Todo") + it }
+    }
     fun getOrder (tableId: Int): Orders {
         return Orders(
             1, //Example or a order id, i a future it will need to be changed to the real id
@@ -96,11 +100,37 @@ class FoodController {
         }
     }
 
+    fun isDishInOrder (order: MutableState<Orders>, dishId: Int): Boolean {
+        return order.value.orderDishes.map { it.dishId }
+            .contains(dishId)
+                && order.value.orderDishes.first {
+            it.dishId == dishId
+        }.quantity.value > 0
+    }
+
+    fun getDishQuantityInOrder (order: MutableState<Orders>, dishId: Int): Int {
+        return order.value.orderDishes
+            .first { it.dishId == dishId }.quantity.value
+    }
+
     fun backToTables (navController: NavController) {
         navController.popBackStack()
     }
 
-    fun saveOrder () {
+    fun getNotes(dishId: Int, order: MutableState<Orders>): String {
+        return order.value.orderDishes
+            .firstOrNull { it.dishId == dishId }
+            ?.notes?.value
+            ?: ""
+    }
 
+    fun isNoteEmpty (dishId: Int, order: MutableState<Orders>): Boolean {
+        return getNotes(dishId, order).isEmpty()
+    }
+
+    fun updateNotes(dishId: Int, newNote: String, order: MutableState<Orders>) {
+        order.value.orderDishes
+            .firstOrNull { it.dishId == dishId }
+            ?.notes?.value = newNote
     }
 }
