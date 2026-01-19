@@ -68,6 +68,9 @@ fun FoodScreen (
     val order = remember { mutableStateOf(controller.getOrder(tableId)) }
 
     Scaffold(
+        topBar = {
+            TopTableBar("Mesa $tableId", onBack = { controller.backToTables(navController) })
+        },
         bottomBar = {
             if (controller.getOrderDishesQuantity(order) > 0) {
                 BottomTableBar(
@@ -82,8 +85,6 @@ fun FoodScreen (
                 .fillMaxWidth()
                 .padding(paddingValues)
         ) {
-            TopTableBar("Mesa $tableId", onBack = { controller.backToTables(navController) })
-
             var searchedDish by remember { mutableStateOf("") }
 
             OutlinedTextField(
@@ -161,7 +162,6 @@ fun TopTableBar (tableName: String,onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
     ) {
         IconButton (
             onClick = { onBack() },
