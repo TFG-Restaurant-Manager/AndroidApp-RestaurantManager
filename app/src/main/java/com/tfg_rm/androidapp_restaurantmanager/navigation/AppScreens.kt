@@ -9,6 +9,7 @@ package com.tfg_rm.androidapp_restaurantmanager.navigation
  */
 sealed class AppScreens (val route : String){
     object LoginScreen : AppScreens("login_screen")
+    object OrdersScreen: AppScreens("orders_screen")
     object ProfileScreen : AppScreens("profile_screen")
     object TableScreen : AppScreens("table_screen")
     object FoodScreen : AppScreens("food/{tableId}") {
@@ -22,7 +23,10 @@ sealed class AppScreens (val route : String){
         fun allBottomBarScreens(): List<String> {
             return listOf(
                 ProfileScreen.route,
+                // ESTO DABA ERROR EN EL MERGE
                 TableScreen.route)
+                OrdersScreen.route)
+                // ---------------------------
         }
     }
 }

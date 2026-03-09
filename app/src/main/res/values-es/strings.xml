@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AndroidApp-RestaurantManager</string>
+    <string name="ordersTitle">Pedidos Activos</string>
+    <string name="ordersSubtitle">Gestión y seguimiento de pedidos</string>
+    <string name="orderStatusCreated">Creado</string>
+    <string name="orderStatusCooked">En cocina</string>
+    <string name="orderStatusReady">Listo</string>
+    <string name="orderStatusDelivered">Entregado</string>
+    <string name="orderStatusPaid">Pagado</string>
+    <string name="orderStatusError">Error</string>
+    <string name="tableLabel">Mesa %1$d</string>
+    <string name="timeAgo">Hace %1$d minutos</string>
+    <string name="itemQuantityFormat">%1$dx %2$s</string>
+    <string name="currencyFormat">%.2f €</string>
+    <string name="markDelivered">Marcar Entregado</string>
+</resources>
