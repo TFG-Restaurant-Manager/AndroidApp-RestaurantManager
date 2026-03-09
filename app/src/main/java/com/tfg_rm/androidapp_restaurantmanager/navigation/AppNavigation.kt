@@ -20,10 +20,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.tfg_rm.androidapp_restaurantmanager.ui.screens.FoodScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.OrdersScreen
 import com.tfg_rm.androidapp_restaurantmanager.viewmodels.OrdersViewModel
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.ProfileScreen
+import com.tfg_rm.androidapp_restaurantmanager.ui.screens.TableScreen
 
 /**
  * Funcion Composable para mostrar todas las pantallas de la aplicacion
@@ -64,9 +66,21 @@ fun AppNavigation(
             composable(AppScreens.ProfileScreen.route) {
                 ProfileScreen(navController)
             }
+            
+            // ESTO DABA ERROR EN EL MERGE
+            composable(AppScreens.TableScreen.route) {
+                TableScreen(navController)
+            }
+            composable(AppScreens.FoodScreen.route) { backStackEntry ->
+                val tableId = backStackEntry.arguments?.getString("tableId")?.toInt() ?: 0
+                FoodScreen(
+                    tableId = tableId,
+                    navController = navController
+                )
             composable (AppScreens.OrdersScreen.route) {
                 OrdersScreen(orderViewModel)
             }
+            // --------------------------
         }
     }
 }
@@ -76,14 +90,17 @@ fun BottomBar(navController: NavController) {
     NavigationBar {
         NavigationBarItem(
             selected = false,
-            onClick = { navController.navigate("home") },
+            onClick = { navController.navigate(AppScreens.TableScreen.route) },
             icon = { Icon(Icons.Default.Home, null) },
             label = { Text("Home") }
         )
 
         NavigationBarItem(
             selected = false,
+            // ESTO DABA ERROR EN EL MERGE, REVISAR POR QUE 
+            onClick = { navController.navigate(AppScreens.TableScreen.route) },
             onClick = { navController.navigate(AppScreens.OrdersScreen.route) },
+            // --------------------------------------------
             icon = { Icon(Icons.AutoMirrored.Filled.List, null) },
             label = { Text("Orders") }
         )
