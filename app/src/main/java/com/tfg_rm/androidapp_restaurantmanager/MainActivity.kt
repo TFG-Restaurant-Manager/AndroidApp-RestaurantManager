@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.tfg_rm.androidapp_restaurantmanager.navigation.AppNavigation
+import com.tfg_rm.androidapp_restaurantmanager.ui.navigation.AppNavigation
 import com.tfg_rm.androidapp_restaurantmanager.ui.theme.AndroidAppRestaurantManagerTheme
 
 /**

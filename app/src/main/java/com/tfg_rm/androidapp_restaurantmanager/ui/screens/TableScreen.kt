@@ -38,8 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.tfg_rm.androidapp_restaurantmanager.controller.TableController
-import com.tfg_rm.androidapp_restaurantmanager.data.models.Tables
-import com.tfg_rm.androidapp_restaurantmanager.ui.models.TableInfoUi
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.Tables
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.TableInfoUi
 
 @Preview(showBackground = true)
 @Composable

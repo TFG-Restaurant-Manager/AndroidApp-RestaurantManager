@@ -28,12 +28,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.tfg_rm.androidapp_restaurantmanager.R
-import com.tfg_rm.androidapp_restaurantmanager.data.models.Employees
-import com.tfg_rm.androidapp_restaurantmanager.navigation.AppScreens
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.Employees
+import com.tfg_rm.androidapp_restaurantmanager.ui.navigation.AppScreens
 
 /**
  * Funcion Composable para mostrar el apartado de login de la aplicacion

@@ -1,4 +1,4 @@
-package com.tfg_rm.androidapp_restaurantmanager.navigation
+package com.tfg_rm.androidapp_restaurantmanager.ui.navigation
 
 
 /**

@@ -1,4 +1,4 @@
-package com.tfg_rm.androidapp_restaurantmanager.navigation
+package com.tfg_rm.androidapp_restaurantmanager.ui.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -23,7 +23,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.FoodScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.OrdersScreen
-import com.tfg_rm.androidapp_restaurantmanager.viewmodels.OrdersViewModel
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.ProfileScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.TableScreen
 

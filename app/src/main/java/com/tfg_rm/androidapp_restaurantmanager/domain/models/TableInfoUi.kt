@@ -1,4 +1,4 @@
-package com.tfg_rm.androidapp_restaurantmanager.ui.models
+package com.tfg_rm.androidapp_restaurantmanager.domain.models
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,4 +1,4 @@
-package com.tfg_rm.androidapp_restaurantmanager.data.models
+package com.tfg_rm.androidapp_restaurantmanager.data.remote.dto
 
 import java.time.LocalDateTime
 

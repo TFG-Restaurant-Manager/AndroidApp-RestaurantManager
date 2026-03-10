@@ -1,7 +1,6 @@
-package com.tfg_rm.androidapp_restaurantmanager.data.models
+package com.tfg_rm.androidapp_restaurantmanager.data.remote.dto
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class Orders (

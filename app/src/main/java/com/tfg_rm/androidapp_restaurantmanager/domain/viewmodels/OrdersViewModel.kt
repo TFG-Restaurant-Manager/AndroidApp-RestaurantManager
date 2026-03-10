@@ -1,9 +1,9 @@
-package com.tfg_rm.androidapp_restaurantmanager.viewmodels
+package com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels
 
 import androidx.compose.runtime.mutableStateListOf
 import com.tfg_rm.androidapp_restaurantmanager.R
-import com.tfg_rm.androidapp_restaurantmanager.data.models.Order
-import com.tfg_rm.androidapp_restaurantmanager.data.models.OrderItem
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.Order
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderItem
 import java.time.Duration
 import java.time.LocalDateTime
 import androidx.compose.ui.graphics.Color
