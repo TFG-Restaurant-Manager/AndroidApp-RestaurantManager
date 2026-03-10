@@ -62,7 +62,7 @@ fun AppNavigation(
             modifier = Modifier.padding(padding)
         ) {
             composable(AppScreens.LoginScreen.route) {
-                LoginScreen(navController)
+                LoginScreen(navController = navController)
             }
             composable(AppScreens.ProfileScreen.route) {
                 ProfileScreen(navController)

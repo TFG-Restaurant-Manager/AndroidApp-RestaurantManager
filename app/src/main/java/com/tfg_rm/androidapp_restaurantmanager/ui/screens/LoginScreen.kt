@@ -29,14 +29,19 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
 import com.tfg_rm.androidapp_restaurantmanager.ui.navigation.AppScreens
 
 /**
  * Funcion Composable para mostrar el apartado de login de la aplicacion
  */
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(
+    authViewModel: AuthViewModel = hiltViewModel(),
+    navController: NavHostController
+) {
     var dni by remember { mutableStateOf("") }
     Column(
         modifier = Modifier.fillMaxSize().background(brush = Brush.linearGradient(
@@ -97,7 +102,8 @@ fun LoginScreen(navController: NavHostController) {
                 }
                 Button(
                     onClick = {
-                        navController.navigate(AppScreens.ProfileScreen.route)
+                        authViewModel.loadRestaurants(dni, "")
+                        //navController.navigate(AppScreens.ProfileScreen.route)
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
