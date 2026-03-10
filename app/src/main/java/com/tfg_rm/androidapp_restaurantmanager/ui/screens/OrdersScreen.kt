@@ -1,6 +1,7 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.screens
 
 import android.annotation.SuppressLint
+import android.view.View
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,34 +17,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.Order
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderItem
 import com.tfg_rm.androidapp_restaurantmanager.ui.theme.Typography
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
 
-@ExperimentalMaterial3Api
 @Composable
 fun OrdersScreen(ordersViewModel: OrdersViewModel) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                windowInsets = WindowInsets(),
-                title = {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.ordersTitle),
-                            style = Typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = stringResource(R.string.ordersSubtitle),
-                            style = Typography.bodyMedium,
-                            color = Color.Gray
-                        )
-                    }
-                }
-            )
+            Column {
+                Text(
+                    text = stringResource(R.string.ordersTitle),
+                    style = Typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = stringResource(R.string.ordersSubtitle),
+                    style = Typography.bodyMedium,
+                    color = Color.Gray
+                )
+            }
         }
     ) { paddingValues ->
         LazyColumn(
@@ -211,12 +208,9 @@ fun StatusBadge(statusId: Int, viewModel: OrdersViewModel) {
     }
 }
 
-
-
-@SuppressLint("ViewModelConstructorInComposable")
-@ExperimentalMaterial3Api
 @Preview(showBackground = true)
 @Composable
 fun OrdersScreenPreview() {
-    OrdersScreen(OrdersViewModel())
+    val ordersViewModel : OrdersViewModel = viewModel()
+    OrdersScreen(ordersViewModel)
 }

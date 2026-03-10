@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -66,7 +67,7 @@ fun AppNavigation(
             composable(AppScreens.ProfileScreen.route) {
                 ProfileScreen(navController)
             }
-            
+
             // ESTO DABA ERROR EN EL MERGE
             composable(AppScreens.TableScreen.route) {
                 TableScreen(navController)
@@ -77,16 +78,17 @@ fun AppNavigation(
                     tableId = tableId,
                     navController = navController
                 )
-            composable (AppScreens.OrdersScreen.route) {
+            }
+            composable(AppScreens.OrdersScreen.route) {
                 OrdersScreen(orderViewModel)
             }
-            // --------------------------
+
         }
     }
 }
 
 @Composable
-fun BottomBar(navController: NavController) {
+fun BottomBar(navController: NavHostController) {
     NavigationBar {
         NavigationBarItem(
             selected = false,
@@ -97,10 +99,7 @@ fun BottomBar(navController: NavController) {
 
         NavigationBarItem(
             selected = false,
-            // ESTO DABA ERROR EN EL MERGE, REVISAR POR QUE 
-            onClick = { navController.navigate(AppScreens.TableScreen.route) },
             onClick = { navController.navigate(AppScreens.OrdersScreen.route) },
-            // --------------------------------------------
             icon = { Icon(Icons.AutoMirrored.Filled.List, null) },
             label = { Text("Orders") }
         )
