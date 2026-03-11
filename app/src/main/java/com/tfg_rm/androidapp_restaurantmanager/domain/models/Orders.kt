@@ -1,4 +1,4 @@
-package com.tfg_rm.androidapp_restaurantmanager.data.remote.dto
+package com.tfg_rm.androidapp_restaurantmanager.domain.models
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import java.time.LocalDateTime
@@ -9,5 +9,5 @@ data class Orders (
     val status: String,
     var total: Double,
     val createdAt: LocalDateTime,
-    val orderDishes: SnapshotStateList<OrderItems>
+    val orderDishes: MutableList<OrderItems>
 )

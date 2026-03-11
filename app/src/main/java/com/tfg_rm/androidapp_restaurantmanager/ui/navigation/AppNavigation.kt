@@ -19,12 +19,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.FoodScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.OrdersScreen
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.ProfileScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.TableScreen
 
@@ -43,9 +46,10 @@ import com.tfg_rm.androidapp_restaurantmanager.ui.screens.TableScreen
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController(),
-    orderViewModel: OrdersViewModel = viewModel()
+    orderViewModel: OrdersViewModel = viewModel(),
+    tableViewModel: TableViewModel = TableViewModel()
 ) {
-
+    val foodViewModel: FoodViewModel = hiltViewModel()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -62,21 +66,24 @@ fun AppNavigation(
             modifier = Modifier.padding(padding)
         ) {
             composable(AppScreens.LoginScreen.route) {
-                LoginScreen(navController)
+                LoginScreen(
+                    loginSuccess = { navController.navigate(AppScreens.ProfileScreen.route) }
+                )
             }
             composable(AppScreens.ProfileScreen.route) {
-                ProfileScreen(navController)
+                ProfileScreen(
+                    BackToLogin = { navController.navigate(AppScreens.LoginScreen.route) }
+                )
             }
 
-            // ESTO DABA ERROR EN EL MERGE
             composable(AppScreens.TableScreen.route) {
-                TableScreen(navController)
+                TableScreen(goToAddOrders = {navController.navigate(AppScreens.FoodScreen.route)})
             }
-            composable(AppScreens.FoodScreen.route) { backStackEntry ->
-                val tableId = backStackEntry.arguments?.getString("tableId")?.toInt() ?: 0
+            composable(AppScreens.FoodScreen.route) {
                 FoodScreen(
-                    tableId = tableId,
-                    navController = navController
+                    tableViewModel = tableViewModel,
+                    BackToTables = {navController.popBackStack()},
+                    viewModel = foodViewModel
                 )
             }
             composable(AppScreens.OrdersScreen.route) {

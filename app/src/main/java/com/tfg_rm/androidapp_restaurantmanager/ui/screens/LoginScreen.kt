@@ -27,16 +27,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.ui.navigation.AppScreens
 
 /**
  * Funcion Composable para mostrar el apartado de login de la aplicacion
  */
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(
+    loginSuccess: () -> Unit
+) {
     var dni by remember { mutableStateOf("") }
     Column(
         modifier = Modifier.fillMaxSize().background(brush = Brush.linearGradient(
@@ -80,34 +84,34 @@ fun LoginScreen(navController: NavHostController) {
                     )
                 }
                 Text(text = "RestaurantePro", fontSize = 23.sp)
-                Text("Sistema de Gestión de Pedidos", fontSize = 14.sp)
+                Text(stringResource(R.string.loginscreen_subtitle), fontSize = 14.sp)
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text("DNI del Empleado", fontSize = 14.sp)
+                    Text(stringResource(R.string.loginscreen_userquest), fontSize = 14.sp)
                     TextField(
                         value = dni,
                         onValueChange = {
                             dni = it
                         },
-                        placeholder = { Text("Ingrese su DNI") },
+                        placeholder = { Text(stringResource(R.string.loginscreen_placeholder)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
                 Button(
                     onClick = {
-                        navController.navigate(AppScreens.ProfileScreen.route)
+                        loginSuccess()
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFF59E0B)
                     )
                 ) {
-                    Text("Iniciar Sesion")
+                    Text(stringResource(R.string.login))
                 }
                 Text(
-                    "Contacte al administrador si tiene problemas de acceso",
+                    stringResource(R.string.problemhelp),
                     fontSize = 12.sp
                 )
             }

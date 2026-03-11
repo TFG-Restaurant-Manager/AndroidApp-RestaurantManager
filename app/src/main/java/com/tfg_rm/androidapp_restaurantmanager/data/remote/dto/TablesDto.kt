@@ -1,6 +1,6 @@
 package com.tfg_rm.androidapp_restaurantmanager.data.remote.dto
 
-data class Tables(
+data class TablesDto(
     val id : Int,
     val capacity : Int,
     val section : Int,

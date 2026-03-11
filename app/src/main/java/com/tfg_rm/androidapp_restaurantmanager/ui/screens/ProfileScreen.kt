@@ -27,19 +27,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.tfg_rm.androidapp_restaurantmanager.R
-import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.Employees
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.EmployeesDto
 import com.tfg_rm.androidapp_restaurantmanager.ui.navigation.AppScreens
 
 /**
  * Funcion Composable para mostrar el apartado de login de la aplicacion
  */
 @Composable
-fun ProfileScreen(navController: NavHostController) {
-    val empleado = Employees(
+fun ProfileScreen(
+    BackToLogin: () -> Unit
+) {
+    val empleado = EmployeesDto(
         id = 1,
         roleName = "Camarero",
         name = "Adsa",
@@ -68,28 +72,28 @@ fun ProfileScreen(navController: NavHostController) {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 border = BorderStroke(width = 1.dp, color = Color.Red),
-                onClick = {navController.navigate(AppScreens.LoginScreen.route)}
+                onClick = {BackToLogin()}
             ) {
                 Icon(
                     painter = painterResource(R.drawable.log_out_icon),
                     modifier = Modifier.size(16.dp),
-                    contentDescription = "Log Out",
+                    contentDescription = stringResource(R.string.logout),
                     tint = Color.Red
                 )
                 Spacer(modifier = Modifier.width(16.dp))
-                Text(text = "Cerrar sesion", color = Color.Red)
+                Text(text = stringResource(R.string.logout), color = Color.Red)
             }
         }
     }
 }
 
 @Composable
-fun TopBar(empleado : Employees) {
+fun TopBar(empleado : EmployeesDto) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 16.dp)) {
         Text(
-            text = "Mi perfil",
+            text = stringResource(R.string.profilescreen_titleself),
             style = MaterialTheme.typography.titleMedium,
             color = Color.Black,
             fontWeight = FontWeight.Bold
@@ -122,7 +126,7 @@ fun TopBar(empleado : Employees) {
 }
 
 @Composable
-fun PersonalInformation(empleado: Employees) {
+fun PersonalInformation(empleado: EmployeesDto) {
     Card(
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
@@ -135,7 +139,7 @@ fun PersonalInformation(empleado: Employees) {
             .padding(16.dp)
         ) {
             Text(
-                text = "Información Personal",
+                text = stringResource(R.string.profilescreen_personalinformation),
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.Black,
                 fontWeight = FontWeight.Bold
@@ -143,7 +147,7 @@ fun PersonalInformation(empleado: Employees) {
             Spacer(modifier = Modifier.height(12.dp))
 
             // DNI
-            Text(text = "DNI", fontWeight = FontWeight.Medium, color = Color.Gray)
+            Text(text = stringResource(R.string.dni), fontWeight = FontWeight.Medium, color = Color.Gray)
             Text(text = empleado.dni, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -153,15 +157,15 @@ fun PersonalInformation(empleado: Employees) {
             Spacer(modifier = Modifier.height(8.dp))
 
             // Teléfono
-            Text(text = "Teléfono", fontWeight = FontWeight.Medium, color = Color.Gray)
+            Text(text = stringResource(R.string.telephone), fontWeight = FontWeight.Medium, color = Color.Gray)
             Text(text = empleado.numberPhone, fontWeight = FontWeight.SemiBold)
         }
     }
 }
 
 @Composable
-fun ScheduleInformation(empleado: Employees) {
-    val days = listOf("Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabados", "Domingos")
+fun ScheduleInformation(empleado: EmployeesDto) {
+    val days = stringArrayResource(R.array.days_week)
     val pairedList = days.zip(empleado.workSchedules)
 
     Card(
@@ -182,11 +186,11 @@ fun ScheduleInformation(empleado: Employees) {
                 Icon(
                     painter = painterResource(R.drawable.log_out_icon),
                     modifier = Modifier.size(16.dp),
-                    contentDescription = "Horario Semanal",
+                    contentDescription = stringResource(R.string.profilescreen_weeklyschedule),
                 )
                 Spacer(modifier = Modifier.width(2.dp))
                 Text(
-                    text = "Horario Semanal",
+                    text = stringResource(R.string.profilescreen_weeklyschedule),
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.Black,
                     fontWeight = FontWeight.Bold

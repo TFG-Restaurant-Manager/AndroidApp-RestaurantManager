@@ -1,5 +1,4 @@
-package com.tfg_rm.androidapp_restaurantmanager.data.remote.dto
-
+package com.tfg_rm.androidapp_restaurantmanager.domain.models
 import java.time.LocalDateTime
 
 data class Order(
