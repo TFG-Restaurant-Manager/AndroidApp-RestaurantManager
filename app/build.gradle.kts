@@ -58,7 +58,6 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.material.icons.extended)
-    implementation(libs.androidx.compose.runtime.livedata)
     ksp(libs.hilt.android.compiler)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
