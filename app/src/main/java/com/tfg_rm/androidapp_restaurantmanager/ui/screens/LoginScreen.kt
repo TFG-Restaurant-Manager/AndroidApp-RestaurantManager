@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -29,16 +27,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.tfg_rm.androidapp_restaurantmanager.navigation.AppScreens
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
+import com.tfg_rm.androidapp_restaurantmanager.R
+import com.tfg_rm.androidapp_restaurantmanager.ui.navigation.AppScreens
 
 /**
  * Funcion Composable para mostrar el apartado de login de la aplicacion
  */
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(
+    authViewModel: AuthViewModel = hiltViewModel(),
+    loginSuccess: () -> Unit
+) {
     var dni by remember { mutableStateOf("") }
     Column(
         modifier = Modifier.fillMaxSize().background(brush = Brush.linearGradient(
@@ -82,34 +87,35 @@ fun LoginScreen(navController: NavHostController) {
                     )
                 }
                 Text(text = "RestaurantePro", fontSize = 23.sp)
-                Text("Sistema de Gestión de Pedidos", fontSize = 14.sp)
+                Text(stringResource(R.string.loginscreen_subtitle), fontSize = 14.sp)
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text("DNI del Empleado", fontSize = 14.sp)
+                    Text(stringResource(R.string.loginscreen_userquest), fontSize = 14.sp)
                     TextField(
                         value = dni,
                         onValueChange = {
                             dni = it
                         },
-                        placeholder = { Text("Ingrese su DNI") },
+                        placeholder = { Text(stringResource(R.string.loginscreen_placeholder)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
                 Button(
                     onClick = {
-                        navController.navigate(AppScreens.ProfileScreen.route)
+                        loginSuccess()
+                        authViewModel.loadRestaurants(dni, "")
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFF59E0B)
                     )
                 ) {
-                    Text("Iniciar Sesion")
+                    Text(stringResource(R.string.login))
                 }
                 Text(
-                    "Contacte al administrador si tiene problemas de acceso",
+                    stringResource(R.string.problemhelp),
                     fontSize = 12.sp
                 )
             }

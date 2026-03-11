@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -33,6 +32,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,39 +44,114 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.tfg_rm.androidapp_restaurantmanager.controller.FoodController
-import com.tfg_rm.androidapp_restaurantmanager.data.models.Dishes
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.Orders
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
 import java.util.Locale
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.res.stringResource
+import com.tfg_rm.androidapp_restaurantmanager.R
+
 @Preview(showBackground = true)
 @Composable
 fun FoodScreenPreview() {
-    FoodScreen(
-        tableId = 1,
-        navController = rememberNavController()
+    val mockDishes = listOf(
+        Dishes(1, "Puré de patata", "Patatas cocidas", "Principales", 8.5, true),
+        Dishes(2, "Ensalada César", "Pollo, crutones y salsa", "Entrantes", 7.5, true),
+    )
+
+    FoodContent(
+        dishesCategories = listOf("Todo", "Entrantes", "Bebidas", "Principales", "Postres"),
+        selectedCategory = "Todo",
+        onCategorySelected = {},
+        actualTable = "5",
+        BackToTables = {},
+        GetOrderDishesQuantity = { 0 }, // Devuelve un Int
+        GetOrderTotalAmount = { 0.0 }, // Devuelve un Double
+        FilterDishes = { mockDishes }, // Devuelve la lista filtrada
+        onAddDish = {},
+        onPlusDish = {},
+        onMinusDish = {},
+        onUpdateNote = { _, _ -> }, // Recibe dos parámetros
+        isDishInOrder = { false }, // Devuelve un Boolean
+        getDishQuantityInOrder = { 0 }, // Devuelve un Int
+        getNotes = { "" }, // Devuelve un String
+        isNoteEmpty = { true } // Devuelve un Boolean
     )
 }
 @Composable
 fun FoodScreen (
-    tableId: Int,
-    navController: NavHostController,
-    controller: FoodController = FoodController()
+    viewModel: FoodViewModel,
+    tableViewModel: TableViewModel = TableViewModel(),
+    BackToTables: () -> Unit = {}
 ) {
-    val dishes : List<Dishes> = controller.getDishes()
-    val dishesCategories: List<String> = controller.getDishesCategories(dishes)
-    var selectedCategory by remember { mutableStateOf(dishesCategories[0]) }
-    val order = remember { mutableStateOf(controller.getOrder(tableId)) }
+    val productosRestaurante by viewModel.dishes.collectAsState()
+    when (val state = productosRestaurante) {
+        is UiState.Idle -> {
+            LaunchedEffect(Unit) {
+                viewModel.getDishes()
+            }
+        }
+        is UiState.Loading -> LoadingScreen(stringResource(R.string.foodscreen_loading))
+        is UiState.Success<List<Dishes>> -> {
+            val dishes : List<Dishes> = state.data
+            val dishesCategories: List<String> = viewModel.getDishesCategories(dishes)
+            var selectedCategory by remember { mutableStateOf(dishesCategories[0]) }
+            val order = remember { mutableStateOf(viewModel.getOrder(tableViewModel.actualTable.value)) }
+            FoodContent(
+                dishesCategories, selectedCategory,
+                onCategorySelected = {selectedCategory = it},
+                actualTable = tableViewModel.actualTable.value.toString(),
+                BackToTables = BackToTables,
+                GetOrderDishesQuantity = { viewModel.getOrderDishesQuantity(order) },
+                GetOrderTotalAmount = {viewModel.getOrderTotalAmount(order)},
+                FilterDishes = {searchedDish -> viewModel.filterDishes(dishes, searchedDish, selectedCategory)},
+                onAddDish = { dish -> viewModel.addDishToOrder(order, dish) },
+                onPlusDish = { dish -> viewModel.plusDishOnOrder(order, dish) },
+                onMinusDish = { dish -> viewModel.minusDishOnOrder(order, dish) },
+                onUpdateNote = { dish, newNote -> viewModel.updateNotes(dish, newNote, order) },
+                isDishInOrder = { dish -> viewModel.isDishInOrder(order, dish) },
+                getDishQuantityInOrder = { dish -> viewModel.getDishQuantityInOrder(order, dish) },
+                getNotes = { dish -> viewModel.getNotes(dish, order) },
+                isNoteEmpty = { dish -> viewModel.isNoteEmpty(dish, order) }
+            )
 
+        }
+        else -> {}
+    }
+}
+
+@Composable
+fun FoodContent(
+    dishesCategories: List<String>,
+    selectedCategory: String,
+    onCategorySelected: (String) -> Unit,
+    actualTable: String,
+    BackToTables: () -> Unit,
+    GetOrderDishesQuantity: () -> Int,
+    GetOrderTotalAmount: () -> Double,
+    FilterDishes: (String) -> List<Dishes>,
+    onAddDish: (Dishes) -> Unit,
+    onPlusDish: (Dishes) -> Unit,
+    onMinusDish: (Dishes) -> Unit,
+    onUpdateNote: (Dishes, String) -> Unit,
+    isDishInOrder: (Dishes) -> Boolean,
+    getDishQuantityInOrder: (Dishes) -> Int,
+    getNotes: (Dishes) -> String,
+    isNoteEmpty: (Dishes) -> Boolean,
+) {
     Scaffold(
         topBar = {
-            TopTableBar("Mesa $tableId", onBack = { controller.backToTables(navController) })
+            TopTableBar("${stringResource(R.string.table)} $actualTable", onBack = { BackToTables() })
         },
         bottomBar = {
-            if (controller.getOrderDishesQuantity(order) > 0) {
+            if (GetOrderDishesQuantity() > 0) {
                 BottomTableBar(
-                    getOrderDishesQuantity = { controller.getOrderDishesQuantity(order) },
-                    getOrderTotalAmount = { controller.getOrderTotalAmount(order) }
+                    getOrderDishesQuantity = { GetOrderDishesQuantity() },
+                    getOrderTotalAmount = { GetOrderTotalAmount() }
                 )
             }
         }
@@ -90,7 +166,7 @@ fun FoodScreen (
             OutlinedTextField(
                 value = searchedDish,
                 onValueChange = { searchedDish = it },
-                placeholder = { Text("Buscar producto...") },
+                placeholder = { Text(stringResource(R.string.foodscreen_search)) },
                 leadingIcon = {
                     Icon(Icons.Default.Search, contentDescription = null)
                 },
@@ -103,18 +179,19 @@ fun FoodScreen (
             Spacer(Modifier.padding(5.dp))
             CategorySelector(dishesCategories,
                 selectedCategory,
-                onCategorySelected = {selectedCategory = it}
+                onCategorySelected = { onCategorySelected(it) }
             )
 
-            DishesList(controller.filterDishes(dishes, searchedDish, selectedCategory),
-                onAddDish = {dishId -> controller.addDishToOrder(order, dishId)},
-                onPlusDish = {dishId -> controller.plusDishOnOrder(order, dishId)},
-                onMinusDish = {dishId -> controller.minusDishOnOrder(order, dishId)},
-                isDishInOrder = {dishId -> controller.isDishInOrder(order, dishId)},
-                getDishQuantityInOrder = {dishId-> controller.getDishQuantityInOrder(order, dishId)},
-                getNotes = {dishId -> controller.getNotes(dishId, order)},
-                isNoteEmpty = {dishId -> controller.isNoteEmpty(dishId, order)},
-                onUpdateNote = {dishId, newNote -> controller.updateNotes(dishId,newNote, order)})
+            DishesList(
+                FilterDishes(searchedDish),
+                onAddDish = {dish -> onAddDish(dish)},
+                onPlusDish = {dish -> onPlusDish(dish)},
+                onMinusDish = {dish -> onMinusDish(dish)},
+                isDishInOrder = {dish -> isDishInOrder(dish)},
+                getDishQuantityInOrder = {dish-> getDishQuantityInOrder(dish)},
+                getNotes = {dish -> getNotes(dish)},
+                isNoteEmpty = {dish -> isNoteEmpty(dish)},
+                onUpdateNote = {dish, newNote -> onUpdateNote(dish,newNote)})
         }
     }
 }
@@ -139,7 +216,7 @@ fun BottomTableBar (
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("${getOrderDishesQuantity()} productos")
+                Text("${getOrderDishesQuantity()} ${stringResource(R.string.products).lowercase()}")
                 Text("${getOrderTotalAmount()} €")
             }
             Button(
@@ -151,7 +228,7 @@ fun BottomTableBar (
                 ),
                 shape = RoundedCornerShape(6.dp)
             ) {
-                Text("Enviar pedido a cocina")
+                Text(stringResource(R.string.foodscreen_sendtokitchen))
             }
         }
     }
@@ -226,11 +303,11 @@ fun DishesList (
     onAddDish: (dish: Dishes) -> Unit,
     onPlusDish: (dish: Dishes) -> Unit,
     onMinusDish: (dish: Dishes) -> Unit,
-    isDishInOrder: (dishId: Int) -> Boolean,
-    getDishQuantityInOrder: (dishId: Int) -> Int,
-    getNotes: (dishId: Int) -> String,
-    isNoteEmpty: (dishId: Int) -> Boolean,
-    onUpdateNote: (dishId: Int, newNote: String) -> Unit
+    isDishInOrder: (dish: Dishes) -> Boolean,
+    getDishQuantityInOrder: (dish: Dishes) -> Int,
+    getNotes: (dish: Dishes) -> String,
+    isNoteEmpty: (dish: Dishes) -> Boolean,
+    onUpdateNote: (dish: Dishes, newNote: String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxWidth()
@@ -268,7 +345,7 @@ fun DishesList (
                                 color = Color(0xFFF59E0B))
 
                         }
-                        if (isDishInOrder(dish.id)) {
+                        if (isDishInOrder(dish)) {
                             Row (
                                 verticalAlignment = Alignment.CenterVertically
                             ){
@@ -279,7 +356,7 @@ fun DishesList (
                                 ) {
                                     Text("-")
                                 }
-                                Text("${getDishQuantityInOrder(dish.id)}")
+                                Text("${getDishQuantityInOrder(dish)}")
                                 IconButton(
                                     onClick = {
                                         onPlusDish(dish)
@@ -310,11 +387,11 @@ fun DishesList (
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Agregar")
+                                Text(stringResource(R.string.add))
                             }
                         }
                     }
-                    if (isDishInOrder(dish.id)) {
+                    if (isDishInOrder(dish)) {
                         HorizontalDivider(
                             thickness = 1.dp,
                             modifier = Modifier.fillMaxWidth()
@@ -338,14 +415,14 @@ fun DishesList (
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Agregar observaciones",
+                                Text(stringResource(R.string.foodscreen_addobservations),
                                     color = Color.DarkGray)
                             }
                         } else {
                             BasicTextField(
-                                value = getNotes(dish.id),
+                                value = getNotes(dish),
                                 onValueChange = { newValue ->
-                                    onUpdateNote(dish.id, newValue)
+                                    onUpdateNote(dish, newValue)
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth(),
@@ -357,9 +434,9 @@ fun DishesList (
                                             .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
                                             .padding(12.dp)
                                     ) {
-                                        if (isNoteEmpty(dish.id)) {
+                                        if (isNoteEmpty(dish)) {
                                             Text(
-                                                text = "Observaciones (sin cebolla, sin sal, alergias, etc.)",
+                                                text = stringResource(R.string.foodscreen_observationsexample),
                                                 color = Color.Gray
                                             )
                                         }
@@ -383,13 +460,13 @@ fun DishesList (
                                     ),
                                     shape = RoundedCornerShape(6.dp)
                                 ) {
-                                    Text("Guardar")
+                                    Text(stringResource(R.string.save))
                                 }
 
                                 Button(
                                     onClick = {
                                         notesOpen.value = false
-                                        onUpdateNote(dish.id, "")
+                                        onUpdateNote(dish, "")
                                     },
                                     modifier = Modifier.weight(0.3f),
                                     colors = ButtonDefaults.buttonColors(
@@ -399,7 +476,7 @@ fun DishesList (
                                     shape = RoundedCornerShape(6.dp),
                                     border = BorderStroke(1.dp, Color.LightGray)
                                 ) {
-                                    Text("Cancelar")
+                                    Text(stringResource(R.string.cancel))
                                 }
                             }
                         }

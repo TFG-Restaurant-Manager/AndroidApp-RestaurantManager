@@ -1,6 +1,6 @@
-package com.tfg_rm.androidapp_restaurantmanager.data.models
+package com.tfg_rm.androidapp_restaurantmanager.data.remote.dto
 
-data class OrderItem(
+data class OrderItemDto(
     val id: Int,
     val dishId: Int,
     val dishName: String,

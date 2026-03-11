@@ -4,8 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.tfg_rm.androidapp_restaurantmanager.navigation.AppNavigation
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import com.tfg_rm.androidapp_restaurantmanager.ui.navigation.AppNavigation
 import com.tfg_rm.androidapp_restaurantmanager.ui.theme.AndroidAppRestaurantManagerTheme
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Clase principal del programa la cual inicializa el contenido mediante la navegacion
@@ -15,6 +19,7 @@ import com.tfg_rm.androidapp_restaurantmanager.ui.theme.AndroidAppRestaurantMana
  *
  * @author Equipo Restaurant Manager
  */
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

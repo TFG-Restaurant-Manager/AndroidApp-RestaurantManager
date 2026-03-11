@@ -1,16 +1,65 @@
 <resources>
     <string name="app_name">AndroidApp-RestaurantManager</string>
-    <string name="ordersTitle">Active Orders</string>
-    <string name="ordersSubtitle">Order management and tracking</string>
-    <string name="orderStatusCreated">Created</string>
-    <string name="orderStatusCooked">In kitchen</string>
-    <string name="orderStatusReady">Ready</string>
-    <string name="orderStatusDelivered">Delivered</string>
-    <string name="orderStatusPaid">Paid</string>
-    <string name="orderStatusError">Error</string>
-    <string name="tableLabel">Table %1$d</string>
-    <string name="timeAgo">%1$d minutes ago</string>
-    <string name="itemQuantityFormat">%1$dx %2$s</string>
-    <string name="currencyFormat">%.2f €</string>
-    <string name="markDelivered">Mark Delivered</string>
+    <string name="orders_title">Active Orders</string>
+    <string name="orders_subtitle">Order management and tracking</string>
+    <string name="order_statuscreated">Created</string>
+    <string name="order_statuscooked">In kitchen</string>
+    <string name="order_statusready">Ready</string>
+    <string name="order_statusdelivered">Delivered</string>
+    <string name="order_statuspaid">Paid</string>
+    <string name="order_statuserror">Error</string>
+    <string name="table_label">Table %1$d</string>
+    <string name="time_ago">%1$d minutes ago</string>
+    <string name="item_quantityformat">%1$dx %2$s</string>
+    <string name="currency_format">%.2f €</string>
+    <string name="mark_delivered">Mark Delivered</string>
+
+    <!-- Food Screen -->
+    <string name="foodscreen_loading">Loading products...</string>
+    <string name="foodscreen_search">Search products...</string>
+    <string name="foodscreen_sendtokitchen">Send order to the kitchen</string>
+    <string name="foodscreen_addobservations">Add observations</string>
+    <string name="foodscreen_observationsexample">Comments (no onions, no salt, allergies, etc.)</string>
+
+    <!-- Login Screen -->
+    <string name="loginscreen_subtitle">Order Management System</string>
+    <string name="loginscreen_userquest">Employee ID</string>
+    <string name="loginscreen_placeholder">Enter your ID number</string>
+
+    <!-- Profile Screen -->
+    <string name="profilescreen_titleself">My profile</string>
+    <string name="profilescreen_personalinformation">Personal Information</string>
+    <string name="profilescreen_weeklyschedule">Weekly schedule</string>
+
+    <!-- Table Screen -->
+    <string name="tablescreen_tablesmap">Tables map</string>
+    <string name="tablescreen_selectsection">Select Section</string>
+    <string name="tablescreen_selectsectiontable">Select a section and tap a table</string>
+
+    <!-- Generic words -->
+    <string name="login">Login</string>
+    <string name="logout">Log out</string>
+    <string name="table">Table</string>
+    <string name="product">Product</string>
+    <string name="products">Products</string>
+    <string name="available">Available</string>
+    <string name="occupied">Occupied</string>
+    <string name="total">Total</string>
+    <string name="add">Add</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="loading_generic">Loading...</string>
+    <string name="problemhelp">Please contact the administrator if you have access issues</string>
+    <string name="dni">ID</string>
+    <string name="telephone">Telephone</string>
+    <string-array name="days_week">
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+        <item>Sunday</item>
+    </string-array>
+    <string name="section">Section</string>
 </resources>

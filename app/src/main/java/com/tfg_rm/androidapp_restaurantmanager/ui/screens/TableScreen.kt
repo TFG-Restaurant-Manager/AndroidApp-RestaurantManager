@@ -32,39 +32,39 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.tfg_rm.androidapp_restaurantmanager.controller.TableController
-import com.tfg_rm.androidapp_restaurantmanager.data.models.Tables
-import com.tfg_rm.androidapp_restaurantmanager.ui.models.TableInfoUi
+import com.tfg_rm.androidapp_restaurantmanager.R
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.TablesDto
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.TableInfoUi
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
 
 @Preview(showBackground = true)
 @Composable
 fun TableScreenPreview() {
-    TableScreen(
-        navController = rememberNavController()
-    )
+    TableScreen()
 }
 
 @Composable
 fun TableScreen(
-    navController: NavController,
-    controller: TableController = TableController()
+    controller: TableViewModel = TableViewModel(),
+    goToAddOrders: () -> Unit = {}
 ) {
     val actualSection = remember { mutableIntStateOf(2) }
-    val sectionsList = listOf("Seccion 1", "Seccion 2")
+    val sectionsList = listOf("${stringResource(R.string.section)} 1", "${stringResource(R.string.section)} 2")
     //val cards = viewModel.getTableInfo(actualSection)
     val cards = getTableInfo(actualSection.intValue)
 
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 16.dp)) {
-        Text(text = "Mapa de mesas",
+        Text(text = stringResource(R.string.tablescreen_tablesmap),
             style = MaterialTheme.typography.titleMedium)
-        Text(text = "Seleccione una sección y toque una mesa",
+        Text(text = stringResource(R.string.tablescreen_selectsectiontable),
             style = MaterialTheme.typography.bodyMedium)
 
         SelectSection(actualSection, sectionsList)
@@ -86,12 +86,8 @@ fun TableScreen(
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                controller.goToFood(
-                    navController,
-                    1 /*Example value, in a future it will need to be
-                    attached to a real id from a list of table items
-                    */
-                )
+                goToAddOrders()
+                controller.setTable(1)// Ejemplo, cuando se añada el boton de cada mesa se pone el suyo
             }
         ) {
             Text("Example button of navigation to food screen")
@@ -124,7 +120,7 @@ fun InformationCard(
             horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = infoUi.count.toString(),
                 style = MaterialTheme.typography.titleLarge)
-            Text(text = infoUi.title,
+            Text(text = stringResource(infoUi.title),
                 style = MaterialTheme.typography.bodyMedium)
         }
     }
@@ -136,7 +132,7 @@ fun SelectSection(actualSection: MutableIntState, sectionsList: List<String>) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(top = 8.dp)) {
-        Text(text = "Seleccionar Sección",
+        Text(text = stringResource(R.string.tablescreen_selectsection),
             style = MaterialTheme.typography.titleSmall)
         Box(
             modifier = Modifier
@@ -172,15 +168,15 @@ fun SelectSection(actualSection: MutableIntState, sectionsList: List<String>) {
 // Mover a TablesViewModel
 fun getTableInfo(section: Int): List<TableInfoUi> {
     val tablesList = listOf(
-        Tables(id = 1, capacity = 4, section = 1, posX = 1, posY = 1, active = true),
-        Tables(id = 3, capacity = 6, section = 1, posX = 1, posY = 2, active = true),
-        Tables(id = 2, capacity = 2, section = 1, posX = 2, posY = 2, active = false),
-        Tables(id = 4, capacity = 4, section = 1, posX = 2, posY = 1, active = true),
+        TablesDto(id = 1, capacity = 4, section = 1, posX = 1, posY = 1, active = true),
+        TablesDto(id = 3, capacity = 6, section = 1, posX = 1, posY = 2, active = true),
+        TablesDto(id = 2, capacity = 2, section = 1, posX = 2, posY = 2, active = false),
+        TablesDto(id = 4, capacity = 4, section = 1, posX = 2, posY = 1, active = true),
 
-        Tables(id = 1, capacity = 3, section = 2, posX = 1, posY = 1, active = true),
-        Tables(id = 3, capacity = 7, section = 2, posX = 1, posY = 2, active = true),
-        Tables(id = 2, capacity = 1, section = 2, posX = 2, posY = 2, active = false),
-        Tables(id = 4, capacity = 3, section = 2, posX = 2, posY = 1, active = true)
+        TablesDto(id = 1, capacity = 3, section = 2, posX = 1, posY = 1, active = true),
+        TablesDto(id = 3, capacity = 7, section = 2, posX = 1, posY = 2, active = true),
+        TablesDto(id = 2, capacity = 1, section = 2, posX = 2, posY = 2, active = false),
+        TablesDto(id = 4, capacity = 3, section = 2, posX = 2, posY = 1, active = true)
     )
 
     val disponibles = tablesList.count { it.active && it.section == section }
@@ -189,17 +185,17 @@ fun getTableInfo(section: Int): List<TableInfoUi> {
 
     return listOf(
         TableInfoUi(
-            title = "Disponibles",
+            title = R.string.available,
             count = disponibles,
             color = Color(0xFF4CAF50) // verde
         ),
         TableInfoUi(
-            title = "Ocupadas",
+            title = R.string.occupied,
             count = ocupadas,
             color = Color(0xFFF44336) // rojo
         ),
         TableInfoUi(
-            title = "Total",
+            title = R.string.total,
             count = total,
             color = Color(0xFF2196F3) // azul
         )

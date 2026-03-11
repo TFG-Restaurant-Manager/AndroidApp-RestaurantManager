@@ -1,4 +1,4 @@
-package com.tfg_rm.androidapp_restaurantmanager.navigation
+package com.tfg_rm.androidapp_restaurantmanager.ui.navigation
 
 
 /**
@@ -23,10 +23,8 @@ sealed class AppScreens (val route : String){
         fun allBottomBarScreens(): List<String> {
             return listOf(
                 ProfileScreen.route,
-                // ESTO DABA ERROR EN EL MERGE
-                TableScreen.route)
+                TableScreen.route,
                 OrdersScreen.route)
-                // ---------------------------
         }
     }
 }

@@ -1,52 +1,43 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.screens
 
-import android.annotation.SuppressLint
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
-import com.tfg_rm.androidapp_restaurantmanager.data.models.Order
-import com.tfg_rm.androidapp_restaurantmanager.data.models.OrderItem
 import com.tfg_rm.androidapp_restaurantmanager.ui.theme.Typography
-import com.tfg_rm.androidapp_restaurantmanager.viewmodels.OrdersViewModel
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
 
-@ExperimentalMaterial3Api
 @Composable
 fun OrdersScreen(ordersViewModel: OrdersViewModel) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                windowInsets = WindowInsets(),
-                title = {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.ordersTitle),
-                            style = Typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = stringResource(R.string.ordersSubtitle),
-                            style = Typography.bodyMedium,
-                            color = Color.Gray
-                        )
-                    }
-                }
-            )
+            Column {
+                Text(
+                    text = stringResource(R.string.orders_title),
+                    style = Typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = stringResource(R.string.orders_subtitle),
+                    style = Typography.bodyMedium,
+                    color = Color.Gray
+                )
+            }
         }
     ) { paddingValues ->
         LazyColumn(
@@ -82,7 +73,7 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = stringResource(R.string.tableLabel, order.tableId),
+                        text = stringResource(R.string.table_label, order.tableId),
                         style = Typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
@@ -91,13 +82,13 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                     StatusBadge(order.statusId, viewModel)
                 }
                 Text(
-                    text = stringResource(R.string.currencyFormat, order.total),
+                    text = stringResource(R.string.currency_format, order.total),
                     style = Typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
             }
             Text(
-                text = stringResource(R.string.timeAgo, viewModel.getMinutesAgo(order.createdAt)),
+                text = stringResource(R.string.time_ago, viewModel.getMinutesAgo(order.createdAt)),
                 style = Typography.bodySmall,
                 color = Color.Gray,
                 modifier = Modifier.padding(vertical = 4.dp)
@@ -128,7 +119,7 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                     ) {
                         Icon(painter = painterResource(R.drawable.check_circle_svgrepo_com), contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(stringResource(R.string.markDelivered), fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.mark_delivered), fontWeight = FontWeight.Bold)
                     }
                 }
                 
@@ -148,7 +139,7 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
 fun OrderItemRow(item: OrderItem) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = stringResource(R.string.itemQuantityFormat, item.quantity, item.dishName),
+            text = stringResource(R.string.item_quantityformat, item.quantity, item.dish.name),
             style = Typography.bodyLarge,
             fontSize = 16.sp
         )
@@ -214,12 +205,9 @@ fun StatusBadge(statusId: Int, viewModel: OrdersViewModel) {
     }
 }
 
-
-
-@SuppressLint("ViewModelConstructorInComposable")
-@ExperimentalMaterial3Api
 @Preview(showBackground = true)
 @Composable
 fun OrdersScreenPreview() {
-    OrdersScreen(OrdersViewModel())
+    val ordersViewModel : OrdersViewModel = viewModel()
+    OrdersScreen(ordersViewModel)
 }

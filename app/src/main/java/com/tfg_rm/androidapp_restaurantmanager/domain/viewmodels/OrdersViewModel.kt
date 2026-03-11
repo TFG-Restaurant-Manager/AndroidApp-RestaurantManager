@@ -1,13 +1,14 @@
-package com.tfg_rm.androidapp_restaurantmanager.viewmodels
+package com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels
 
 import androidx.compose.runtime.mutableStateListOf
 import com.tfg_rm.androidapp_restaurantmanager.R
-import com.tfg_rm.androidapp_restaurantmanager.data.models.Order
-import com.tfg_rm.androidapp_restaurantmanager.data.models.OrderItem
 import java.time.Duration
 import java.time.LocalDateTime
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
 
 class OrdersViewModel() : ViewModel() {
     val ordersList = mutableStateListOf<Order>()
@@ -29,9 +30,12 @@ class OrdersViewModel() : ViewModel() {
             deliveryAddress = null,
             deliveryNotes = null,
             orderItemsList = mutableListOf(
-                OrderItem(1, 101, "Ensalada César", 2, 10.50, null),
-                OrderItem(2, 102, "Solomillo al Roquefort", 2, 15.00, "Punto medio"),
-                OrderItem(3, 103, "Vino Tinto Crianza", 1, 10.00, null)
+                OrderItem(id = 1,dish = Dishes(101,"Ensalada César","Ensalada",
+                    "Entrantes",10.5,true),quantity =  2, null),
+                OrderItem(2, dish = Dishes(102,"Solomillo al Roquefort","Carne",
+                    "Principales",15.00,true),2, "Punto medio"),
+                OrderItem(3, dish = Dishes(103,"Vino Tinto Crianza","Alcohol",
+                    "Bebidas",10.00,true), 1, null)
             )
         )
 
@@ -48,8 +52,10 @@ class OrdersViewModel() : ViewModel() {
             deliveryAddress = null,
             deliveryNotes = null,
             orderItemsList = mutableListOf(
-                OrderItem(4, 104, "Paella Valenciana", 1, 15.00, null),
-                OrderItem(5, 105, "Agua Mineral", 2, 3.00, null)
+                OrderItem(4, dish = Dishes(103,"Paella Valenciana","Muy Rica",
+                    "Principales",15.00,true), 1, null),
+                OrderItem(5, dish = Dishes(103,"Agua Mineral","Muy Rica",
+                    "Bebidas",3.00,true),  2,  null)
             )
         )
 
@@ -62,12 +68,12 @@ class OrdersViewModel() : ViewModel() {
     }
 
     fun getStatusStringRes(statusId: Int) = when (statusId) {
-       1 -> R.string.orderStatusCreated
-       2 -> R.string.orderStatusCooked
-       3 -> R.string.orderStatusReady
-       4 -> R.string.orderStatusDelivered
-       5 -> R.string.orderStatusPaid
-       else -> R.string.orderStatusError
+       1 -> R.string.order_statuscreated
+       2 -> R.string.order_statuscooked
+       3 -> R.string.order_statusready
+       4 -> R.string.order_statusdelivered
+       5 -> R.string.order_statuspaid
+       else -> R.string.order_statuserror
    }
 
     fun getMinutesAgo(createdAt: LocalDateTime): Long {
