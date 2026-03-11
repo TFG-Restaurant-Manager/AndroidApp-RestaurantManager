@@ -105,7 +105,7 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         loginSuccess()
-                        authViewModel.loadRestaurants(dni, "")
+                        //authViewModel.loadRestaurants(dni, "")
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
