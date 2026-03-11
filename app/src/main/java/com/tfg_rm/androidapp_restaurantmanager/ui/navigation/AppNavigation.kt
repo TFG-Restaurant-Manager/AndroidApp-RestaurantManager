@@ -76,6 +76,7 @@ fun AppNavigation(
                 )
             }
 
+            // ESTO DABA ERROR EN EL MERGE
             composable(AppScreens.TableScreen.route) {
                 TableScreen(goToAddOrders = {navController.navigate(AppScreens.FoodScreen.route)})
             }

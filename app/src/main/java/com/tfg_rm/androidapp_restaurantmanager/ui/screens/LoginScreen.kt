@@ -30,7 +30,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.ui.navigation.AppScreens
 
@@ -39,6 +41,7 @@ import com.tfg_rm.androidapp_restaurantmanager.ui.navigation.AppScreens
  */
 @Composable
 fun LoginScreen(
+    authViewModel: AuthViewModel = hiltViewModel(),
     loginSuccess: () -> Unit
 ) {
     var dni by remember { mutableStateOf("") }
@@ -102,6 +105,7 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         loginSuccess()
+                        authViewModel.loadRestaurants(dni, "")
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
