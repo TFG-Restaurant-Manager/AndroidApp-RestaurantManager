@@ -404,8 +404,18 @@ fun CalendarioMes(
                                         )
                                     })
                                     .border(
-                                        width = if (dia == LocalDate.now().dayOfMonth) 1.dp else 0.dp,
-                                        color = if ((dia == LocalDate.now().dayOfMonth)) Color(
+                                        width = if (LocalDate.of(
+                                                year,
+                                                month,
+                                                dia
+                                            ) == LocalDate.now()
+                                        ) 1.dp else 0.dp,
+                                        color = if (LocalDate.of(
+                                                year,
+                                                month,
+                                                dia
+                                            ) == LocalDate.now()
+                                        ) Color(
                                             0xFF4CAF50
                                         ) else Color.Transparent,
                                         shape = RoundedCornerShape(6.dp)
@@ -426,8 +436,18 @@ fun CalendarioMes(
                                         )
                                     })
                                     .border(
-                                        width = if (dia == LocalDate.now().dayOfMonth) 1.dp else 0.dp,
-                                        color = if ((dia == LocalDate.now().dayOfMonth)) Color(
+                                        width = if (LocalDate.of(
+                                                year,
+                                                month,
+                                                dia
+                                            ) == LocalDate.now()
+                                        ) 1.dp else 0.dp,
+                                        color = if (LocalDate.of(
+                                                year,
+                                                month,
+                                                dia
+                                            ) == LocalDate.now()
+                                        ) Color(
                                             0xFF9E9E9E
                                         ) else Color.Transparent,
                                         shape = RoundedCornerShape(6.dp)
