@@ -5,13 +5,9 @@ data class Order(
     val id: Int,
     val restaurantId: Int,
     val tableId: Int,
-    val clientId: Int,
-    val statusId: Int,
+    val status: String,
     val total: Float,
     val notes: String?,
     val createdAt: LocalDateTime = LocalDateTime.now(),
-    val orderTypeId: Int,
-    val deliveryAddress: String?,
-    val deliveryNotes: String?,
     val orderItemsList: MutableList<OrderItem> = mutableListOf()
 )

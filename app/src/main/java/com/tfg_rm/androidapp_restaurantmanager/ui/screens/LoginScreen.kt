@@ -31,10 +31,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
-import com.tfg_rm.androidapp_restaurantmanager.ui.navigation.AppScreens
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
 
 /**
  * Funcion Composable para mostrar el apartado de login de la aplicacion
@@ -46,20 +44,24 @@ fun LoginScreen(
 ) {
     var dni by remember { mutableStateOf("") }
     Column(
-        modifier = Modifier.fillMaxSize().background(brush = Brush.linearGradient(
-            colors = listOf(
-                Color(0xFF0F172A),
-                Color(0xFF1E293B),
-                Color(0xFF0F172A)
-            )
-        )),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF0F172A),
+                        Color(0xFF1E293B),
+                        Color(0xFF0F172A)
+                    )
+                )
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Box(
             modifier = Modifier
                 .background(
-                    Color(255,255,255),
+                    Color(255, 255, 255),
                     RoundedCornerShape(16.dp)
                 )
                 .padding(20.dp)
@@ -105,7 +107,7 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         loginSuccess()
-                        authViewModel.loadRestaurants(dni, "")
+                        //authViewModel.loadRestaurants(dni, "")
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(

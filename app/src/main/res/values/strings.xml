@@ -30,6 +30,13 @@
     <string name="profilescreen_titleself">My profile</string>
     <string name="profilescreen_personalinformation">Personal Information</string>
     <string name="profilescreen_weeklyschedule">Weekly schedule</string>
+    <string name="profilescreen_monthlyschedule">Montly schedule</string>
+    <string name="profilescreen_personalschedule">My Work Schedule</string>
+    <string name="profilescreen_morningshift">Morning shift</string>
+    <string name="profilescreen_afternoonshift">Afternoon shift</string>
+    <string name="profilescreen_nightshift">Night shift</string>
+    <string name="profilescreen_workshift">Work shift</string>
+    <string name="profilescreen_dayoff">Day off</string>
 
     <!-- Table Screen -->
     <string name="tablescreen_tablesmap">Tables map</string>
@@ -61,5 +68,29 @@
         <item>Saturday</item>
         <item>Sunday</item>
     </string-array>
+    <string-array name="days_week_short">
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+        <item>Sun</item>
+    </string-array>
+    <string-array name="months_year">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
     <string name="section">Section</string>
+    <string name="of">of</string>
 </resources>

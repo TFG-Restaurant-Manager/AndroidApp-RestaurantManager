@@ -17,10 +17,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
-import com.tfg_rm.androidapp_restaurantmanager.ui.theme.Typography
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
+import com.tfg_rm.androidapp_restaurantmanager.ui.theme.Typography
 
 @Composable
 fun OrdersScreen(ordersViewModel: OrdersViewModel) {
@@ -79,7 +79,7 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                         fontSize = 18.sp
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    StatusBadge(order.statusId, viewModel)
+                    StatusBadge(order.status, viewModel)
                 }
                 Text(
                     text = stringResource(R.string.currency_format, order.total),
@@ -94,21 +94,29 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                 modifier = Modifier.padding(vertical = 4.dp)
             )
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 0.5.dp, color = Color.LightGray)
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 0.5.dp,
+                color = Color.LightGray
+            )
 
             order.orderItemsList.forEach { item ->
                 OrderItemRow(item)
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 0.5.dp, color = Color.LightGray)
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 0.5.dp,
+                color = Color.LightGray
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (order.statusId == 3) {
+                if (order.status == "READY") {
                     Button(
                         onClick = { },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
@@ -117,13 +125,17 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                             .weight(1f)
                             .padding(end = 16.dp)
                     ) {
-                        Icon(painter = painterResource(R.drawable.check_circle_svgrepo_com), contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(
+                            painter = painterResource(R.drawable.check_circle_svgrepo_com),
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(stringResource(R.string.mark_delivered), fontWeight = FontWeight.Bold)
                     }
                 }
-                
-                IconButton(onClick = {  }) {
+
+                IconButton(onClick = { }) {
                     Icon(
                         painter = painterResource(R.drawable.cross_svgrepo_com),
                         contentDescription = "Cancel",
@@ -167,9 +179,9 @@ fun OrderItemRow(item: OrderItem) {
 
 
 @Composable
-fun StatusBadge(statusId: Int, viewModel: OrdersViewModel) {
-    val colors = viewModel.getStatusColors(statusId)
-    
+fun StatusBadge(status: String, viewModel: OrdersViewModel) {
+    val colors = viewModel.getStatusColors(status)
+
     val backgroundColor = colors.first
     val contentColor = colors.second
 
@@ -183,7 +195,7 @@ fun StatusBadge(statusId: Int, viewModel: OrdersViewModel) {
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
         ) {
             Icon(
-                painter = if (statusId == 2) {
+                painter = if (status == "COOKED") {
                     painterResource(id = R.drawable.time_svgrepo_com) // Tu archivo local
                 } else {
                     painterResource(id = R.drawable.check_circle_svgrepo_com)
@@ -196,7 +208,7 @@ fun StatusBadge(statusId: Int, viewModel: OrdersViewModel) {
             Spacer(modifier = Modifier.width(4.dp))
 
             Text(
-                text = stringResource(viewModel.getStatusStringRes(statusId)),
+                text = stringResource(viewModel.getStatusStringRes(status)),
                 color = contentColor,
                 style = Typography.labelSmall,
                 fontWeight = FontWeight.Bold
@@ -208,6 +220,6 @@ fun StatusBadge(statusId: Int, viewModel: OrdersViewModel) {
 @Preview(showBackground = true)
 @Composable
 fun OrdersScreenPreview() {
-    val ordersViewModel : OrdersViewModel = viewModel()
+    val ordersViewModel: OrdersViewModel = viewModel()
     OrdersScreen(ordersViewModel)
 }
