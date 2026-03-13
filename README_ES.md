@@ -32,15 +32,11 @@ La aplicación está pensada principalmente para **camareros**, permitiéndoles 
 
 Muestra la información personal del empleado y su calendario de trabajo.
 
-![Pantalla Perfil](images/profile.png)
-
 ---
 
 ### Pedidos
 
 Permite a los camareros crear y gestionar pedidos de los clientes.
-
-![Pantalla Pedidos](images/orders.png)
 
 ---
 
@@ -48,15 +44,11 @@ Permite a los camareros crear y gestionar pedidos de los clientes.
 
 Muestra las mesas del restaurante y su estado actual.
 
-![Pantalla Mesas](images/tables.png)
-
 ---
 
 ### Comida
 
 Lista de platos y productos disponibles para añadir a un pedido.
-
-![Pantalla Comida](images/food.png)
 
 ---
 
