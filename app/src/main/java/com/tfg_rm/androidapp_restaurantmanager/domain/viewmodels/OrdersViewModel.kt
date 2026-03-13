@@ -79,6 +79,10 @@ class OrdersViewModel() : ViewModel() {
 
     }
 
+    fun removeOrderById(orderId: Int) {
+        ordersList.removeAll { it.id == orderId }
+    }
+
     fun getStatusStringRes(status: String) = when (status) {
         "CREATED" -> R.string.order_statuscreated
         "COOCKED" -> R.string.order_statuscooked
