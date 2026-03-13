@@ -148,7 +148,7 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                     }
                 }
 
-                IconButton(onClick = { }) {
+                IconButton(onClick = { viewModel.removeOrderById(order.id) }) {
                     Icon(
                         painter = painterResource(R.drawable.cross_svgrepo_com),
                         contentDescription = "Cancel",

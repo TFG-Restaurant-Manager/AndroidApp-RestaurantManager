@@ -52,6 +52,9 @@ import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
 import java.util.Locale
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.res.stringResource
 import com.tfg_rm.androidapp_restaurantmanager.R
 
@@ -80,6 +83,7 @@ fun FoodScreenPreview() {
         getDishQuantityInOrder = { 0 }, // Devuelve un Int
         getNotes = { "" }, // Devuelve un String
         isNoteEmpty = { true } // Devuelve un Boolean
+        , onSendOrder = {}
     )
 }
 @Composable
@@ -89,6 +93,7 @@ fun FoodScreen (
     BackToTables: () -> Unit = {}
 ) {
     val productosRestaurante by viewModel.dishes.collectAsState()
+    val context = LocalContext.current
     when (val state = productosRestaurante) {
         is UiState.Idle -> {
             LaunchedEffect(Unit) {
@@ -116,7 +121,14 @@ fun FoodScreen (
                 isDishInOrder = { dish -> viewModel.isDishInOrder(order, dish) },
                 getDishQuantityInOrder = { dish -> viewModel.getDishQuantityInOrder(order, dish) },
                 getNotes = { dish -> viewModel.getNotes(dish, order) },
-                isNoteEmpty = { dish -> viewModel.isNoteEmpty(dish, order) }
+                isNoteEmpty = { dish -> viewModel.isNoteEmpty(dish, order) },
+                onSendOrder = {
+                        // Save order to in-memory orders list (acts as Room for now)
+                        viewModel.saveOrderToList(order.value)
+                    Toast.makeText(context, context.getString(R.string.foodscreen_order_sent), Toast.LENGTH_SHORT).show()
+                    // Optionally clear the current order
+                    order.value = viewModel.getOrder(tableViewModel.actualTable.value)
+                }
             )
 
         }
@@ -142,6 +154,7 @@ fun FoodContent(
     getDishQuantityInOrder: (Dishes) -> Int,
     getNotes: (Dishes) -> String,
     isNoteEmpty: (Dishes) -> Boolean,
+    onSendOrder: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -152,6 +165,7 @@ fun FoodContent(
                 BottomTableBar(
                     getOrderDishesQuantity = { GetOrderDishesQuantity() },
                     getOrderTotalAmount = { GetOrderTotalAmount() }
+                    , onSendOrder = { onSendOrder() }
                 )
             }
         }
@@ -200,6 +214,7 @@ fun FoodContent(
 fun BottomTableBar (
     getOrderDishesQuantity: () -> Int,
     getOrderTotalAmount: () -> Double
+    , onSendOrder: () -> Unit
 ) {
     Card(
         colors = CardDefaults.cardColors(
@@ -220,7 +235,7 @@ fun BottomTableBar (
                 Text("${getOrderTotalAmount()} €")
             }
             Button(
-                onClick = {},
+                onClick = { onSendOrder() },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF10B981),

@@ -149,4 +149,13 @@ class FoodViewModel @Inject constructor (
             .firstOrNull { it == dish }
             ?.notes?.value = newNote
     }
+
+    // Temporary in-memory storage for created orders (will be Room later)
+    val pendingOrders = mutableStateListOf<Orders>()
+
+    fun saveOrderToList(order: Orders) {
+        val newId = (pendingOrders.maxOfOrNull { it.id } ?: 0) + 1
+        val orderToSave = order.copy(id = newId)
+        pendingOrders.add(0, orderToSave)
+    }
 }

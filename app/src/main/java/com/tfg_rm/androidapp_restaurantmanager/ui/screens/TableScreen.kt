@@ -130,7 +130,8 @@ fun TableScreen(
         TableMap(
             tables = getTableMapInfo(),
             onTableClick = { tablesDto ->
-                println("Mesa pulsada: ${tablesDto.id}")
+                controller.setTable(tablesDto.id)
+                goToAddOrders()
             }
         )
 

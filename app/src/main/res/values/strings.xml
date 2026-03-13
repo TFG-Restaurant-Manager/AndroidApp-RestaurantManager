@@ -18,6 +18,7 @@
     <string name="foodscreen_loading">Loading products...</string>
     <string name="foodscreen_search">Search products...</string>
     <string name="foodscreen_sendtokitchen">Send order to the kitchen</string>
+    <string name="foodscreen_order_sent">Order sent</string>
     <string name="foodscreen_addobservations">Add observations</string>
     <string name="foodscreen_observationsexample">Comments (no onions, no salt, allergies, etc.)</string>
 
