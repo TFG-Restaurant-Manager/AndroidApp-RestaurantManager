@@ -32,15 +32,11 @@ The app is designed mainly for **waiters**, allowing them to manage tables, orde
 
 Shows the personal information of the employee and their work schedule.
 
-![Profile Screen](images/profile.png)
-
 ---
 
 ### Orders
 
 Allows waiters to create and manage customer orders.
-
-![Orders Screen](images/orders.png)
 
 ---
 
@@ -48,15 +44,11 @@ Allows waiters to create and manage customer orders.
 
 Displays the restaurant tables and their current state.
 
-![Tables Screen](images/tables.png)
-
 ---
 
 ### Food
 
 List of dishes and products available to add to an order.
-
-![Food Screen](images/food.png)
 
 ---
 
