@@ -26,6 +26,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Divider
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
@@ -56,6 +61,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import java.util.Locale
 import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.TablesDto
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.TableInfoUi
@@ -79,13 +85,31 @@ fun TableScreen(
     //val cards = viewModel.getTableInfo(actualSection)
     val cards = getTableInfo(actualSection.intValue)
 
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp)) {
-        Text(text = stringResource(R.string.tablescreen_tablesmap),
-            style = MaterialTheme.typography.titleMedium)
-        Text(text = stringResource(R.string.tablescreen_selectsectiontable),
-            style = MaterialTheme.typography.bodyMedium)
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFF59E0B), RoundedCornerShape(0.dp))
+                .padding(horizontal = 16.dp, vertical = 14.dp)
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(R.string.tablescreen_tablesmap).uppercase(Locale.getDefault()),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold, fontSize = 20.sp),
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = stringResource(R.string.tablescreen_selectsectiontable),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                    color = Color.White.copy(alpha = 0.9f)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Divider(color = Color.White.copy(alpha = 0.18f), thickness = 1.dp)
+            }
+        }
+
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
 
         SelectSection(actualSection, sectionsList)
 
@@ -118,6 +142,7 @@ fun TableScreen(
             }
         ) {
             Text("Example button of navigation to food screen")
+        }
         }
     }
 }
@@ -229,7 +254,7 @@ fun InformationCard(
     ) {
         Column(modifier = Modifier
             .fillMaxSize()
-            .offset(y = (-8).dp),
+            .padding(vertical = 12.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = infoUi.count.toString(),
@@ -251,14 +276,18 @@ fun SelectSection(actualSection: MutableIntState, sectionsList: List<String>) {
         Box(
             modifier = Modifier
                 .clickable { expanded = true }
-                .height(35.dp)
-                .width(65.dp)
-                .background(Color.LightGray, RoundedCornerShape(8.dp))
+                .height(40.dp)
+                .width(100.dp)
+                .background(Color(0xFFF7F7F7), RoundedCornerShape(8.dp))
+                .border(width = 1.dp, color = Color(0xFFDDDDDD), shape = RoundedCornerShape(8.dp))
+                .padding(horizontal = 8.dp)
         ) {
             Text(
                 modifier = Modifier.align(alignment = Alignment.Center),
                 textAlign = TextAlign.Center,
-                text = sectionsList[(actualSection.intValue-1)]
+                text = sectionsList[(actualSection.intValue-1)],
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFF333333)
             )
         }
 

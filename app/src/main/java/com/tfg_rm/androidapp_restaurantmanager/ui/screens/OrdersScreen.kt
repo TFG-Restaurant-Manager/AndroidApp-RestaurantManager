@@ -1,10 +1,12 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
@@ -26,17 +29,27 @@ import com.tfg_rm.androidapp_restaurantmanager.ui.theme.Typography
 fun OrdersScreen(ordersViewModel: OrdersViewModel) {
     Scaffold(
         topBar = {
-            Column {
-                Text(
-                    text = stringResource(R.string.orders_title),
-                    style = Typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = stringResource(R.string.orders_subtitle),
-                    style = Typography.bodyMedium,
-                    color = Color.Gray
-                )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFF59E0B))
+                    .padding(horizontal = 16.dp, vertical = 14.dp)
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(R.string.orders_title).uppercase(Locale.getDefault()),
+                        style = Typography.titleLarge.copy(fontSize = 20.sp, fontWeight = FontWeight.SemiBold),
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = stringResource(R.string.orders_subtitle),
+                        style = Typography.bodyMedium.copy(fontSize = 14.sp),
+                        color = Color.White.copy(alpha = 0.95f)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Divider(color = Color.White.copy(alpha = 0.18f), thickness = 1.dp)
+                }
             }
         }
     ) { paddingValues ->

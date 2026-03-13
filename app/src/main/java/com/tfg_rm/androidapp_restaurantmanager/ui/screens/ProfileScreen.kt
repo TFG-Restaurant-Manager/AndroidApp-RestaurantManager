@@ -37,13 +37,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import java.util.Locale
+import androidx.compose.material3.Divider
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -132,44 +135,50 @@ fun ProfileScreen(
 
 @Composable
 fun TopBar(empleado: EmployeesDto) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .background(Color(0xFFF59E0B))
+            .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
-        Text(
-            text = stringResource(R.string.profilescreen_titleself),
-            style = MaterialTheme.typography.titleMedium,
-            color = Color.Black,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                Modifier
-                    .size(48.dp)
-                    .background(
-                        color = Color.Black,
-                        shape = RoundedCornerShape(48.dp)
-                    )
+        Column {
+            Text(
+                text = stringResource(R.string.profilescreen_titleself).uppercase(Locale.getDefault()),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 20.sp),
+                color = Color.White
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = empleado.name.take(2),
-                    modifier = Modifier.align(alignment = Alignment.Center),
-                    color = Color.White
-                )
+                Box(
+                    Modifier
+                        .size(48.dp)
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(48.dp)
+                        )
+                ) {
+                    Text(
+                        text = empleado.name.take(2).uppercase(Locale.getDefault()),
+                        modifier = Modifier.align(alignment = Alignment.Center),
+                        color = Color(0xFFF59E0B),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Column() {
+                    Text(empleado.name, color = Color.White)
+                    Text(
+                        text = empleado.roleName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.95f)
+                    )
+                }
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            Column() {
-                Text(empleado.name)
-                Text(
-                    text = empleado.name,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Divider(color = Color.White.copy(alpha = 0.18f), thickness = 1.dp)
         }
     }
 }
