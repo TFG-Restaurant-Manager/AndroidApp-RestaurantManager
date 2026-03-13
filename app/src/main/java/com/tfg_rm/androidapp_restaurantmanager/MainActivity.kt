@@ -4,44 +4,40 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.tfg_rm.androidapp_restaurantmanager.ui.navigation.AppNavigation
 import com.tfg_rm.androidapp_restaurantmanager.ui.theme.AndroidAppRestaurantManagerTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Clase principal del programa la cual inicializa el contenido mediante la navegacion
+ * @see AppNavigation
+ * Y con la configuracion del Thema predefinido
+ * @see AndroidAppRestaurantManagerTheme
+ *
+ * @author Equipo Restaurant Manager
+ */
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Funcion para hacer que la aplicacion ocupe toda la pantalla
         enableEdgeToEdge()
+        // Ocultar la barra de estado (reloj, batería)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+        insetsController?.hide(WindowInsetsCompat.Type.statusBars())
+        insetsController?.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         setContent {
             AndroidAppRestaurantManagerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                // Inicializo la navegacion
+                AppNavigation()
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AndroidAppRestaurantManagerTheme {
-        Greeting("Android")
     }
 }

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AndroidApp-RestaurantManager</string>
+    <string name="orders_title">Pedidos Activos</string>
+    <string name="orders_subtitle">Gestión y seguimiento de pedidos</string>
+    <string name="order_statuscreated">Creado</string>
+    <string name="order_statuscooked">En cocina</string>
+    <string name="order_statusready">Listo</string>
+    <string name="order_statusdelivered">Entregado</string>
+    <string name="order_statuspaid">Pagado</string>
+    <string name="order_statuserror">Error</string>
+    <string name="table_label">Mesa %1$d</string>
+    <string name="time_ago">Hace %1$d minutos</string>
+    <string name="item_quantityformat">%1$dx %2$s</string>
+    <string name="currency_format">%.2f €</string>
+    <string name="mark_delivered">Marcar Entregado</string>
+
+    <!-- Food Screen -->
+    <string name="foodscreen_loading">Cargando productos...</string>
+    <string name="foodscreen_search">Buscar productos...</string>
+    <string name="foodscreen_sendtokitchen">Enviar pedido a la cocina</string>
+    <string name="foodscreen_addobservations">Agregar observaciones</string>
+    <string name="foodscreen_observationsexample">Observaciones (sin cebolla, sin sal, alergias, etc.)</string>
+
+    <!-- Login Screen -->
+    <string name="loginscreen_subtitle">Sistema de Gestión de Pedidos</string>
+    <string name="loginscreen_userquest">DNI del Empleado</string>
+    <string name="loginscreen_placeholder">Ingrese su DNI</string>
+
+    <!-- Profile Screen -->
+    <string name="profilescreen_titleself">Mi perfil</string>
+    <string name="profilescreen_personalinformation">Información Personal</string>
+    <string name="profilescreen_weeklyschedule">Horario semanal</string>
+    <string name="profilescreen_monthlyschedule">Horario mensual</string>
+    <string name="profilescreen_personalschedule">Mi Calendario de Trabajo</string>
+    <string name="profilescreen_morningshift">Turno de mañana</string>
+    <string name="profilescreen_afternoonshift">Turno de tarde</string>
+    <string name="profilescreen_nightshift">Turno de noche</string>
+    <string name="profilescreen_workshift">Turno de trabajo</string>
+    <string name="profilescreen_dayoff">Día de descanso</string>
+
+    <!-- Table Screen -->
+    <string name="tablescreen_tablesmap">Mapa de mesas</string>
+    <string name="tablescreen_selectsection">Seleccionar Sección</string>
+    <string name="tablescreen_selectsectiontable">Seleccione una sección y toque una mesa</string>
+
+    <!-- Generic words -->
+    <string name="login">Iniciar sesión</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="table">Mesa</string>
+    <string name="product">Producto</string>
+    <string name="products">Productos</string>
+    <string name="available">Disponibles</string>
+    <string name="occupied">Ocupadas</string>
+    <string name="total">Total</string>
+    <string name="add">Agregar</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="loading_generic">Cargando...</string>
+    <string name="problemhelp">Contacte al administrador si tiene problemas de acceso</string>
+    <string name="dni">DNI</string>
+    <string name="telephone">Teléfono</string>
+    <string-array name="days_week">
+        <item>Lunes</item>
+        <item>Martes</item>
+        <item>Miércoles</item>
+        <item>Jueves</item>
+        <item>Viernes</item>
+        <item>Sábado</item>
+        <item>Domingo</item>
+    </string-array>
+    <string-array name="days_week_short">
+        <item>Lun</item>
+        <item>Mar</item>
+        <item>Mié</item>
+        <item>Jue</item>
+        <item>Vie</item>
+        <item>Sáb</item>
+        <item>Dom</item>
+    </string-array>
+    <string-array name="months_year">
+        <item>Enero</item>
+        <item>Febrero</item>
+        <item>Marzo</item>
+        <item>Abril</item>
+        <item>Mayo</item>
+        <item>Junio</item>
+        <item>Julio</item>
+        <item>Agosto</item>
+        <item>Septiembre</item>
+        <item>Octubre</item>
+        <item>Noviembre</item>
+        <item>Diciembre</item>
+    </string-array>
+    <string name="section">Seccion</string>
+    <string name="of">de</string>
+</resources>

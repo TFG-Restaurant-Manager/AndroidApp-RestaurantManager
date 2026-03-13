@@ -1,0 +1,10 @@
+package com.tfg_rm.androidapp_restaurantmanager.data.remote.dto
+
+data class OrderItemDto(
+    val id: Int,
+    val dishId: Int,
+    val dishName: String,
+    val quantity: Int,
+    val unitPrice: Double,
+    val notes: String? = null
+)
