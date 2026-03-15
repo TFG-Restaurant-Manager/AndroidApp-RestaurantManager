@@ -212,6 +212,10 @@ fun TableMap(
             }
         ) {
             tables.forEach { table ->
+                val bgColor = if (table.active) Color(0xFF4CAF50) else Color(0xFFBDBDB)
+                val borderColor = if (table.active) Color(0xFF2E7D32) else Color(0xFF9E9E9E)
+                val textColor = if (table.active) Color.White else Color.DarkGray
+
                 Box(
                     modifier = Modifier
                         .size(sizeTable)
@@ -221,15 +225,23 @@ fun TableMap(
                         )
                         .border(
                             width = 2.dp,
-                            color = Color.Blue,
+                            color = borderColor,
                             shape = RoundedCornerShape(8.dp)
                         )
                         .background(
-                            color = Color.Cyan,
+                            color = bgColor,
                             shape = RoundedCornerShape(8.dp)
                         )
-                        .clickable { onTableClick(table) }
-                )
+                        .clickable { onTableClick(table) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = table.capacity.toString(),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = textColor,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }

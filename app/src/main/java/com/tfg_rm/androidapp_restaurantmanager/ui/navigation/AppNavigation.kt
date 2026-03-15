@@ -20,7 +20,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.FoodScreen
@@ -46,9 +45,9 @@ import com.tfg_rm.androidapp_restaurantmanager.ui.screens.TableScreen
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController(),
-    orderViewModel: OrdersViewModel = viewModel(),
-    tableViewModel: TableViewModel = TableViewModel()
 ) {
+    val orderViewModel: OrdersViewModel = hiltViewModel()
+    val tableViewModel: TableViewModel = hiltViewModel()
     val foodViewModel: FoodViewModel = hiltViewModel()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
