@@ -1,9 +1,14 @@
 package com.tfg_rm.androidapp_restaurantmanager.data.repository
 
+import com.tfg_rm.androidapp_restaurantmanager.data.local.dao.UserDao
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
 import javax.inject.Inject
 
-class RepositoryTemporal @Inject constructor() {
+class RepositoryTemporal @Inject constructor(
+    private val userDao: UserDao
+) {
+
+    suspend fun getAllUsers() = userDao.getAllUsers()
 
     suspend fun getUser(): String {
         return "Usuarios desde RepositoryTemporal"
