@@ -1,15 +1,15 @@
 package com.tfg_rm.androidapp_restaurantmanager.data.repository
 
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.Orders
 import javax.inject.Inject
+import javax.inject.Singleton
 
-class RepositoryTemporal @Inject constructor() {
+@Singleton
+class RepositoryFood @Inject constructor() {
 
-    suspend fun getUser(): String {
-        return "Usuarios desde RepositoryTemporal"
-    }
-
-    suspend fun getDishes (): List<Dishes> {
+    suspend fun getDishes(): List<Dishes> {
         return listOf(
             Dishes(1, "Puré de patata", "Patatas cocidas con varios condimentos", "Principales", 8.5, true),
             Dishes(2, "Ensalada César", "Lechuga romana con pollo, crutones y salsa césar", "Entrantes", 7.5, true),
@@ -26,5 +26,9 @@ class RepositoryTemporal @Inject constructor() {
             Dishes(13, "Vino tinto crianza", "Copa de vino tinto crianza", "Bebidas", 4.5, true),
             Dishes(14, "Cerveza", "Cerveza fría", "Bebidas", 3.0, true)
         )
+    }
+
+    fun saveOrder(order: Order){
+        //ddd
     }
 }

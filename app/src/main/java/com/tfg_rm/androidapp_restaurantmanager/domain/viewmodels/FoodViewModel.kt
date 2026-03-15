@@ -8,12 +8,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tfg_rm.androidapp_restaurantmanager.data.repository.RepositoryTemporal
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItems
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Orders
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
-import com.tfg_rm.androidapp_restaurantmanager.domain.services.ServicioTemporal
+import com.tfg_rm.androidapp_restaurantmanager.domain.services.FoodService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FoodViewModel @Inject constructor (
-    private val servicioTemporal: ServicioTemporal
+    private val foodService: FoodService
 ): ViewModel(){
 
     private val _dishes = MutableStateFlow<UiState<List<Dishes>>>(UiState.Idle)
@@ -36,7 +36,7 @@ class FoodViewModel @Inject constructor (
             _dishes.value = UiState.Loading
             delay(1200)
             try {
-                _dishes.value = UiState.Success(servicioTemporal.getDishes())
+                _dishes.value = UiState.Success(foodService.getDishes())
             } catch (e: Exception) {
                 _dishes.value = UiState.Error(e.message?:"Error: getDishes FoodViewModel", e.cause)
             }
@@ -150,12 +150,7 @@ class FoodViewModel @Inject constructor (
             ?.notes?.value = newNote
     }
 
-    // Temporary in-memory storage for created orders (will be Room later)
-    val pendingOrders = mutableStateListOf<Orders>()
-
-    fun saveOrderToList(order: Orders) {
-        val newId = (pendingOrders.maxOfOrNull { it.id } ?: 0) + 1
-        val orderToSave = order.copy(id = newId)
-        pendingOrders.add(0, orderToSave)
+    fun saveOrder(order: Order){
+        foodService.saveOrder(order)
     }
 }

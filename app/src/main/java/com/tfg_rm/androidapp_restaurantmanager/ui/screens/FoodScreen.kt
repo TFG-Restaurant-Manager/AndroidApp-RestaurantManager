@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Orders
@@ -88,8 +89,8 @@ fun FoodScreenPreview() {
 }
 @Composable
 fun FoodScreen (
-    viewModel: FoodViewModel,
-    tableViewModel: TableViewModel = TableViewModel(),
+    viewModel: FoodViewModel = hiltViewModel(),
+    tableViewModel: TableViewModel = hiltViewModel(),
     BackToTables: () -> Unit = {}
 ) {
     val productosRestaurante by viewModel.dishes.collectAsState()
@@ -123,10 +124,9 @@ fun FoodScreen (
                 getNotes = { dish -> viewModel.getNotes(dish, order) },
                 isNoteEmpty = { dish -> viewModel.isNoteEmpty(dish, order) },
                 onSendOrder = {
-                        // Save order to in-memory orders list (acts as Room for now)
-                        viewModel.saveOrderToList(order.value)
+                    // Save order to repository (per table)
+                    viewModel.saveOrder(order.value)
                     Toast.makeText(context, context.getString(R.string.foodscreen_order_sent), Toast.LENGTH_SHORT).show()
-                    // Optionally clear the current order
                     order.value = viewModel.getOrder(tableViewModel.actualTable.value)
                 }
             )

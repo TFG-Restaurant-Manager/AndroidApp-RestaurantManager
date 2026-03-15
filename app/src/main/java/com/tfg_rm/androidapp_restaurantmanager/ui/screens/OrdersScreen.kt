@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
@@ -26,7 +27,7 @@ import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
 import com.tfg_rm.androidapp_restaurantmanager.ui.theme.Typography
 
 @Composable
-fun OrdersScreen(ordersViewModel: OrdersViewModel) {
+fun OrdersScreen(ordersViewModel: OrdersViewModel = hiltViewModel()) {
     Scaffold(
         topBar = {
             Box(
