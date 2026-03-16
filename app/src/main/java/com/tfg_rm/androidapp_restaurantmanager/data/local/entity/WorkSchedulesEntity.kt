@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "work_schedules")
-data class WorkSchedules(
+data class WorkSchedulesEntity(
     @PrimaryKey
     val id: Int,
     val start: String,

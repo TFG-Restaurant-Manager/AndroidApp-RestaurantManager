@@ -9,20 +9,20 @@ import androidx.room.PrimaryKey
     tableName = "order_items",
     foreignKeys = [
         ForeignKey(
-            entity = Orders::class,
+            entity = OrdersEntity::class,
             parentColumns = ["id"],
             childColumns = ["orderId"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = Dishes::class,
+            entity = DishesEntity::class,
             parentColumns = ["id"],
             childColumns = ["dishId"]
         )
     ],
     indices = [Index("orderId"), Index("dishId")]
 )
-data class OrderItems(
+data class OrderItemsEntity(
     @PrimaryKey
     val id: Int,
     val orderId: Int,
