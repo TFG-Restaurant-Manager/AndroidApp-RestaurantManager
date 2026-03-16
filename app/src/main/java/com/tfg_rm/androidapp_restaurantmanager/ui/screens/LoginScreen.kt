@@ -23,6 +23,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -33,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthState
 
 /**
  * Funcion Composable para mostrar el apartado de login de la aplicacion
@@ -43,6 +46,8 @@ fun LoginScreen(
     loginSuccess: () -> Unit
 ) {
     var dni by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    val authState by authViewModel.authState.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -103,18 +108,50 @@ fun LoginScreen(
                         placeholder = { Text(stringResource(R.string.loginscreen_placeholder)) },
                         modifier = Modifier.fillMaxWidth()
                     )
-                }
-                Button(
-                    onClick = {
-                        loginSuccess()
-                        //authViewModel.loadRestaurants(dni, "")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFF59E0B)
+                    Text(stringResource(R.string.loginscreen_password_label), fontSize = 14.sp)
+                    TextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        placeholder = { Text(stringResource(R.string.loginscreen_password_placeholder)) },
+                        modifier = Modifier.fillMaxWidth()
                     )
-                ) {
-                    Text(stringResource(R.string.login))
+                }
+                when (authState) {
+                    is AuthState.Idle, is AuthState.Error -> {
+                        Button(
+                            onClick = {
+                                authViewModel.login(dni, password)
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFF59E0B)
+                            )
+                        ) {
+                            Text(stringResource(R.string.login))
+                        }
+                    }
+                    is AuthState.Loading -> {
+                        Text(stringResource(R.string.loading_generic))
+                    }
+                    is AuthState.ChooseRestaurant -> {
+                        val ids = (authState as AuthState.ChooseRestaurant).restaurantIds
+                        Column {
+                            Text(stringResource(R.string.loginscreen_selectrestaurant))
+                            ids.forEach { id ->
+                                Button(
+                                    onClick = { authViewModel.selectRestaurant(id) },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Restaurant #$id")
+                                }
+                            }
+                        }
+                    }
+                    is AuthState.LoggedIn -> {
+                        LaunchedEffect(Unit) {
+                            loginSuccess()
+                        }
+                    }
                 }
                 Text(
                     stringResource(R.string.problemhelp),

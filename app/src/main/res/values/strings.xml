@@ -26,6 +26,10 @@
     <string name="loginscreen_subtitle">Order Management System</string>
     <string name="loginscreen_userquest">Employee ID</string>
     <string name="loginscreen_placeholder">Enter your ID number</string>
+    <string name="loginscreen_password_label">Password</string>
+    <string name="loginscreen_password_placeholder">Enter your password</string>
+    <string name="loginscreen_selectrestaurant">Select restaurant</string>
+    
 
     <!-- Profile Screen -->
     <string name="profilescreen_titleself">My profile</string>

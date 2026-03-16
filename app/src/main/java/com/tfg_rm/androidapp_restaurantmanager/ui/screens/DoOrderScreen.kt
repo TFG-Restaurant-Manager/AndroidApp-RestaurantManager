@@ -121,7 +121,7 @@ fun FoodScreen (
                 isNoteEmpty = { dish -> viewModel.isNoteEmpty(dish, order) },
                 onSendOrder = {
                     // Save order to repository (per table)
-                    viewModel.saveOrder(order.value)
+                    //viewModel.saveOrder(order.value)
                     Toast.makeText(context, context.getString(R.string.foodscreen_order_sent), Toast.LENGTH_SHORT).show()
                     order.value = viewModel.getOrder(tableViewModel.actualTable.value)
                 }
