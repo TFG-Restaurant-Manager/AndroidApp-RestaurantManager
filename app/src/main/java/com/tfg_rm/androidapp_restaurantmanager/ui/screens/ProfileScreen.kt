@@ -78,6 +78,12 @@ fun PreviewProfileScreen() {
     )
 }
 
+@Preview(showBackground = true)
+@Composable
+fun ProfileScreenPreview() {
+    ProfileScreen(BackToLogin = {})
+}
+
 /**
  * Funcion Composable para mostrar el apartado de login de la aplicacion
  */

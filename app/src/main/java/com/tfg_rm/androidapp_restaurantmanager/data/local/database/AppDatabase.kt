@@ -1,12 +1,12 @@
 package com.tfg_rm.androidapp_restaurantmanager.data.local.database
 
-import com.tfg_rm.androidapp_restaurantmanager.data.local.entity.User
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.tfg_rm.androidapp_restaurantmanager.data.local.dao.UserDao
+import com.tfg_rm.androidapp_restaurantmanager.data.local.entity.Tables
 
 @Database(
-    entities = [User::class],
+    entities = [Tables::class],
     version = 1,
     exportSchema = false
 )
