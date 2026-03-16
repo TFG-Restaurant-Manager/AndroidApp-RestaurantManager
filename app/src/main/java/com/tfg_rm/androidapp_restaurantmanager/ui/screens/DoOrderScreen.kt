@@ -33,7 +33,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,15 +46,12 @@ import androidx.compose.ui.unit.dp
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
-import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
-import com.tfg_rm.androidapp_restaurantmanager.domain.models.Orders
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
 import java.util.Locale
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.res.stringResource
 import com.tfg_rm.androidapp_restaurantmanager.R
 
