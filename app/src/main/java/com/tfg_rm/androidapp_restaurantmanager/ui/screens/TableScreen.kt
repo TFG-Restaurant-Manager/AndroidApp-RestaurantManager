@@ -66,7 +66,7 @@ import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.TablesDto
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.TableInfoUi
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kotlin.math.roundToInt
 import androidx.compose.ui.unit.IntSize
 
