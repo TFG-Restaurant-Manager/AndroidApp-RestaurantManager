@@ -24,12 +24,15 @@
 
     <!-- Login Screen -->
     <string name="loginscreen_subtitle">Order Management System</string>
-    <string name="loginscreen_userquest">Employee ID</string>
-    <string name="loginscreen_placeholder">Enter your ID number</string>
+    <string name="loginscreen_userquest">Employee User</string>
+    <string name="loginscreen_placeholder">Enter your user</string>
     <string name="loginscreen_password_label">Password</string>
     <string name="loginscreen_password_placeholder">Enter your password</string>
     <string name="loginscreen_selectrestaurant">Select restaurant</string>
-    
+    <string name="loginscreen_loginerror_emptylabels">Please fill in all the fields</string>
+    <string name="loginscreen_loginerror_common">Login failed</string>
+    <string name="loginscreen_missingcredentials">Missing credentials</string>
+
 
     <!-- Profile Screen -->
     <string name="profilescreen_titleself">My profile</string>

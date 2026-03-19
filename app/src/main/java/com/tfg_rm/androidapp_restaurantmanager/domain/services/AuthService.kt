@@ -7,22 +7,10 @@ class AuthService @Inject constructor(
     private val authRepository: AuthRepository
 ) {
     suspend fun requestToken(
-        dni: String,
-        password: String,
-        employeeId: Long,
-        restaurantId: Long
-    ) = authRepository.requestToken(
-        dni = dni,
-        password = password,
-        employeeId = employeeId,
-        restaurantId = restaurantId
-    )
-
-    suspend fun requestRestaurantsId(
-        dni: String,
+        code: String,
         password: String
-    ) = authRepository.requestRestaurantsId(
-        dni = dni,
+    ) = authRepository.requestToken(
+        code = code,
         password = password
     )
 }

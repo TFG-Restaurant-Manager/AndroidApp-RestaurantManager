@@ -19,13 +19,20 @@
     <string name="foodscreen_loading">Cargando productos...</string>
     <string name="foodscreen_search">Buscar productos...</string>
     <string name="foodscreen_sendtokitchen">Enviar pedido a la cocina</string>
+    <string name="foodscreen_order_sent">Orden enviada</string>
     <string name="foodscreen_addobservations">Agregar observaciones</string>
     <string name="foodscreen_observationsexample">Observaciones (sin cebolla, sin sal, alergias, etc.)</string>
 
     <!-- Login Screen -->
     <string name="loginscreen_subtitle">Sistema de Gestión de Pedidos</string>
-    <string name="loginscreen_userquest">DNI del Empleado</string>
-    <string name="loginscreen_placeholder">Ingrese su DNI</string>
+    <string name="loginscreen_userquest">Usuario del Empleado</string>
+    <string name="loginscreen_placeholder">Ingrese su Usuario</string>
+    <string name="loginscreen_password_label">Contraseña</string>
+    <string name="loginscreen_password_placeholder">Introduzca su contraseña</string>
+    <string name="loginscreen_selectrestaurant">Seleccione restaurante</string>
+    <string name="loginscreen_loginerror_emptylabels">Complete todos los campos por favor</string>
+    <string name="loginscreen_loginerror_common">El login ha fallado</string>
+    <string name="loginscreen_missingcredentials">Faltan credenciales</string>
 
     <!-- Profile Screen -->
     <string name="profilescreen_titleself">Mi perfil</string>
