@@ -7,6 +7,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -20,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -79,7 +82,10 @@ fun AppNavigation(
     Scaffold(
         bottomBar = {
             if (currentRoute in AppScreens.allBottomBarScreens()) {
-                BottomBar(navController)
+                BottomBar(
+                    navController,
+                    currentRoute
+                )
             }
         }
     ) { padding ->
@@ -143,26 +149,47 @@ fun AppNavigation(
 }
 
 @Composable
-fun BottomBar(navController: NavHostController) {
+fun BottomBar(
+    navController: NavHostController,
+    currentRoute: String?
+) {
     NavigationBar {
         NavigationBarItem(
-            selected = false,
+            selected = currentRoute == AppScreens.TableScreen.route,
             onClick = { navController.navigate(AppScreens.TableScreen.route) },
-            icon = { Icon(Icons.Default.Home, null) },
+            icon = {
+                Icon(
+                    if (currentRoute == AppScreens.TableScreen.route) Icons.Default.Home else Icons.Outlined.Home,
+                    null,
+                    tint = Color.Black
+                )
+            },
             label = { Text("Home") }
         )
 
         NavigationBarItem(
-            selected = false,
+            selected = currentRoute == AppScreens.OrdersScreen.route,
             onClick = { navController.navigate(AppScreens.OrdersScreen.route) },
-            icon = { Icon(Icons.AutoMirrored.Filled.List, null) },
+            icon = {
+                Icon(
+                    Icons.AutoMirrored.Filled.List,
+                    null,
+                    tint = Color.Black
+                )
+            },
             label = { Text("Orders") }
         )
 
         NavigationBarItem(
-            selected = false,
+            selected = currentRoute == AppScreens.ProfileScreen.route,
             onClick = { navController.navigate(AppScreens.ProfileScreen.route) },
-            icon = { Icon(Icons.Default.Person, null) },
+            icon = {
+                Icon(
+                    if (currentRoute == AppScreens.ProfileScreen.route) Icons.Default.Person else Icons.Outlined.Person,
+                    null,
+                    tint = Color.Black
+                )
+            },
             label = { Text("Profile") }
         )
     }
