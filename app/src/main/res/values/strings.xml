@@ -13,6 +13,7 @@
     <string name="item_quantityformat">%1$dx %2$s</string>
     <string name="currency_format">%.2f €</string>
     <string name="mark_delivered">Mark Delivered</string>
+    <string name="exitapp_confirmation">Are you sure you want to close the app?</string>
 
     <!-- Food Screen -->
     <string name="foodscreen_loading">Loading products...</string>
@@ -52,6 +53,9 @@
     <string name="tablescreen_selectsectiontable">Select a section and tap a table</string>
 
     <!-- Generic words -->
+    <string name="exitapp">Exit the app</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
     <string name="login">Login</string>
     <string name="logout">Log out</string>
     <string name="table">Table</string>

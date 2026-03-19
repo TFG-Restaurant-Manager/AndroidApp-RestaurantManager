@@ -1,5 +1,6 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,23 +43,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
 import java.util.Locale
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
-import android.widget.Toast
-import androidx.compose.ui.res.stringResource
-import com.tfg_rm.androidapp_restaurantmanager.R
 
 @Preview(showBackground = true)
 @Composable
-fun FoodScreenPreview() {
+fun DoOrderScreenPreview() {
     val mockDishes = listOf(
         Dishes(1, "Puré de patata", "Patatas cocidas", "Principales", 8.5, true),
         Dishes(2, "Ensalada César", "Pollo, crutones y salsa", "Entrantes", 7.5, true),
@@ -83,34 +83,43 @@ fun FoodScreenPreview() {
         , onSendOrder = {}
     )
 }
+
 @Composable
-fun FoodScreen (
+fun DoOrderScreen(
     viewModel: FoodViewModel = hiltViewModel(),
     tableViewModel: TableViewModel = hiltViewModel(),
     BackToTables: () -> Unit = {}
 ) {
     val productosRestaurante by viewModel.dishes.collectAsState()
     val context = LocalContext.current
+    val table by tableViewModel.actualTable
     when (val state = productosRestaurante) {
         is UiState.Idle -> {
             LaunchedEffect(Unit) {
                 viewModel.getDishes()
             }
         }
+
         is UiState.Loading -> LoadingScreen(stringResource(R.string.foodscreen_loading))
         is UiState.Success<List<Dishes>> -> {
-            val dishes : List<Dishes> = state.data
+            val dishes: List<Dishes> = state.data
             val dishesCategories: List<String> = viewModel.getDishesCategories(dishes)
             var selectedCategory by remember { mutableStateOf(dishesCategories[0]) }
-            val order = remember { mutableStateOf(viewModel.getOrder(tableViewModel.actualTable.value)) }
+            val order = remember { mutableStateOf(viewModel.getOrder(table)) }
             FoodContent(
                 dishesCategories, selectedCategory,
-                onCategorySelected = {selectedCategory = it},
-                actualTable = tableViewModel.actualTable.value.toString(),
+                onCategorySelected = { selectedCategory = it },
+                actualTable = table.toString(),
                 BackToTables = BackToTables,
                 GetOrderDishesQuantity = { viewModel.getOrderDishesQuantity(order) },
-                GetOrderTotalAmount = {viewModel.getOrderTotalAmount(order)},
-                FilterDishes = {searchedDish -> viewModel.filterDishes(dishes, searchedDish, selectedCategory)},
+                GetOrderTotalAmount = { viewModel.getOrderTotalAmount(order) },
+                FilterDishes = { searchedDish ->
+                    viewModel.filterDishes(
+                        dishes,
+                        searchedDish,
+                        selectedCategory
+                    )
+                },
                 onAddDish = { dish -> viewModel.addDishToOrder(order, dish) },
                 onPlusDish = { dish -> viewModel.plusDishOnOrder(order, dish) },
                 onMinusDish = { dish -> viewModel.minusDishOnOrder(order, dish) },
@@ -122,12 +131,17 @@ fun FoodScreen (
                 onSendOrder = {
                     // Save order to repository (per table)
                     //viewModel.saveOrder(order.value)
-                    Toast.makeText(context, context.getString(R.string.foodscreen_order_sent), Toast.LENGTH_SHORT).show()
-                    order.value = viewModel.getOrder(tableViewModel.actualTable.value)
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.foodscreen_order_sent),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    order.value = viewModel.getOrder(table)
                 }
             )
 
         }
+
         else -> {}
     }
 }
@@ -154,18 +168,19 @@ fun FoodContent(
 ) {
     Scaffold(
         topBar = {
-            TopTableBar("${stringResource(R.string.table)} $actualTable", onBack = { BackToTables() })
+            TopTableBar(
+                "${stringResource(R.string.table)} $actualTable",
+                onBack = { BackToTables() })
         },
         bottomBar = {
             if (GetOrderDishesQuantity() > 0) {
                 BottomTableBar(
                     getOrderDishesQuantity = { GetOrderDishesQuantity() },
-                    getOrderTotalAmount = { GetOrderTotalAmount() }
-                    , onSendOrder = { onSendOrder() }
+                    getOrderTotalAmount = { GetOrderTotalAmount() }, onSendOrder = { onSendOrder() }
                 )
             }
         }
-    ) {paddingValues ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -187,30 +202,30 @@ fun FoodContent(
                     .fillMaxWidth()
             )
             Spacer(Modifier.padding(5.dp))
-            CategorySelector(dishesCategories,
+            CategorySelector(
+                dishesCategories,
                 selectedCategory,
                 onCategorySelected = { onCategorySelected(it) }
             )
 
             DishesList(
                 FilterDishes(searchedDish),
-                onAddDish = {dish -> onAddDish(dish)},
-                onPlusDish = {dish -> onPlusDish(dish)},
-                onMinusDish = {dish -> onMinusDish(dish)},
-                isDishInOrder = {dish -> isDishInOrder(dish)},
-                getDishQuantityInOrder = {dish-> getDishQuantityInOrder(dish)},
-                getNotes = {dish -> getNotes(dish)},
-                isNoteEmpty = {dish -> isNoteEmpty(dish)},
-                onUpdateNote = {dish, newNote -> onUpdateNote(dish,newNote)})
+                onAddDish = { dish -> onAddDish(dish) },
+                onPlusDish = { dish -> onPlusDish(dish) },
+                onMinusDish = { dish -> onMinusDish(dish) },
+                isDishInOrder = { dish -> isDishInOrder(dish) },
+                getDishQuantityInOrder = { dish -> getDishQuantityInOrder(dish) },
+                getNotes = { dish -> getNotes(dish) },
+                isNoteEmpty = { dish -> isNoteEmpty(dish) },
+                onUpdateNote = { dish, newNote -> onUpdateNote(dish, newNote) })
         }
     }
 }
 
 @Composable
-fun BottomTableBar (
+fun BottomTableBar(
     getOrderDishesQuantity: () -> Int,
-    getOrderTotalAmount: () -> Double
-    , onSendOrder: () -> Unit
+    getOrderTotalAmount: () -> Double, onSendOrder: () -> Unit
 ) {
     Card(
         colors = CardDefaults.cardColors(
@@ -219,7 +234,7 @@ fun BottomTableBar (
         shape = RectangleShape,
         border = BorderStroke(1.dp, Color.LightGray)
     ) {
-        Column (
+        Column(
             modifier = Modifier.padding(12.dp)
         ) {
             Row(
@@ -246,12 +261,12 @@ fun BottomTableBar (
 }
 
 @Composable
-fun TopTableBar (tableName: String,onBack: () -> Unit) {
+fun TopTableBar(tableName: String, onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        IconButton (
+        IconButton(
             onClick = { onBack() },
             modifier = Modifier.align(Alignment.CenterStart)
         ) {
@@ -262,8 +277,10 @@ fun TopTableBar (tableName: String,onBack: () -> Unit) {
                 modifier = Modifier.size(14.dp)
             )
         }
-        Text(tableName,
-            modifier = Modifier.align(Alignment.Center))
+        Text(
+            tableName,
+            modifier = Modifier.align(Alignment.Center)
+        )
     }
 }
 
@@ -292,7 +309,10 @@ fun CategorySelector(
                     contentColor = if (selectedCategory == category) Color.White else Color.DarkGray
                 ),
                 shape = RoundedCornerShape(6.dp),
-                border = if (selectedCategory != category) BorderStroke(1.dp, Color.LightGray) else null,
+                border = if (selectedCategory != category) BorderStroke(
+                    1.dp,
+                    Color.LightGray
+                ) else null,
                 elevation = ButtonDefaults.buttonElevation(
                     defaultElevation = 6.dp
                 )
@@ -309,7 +329,7 @@ fun CategorySelector(
 }
 
 @Composable
-fun DishesList (
+fun DishesList(
     dishes: List<Dishes>,
     onAddDish: (dish: Dishes) -> Unit,
     onPlusDish: (dish: Dishes) -> Unit,
@@ -323,7 +343,7 @@ fun DishesList (
     LazyColumn(
         modifier = Modifier.fillMaxWidth()
     ) {
-        items( dishes ) { dish ->
+        items(dishes) { dish ->
             val notesOpen = remember { mutableStateOf(false) }
             Card(
                 modifier = Modifier
@@ -337,7 +357,7 @@ fun DishesList (
                     defaultElevation = 3.dp
                 )
             ) {
-                Column (
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
@@ -352,14 +372,16 @@ fun DishesList (
 
                         ) {
                             Text(dish.name)
-                            Text(String.format(Locale.getDefault(), "%.2f €", dish.price),
-                                color = Color(0xFFF59E0B))
+                            Text(
+                                String.format(Locale.getDefault(), "%.2f €", dish.price),
+                                color = Color(0xFFF59E0B)
+                            )
 
                         }
                         if (isDishInOrder(dish)) {
-                            Row (
+                            Row(
                                 verticalAlignment = Alignment.CenterVertically
-                            ){
+                            ) {
                                 IconButton(
                                     onClick = {
                                         onMinusDish(dish)
@@ -426,8 +448,10 @@ fun DishesList (
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.foodscreen_addobservations),
-                                    color = Color.DarkGray)
+                                Text(
+                                    stringResource(R.string.foodscreen_addobservations),
+                                    color = Color.DarkGray
+                                )
                             }
                         } else {
                             BasicTextField(
@@ -456,7 +480,7 @@ fun DishesList (
                                 }
                             )
 
-                            Row (
+                            Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {

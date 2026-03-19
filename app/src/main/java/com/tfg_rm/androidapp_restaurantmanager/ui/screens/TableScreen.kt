@@ -1,21 +1,16 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.screens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.rememberTransformableState
-import androidx.compose.foundation.gestures.transformable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,17 +18,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -48,27 +37,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
-import java.util.Locale
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.TablesDto
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.TableInfoUi
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import java.util.Locale
 import kotlin.math.roundToInt
-import androidx.compose.ui.unit.IntSize
 
 @Preview(showBackground = true)
 @Composable
@@ -82,7 +71,8 @@ fun TableScreen(
     goToAddOrders: () -> Unit = {}
 ) {
     val actualSection = remember { mutableIntStateOf(2) }
-    val sectionsList = listOf("${stringResource(R.string.section)} 1", "${stringResource(R.string.section)} 2")
+    val sectionsList =
+        listOf("${stringResource(R.string.section)} 1", "${stringResource(R.string.section)} 2")
     //val cards = viewModel.getTableInfo(actualSection)
     val cards = getTableInfo(actualSection.intValue)
 
@@ -96,7 +86,10 @@ fun TableScreen(
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = stringResource(R.string.tablescreen_tablesmap).uppercase(Locale.getDefault()),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold, fontSize = 20.sp),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp
+                    ),
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.height(6.dp))
@@ -110,41 +103,34 @@ fun TableScreen(
             }
         }
 
-        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)) {
 
-        SelectSection(actualSection, sectionsList)
+            SelectSection(actualSection, sectionsList)
 
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            cards.forEach { infoUi ->
-                InformationCard(
-                    infoUi = infoUi,
-                    modifier = Modifier
-                        .weight(1f)
-                        .aspectRatio(1f)
-                )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                cards.forEach { infoUi ->
+                    InformationCard(
+                        infoUi = infoUi,
+                        modifier = Modifier
+                            .weight(1f)
+                            .aspectRatio(1f)
+                    )
+                }
             }
-        }
 
-        TableMap(
-            tables = getTableMapInfo(),
-            onTableClick = { tablesDto ->
-                controller.setTable(tablesDto.id)
-                goToAddOrders()
-            }
-        )
-
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = {
-                goToAddOrders()
-                controller.setTable(1)// Ejemplo, cuando se añada el boton de cada mesa se pone el suyo
-            }
-        ) {
-            Text("Example button of navigation to food screen")
-        }
+            TableMap(
+                tables = getTableMapInfo(),
+                onTableClick = { tablesDto ->
+                    controller.setTable(tablesDto.id)
+                    goToAddOrders()
+                }
+            )
         }
     }
 }
@@ -201,16 +187,17 @@ fun TableMap(
             )
     ) {
         // Definimos un área grande donde se posicionan todas las mesas
-        Box(modifier = Modifier
-            //.width(margin + (tables.maxOf { it.posX }) * (sizeTable + margin))
-            //.height(margin + (tables.maxOf { it.posX
-            // }) * (sizeTable + margin))
-            .offset {
-                IntOffset(
-                    offset.x.roundToInt(),
-                    offset.y.roundToInt()
-                )
-            }
+        Box(
+            modifier = Modifier
+                //.width(margin + (tables.maxOf { it.posX }) * (sizeTable + margin))
+                //.height(margin + (tables.maxOf { it.posX
+                // }) * (sizeTable + margin))
+                .offset {
+                    IntOffset(
+                        offset.x.roundToInt(),
+                        offset.y.roundToInt()
+                    )
+                }
         ) {
             tables.forEach { table ->
                 val bgColor = if (table.active) Color(0xFF4CAF50) else Color(0xFFBDBDB)
@@ -254,7 +241,8 @@ fun InformationCard(
     modifier: Modifier = Modifier,
 ) {
 
-    Card(modifier = modifier,
+    Card(
+        modifier = modifier,
         colors = CardColors(
             containerColor = infoUi.color.copy(alpha = 0.2f),
             contentColor = infoUi.color,
@@ -266,15 +254,21 @@ fun InformationCard(
             color = infoUi.color
         )
     ) {
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(vertical = 12.dp),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 12.dp),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = infoUi.count.toString(),
-                style = MaterialTheme.typography.titleLarge)
-            Text(text = stringResource(infoUi.title),
-                style = MaterialTheme.typography.bodyMedium)
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = infoUi.count.toString(),
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
+                text = stringResource(infoUi.title),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
@@ -282,11 +276,15 @@ fun InformationCard(
 @Composable
 fun SelectSection(actualSection: MutableIntState, sectionsList: List<String>) {
     var expanded by remember { mutableStateOf(false) }
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(top = 8.dp)) {
-        Text(text = stringResource(R.string.tablescreen_selectsection),
-            style = MaterialTheme.typography.titleSmall)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.tablescreen_selectsection),
+            style = MaterialTheme.typography.titleSmall
+        )
         Box(
             modifier = Modifier
                 .clickable { expanded = true }
@@ -299,7 +297,7 @@ fun SelectSection(actualSection: MutableIntState, sectionsList: List<String>) {
             Text(
                 modifier = Modifier.align(alignment = Alignment.Center),
                 textAlign = TextAlign.Center,
-                text = sectionsList[(actualSection.intValue-1)],
+                text = sectionsList[(actualSection.intValue - 1)],
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF333333)
             )

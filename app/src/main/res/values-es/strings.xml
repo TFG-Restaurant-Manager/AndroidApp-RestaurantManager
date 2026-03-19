@@ -14,6 +14,7 @@
     <string name="item_quantityformat">%1$dx %2$s</string>
     <string name="currency_format">%.2f €</string>
     <string name="mark_delivered">Marcar Entregado</string>
+    <string name="exitapp_confirmation">¿Estás seguro de que quieres cerrar la aplicación?</string>
 
     <!-- Food Screen -->
     <string name="foodscreen_loading">Cargando productos...</string>
@@ -52,6 +53,9 @@
     <string name="tablescreen_selectsectiontable">Seleccione una sección y toque una mesa</string>
 
     <!-- Generic words -->
+    <string name="exitapp">Salir de la aplicación</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
     <string name="login">Iniciar sesión</string>
     <string name="logout">Cerrar sesión</string>
     <string name="table">Mesa</string>
