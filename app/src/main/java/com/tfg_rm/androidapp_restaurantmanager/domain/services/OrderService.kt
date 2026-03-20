@@ -12,5 +12,5 @@ class OrderService @Inject constructor(
 ) {
     fun savePendingOrder(order: Orders) = repositoryOrders.saveOrder(order)
 
-    suspend fun getOrders(): MutableList<Order> = repositoryOrders.getOrders()
+    suspend fun getOrders(): MutableList<Order> = repositoryOrders.getOrders().toMutableList()
 }

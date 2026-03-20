@@ -263,7 +263,7 @@ fun PersOutlinedTextField(
                 singleLine = true,
                 keyboardOptions = opcionesTeclado,
                 textStyle = TextStyle(
-                    fontSize = 14.sp,
+                    fontSize = 16.sp,
                     color = Color.Black
                 ),
                 visualTransformation = if (password && !contraseñaVisible) PasswordVisualTransformation() else VisualTransformation.None,
@@ -277,7 +277,7 @@ fun PersOutlinedTextField(
                         if (valor.isEmpty()) {
                             Text(
                                 text = placeholder,
-                                fontSize = 14.sp,
+                                fontSize = 16.sp,
                                 color = Color.Gray
                             )
                         }

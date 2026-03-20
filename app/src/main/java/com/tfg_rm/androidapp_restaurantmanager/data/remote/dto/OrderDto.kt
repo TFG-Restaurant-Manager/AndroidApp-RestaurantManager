@@ -4,7 +4,6 @@ import java.time.LocalDateTime
 
 data class OrderDto(
     val id: Int,
-    val restaurantId: Int,
     val tableId: Int,
     val clientId: Int,
     val statusId: Int,

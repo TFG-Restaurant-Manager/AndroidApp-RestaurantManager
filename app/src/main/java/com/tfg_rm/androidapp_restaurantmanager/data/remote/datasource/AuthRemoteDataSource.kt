@@ -18,7 +18,7 @@ class AuthRemoteDataSource @Inject constructor(
         password: String
     ): EmployeeTokenResponse {
 
-        return client.post("/auth/employeeLogin") {
+        return client.post("api/auth/employeeLogin") {
 
             contentType(ContentType.Application.Json)
 

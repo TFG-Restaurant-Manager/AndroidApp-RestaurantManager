@@ -9,6 +9,7 @@
     <string name="order_statusdelivered">Entregado</string>
     <string name="order_statuspaid">Pagado</string>
     <string name="order_statuserror">Error</string>
+    <string name="order_geterror">Error al cargar las ordenes</string>
     <string name="table_label">Mesa %1$d</string>
     <string name="time_ago">Hace %1$d minutos</string>
     <string name="item_quantityformat">%1$dx %2$s</string>

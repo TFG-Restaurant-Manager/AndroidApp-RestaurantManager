@@ -8,6 +8,7 @@
     <string name="order_statusdelivered">Delivered</string>
     <string name="order_statuspaid">Paid</string>
     <string name="order_statuserror">Error</string>
+    <string name="order_geterror">Error loading orders</string>
     <string name="table_label">Table %1$d</string>
     <string name="time_ago">%1$d minutes ago</string>
     <string name="item_quantityformat">%1$dx %2$s</string>
