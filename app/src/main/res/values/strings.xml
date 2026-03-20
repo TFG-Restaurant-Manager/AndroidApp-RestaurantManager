@@ -52,6 +52,8 @@
     <string name="tablescreen_tablesmap">Tables map</string>
     <string name="tablescreen_selectsection">Select Section</string>
     <string name="tablescreen_selectsectiontable">Select a section and tap a table</string>
+    <string name="tablescreen_error">Error loading the tables</string>
+    <string name="tablescreen_loading">Cargando las mesas</string>
 
     <!-- Generic words -->
     <string name="exitapp">Exit the app</string>

@@ -52,6 +52,8 @@
     <string name="tablescreen_tablesmap">Mapa de mesas</string>
     <string name="tablescreen_selectsection">Seleccionar Sección</string>
     <string name="tablescreen_selectsectiontable">Seleccione una sección y toque una mesa</string>
+    <string name="tablescreen_error">Error al cargar las mesas</string>
+    <string name="tablescreen_loading">Loading the tables</string>
 
     <!-- Generic words -->
     <string name="exitapp">Salir de la aplicación</string>
