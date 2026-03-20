@@ -11,6 +11,7 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
 @Module
@@ -32,13 +33,17 @@ object NetworkModule {
         return HttpClient(OkHttp) {
 
             install(ContentNegotiation) {
-                json()
+                json(
+                    Json {
+                        ignoreUnknownKeys = true
+                    }
+                )
             }
 
             install(WebSockets)
 
             defaultRequest {
-                url("https://council-actually-massive-clothing.trycloudflare.com/")
+                url("https://cutting-generations-cindy-industrial.trycloudflare.com/")
 
                 tokenProvider.getToken()?.let {
                     header("Authorization", "Bearer $it")

@@ -19,6 +19,7 @@
     <!-- Food Screen -->
     <string name="foodscreen_loading">Cargando productos...</string>
     <string name="foodscreen_search">Buscar productos...</string>
+    <string name="foodscreen_error">Error al cargar los platos</string>
     <string name="foodscreen_sendtokitchen">Enviar pedido a la cocina</string>
     <string name="foodscreen_order_sent">Orden enviada</string>
     <string name="foodscreen_addobservations">Agregar observaciones</string>

@@ -38,7 +38,10 @@ class AuthViewModel @Inject constructor(
         _authState.value = AuthState.Idle
     }
 
-    fun login(code: String, password: String) {
+    fun login(
+        code: String,
+        password: String
+    ) {
         lastCode = code
         lastPassword = password
         _authState.value = AuthState.Loading
@@ -48,8 +51,7 @@ class AuthViewModel @Inject constructor(
         } else {
             viewModelScope.launch {
                 try {
-                    val resp = authService.requestToken(code = code, password = password)
-
+                    authService.requestToken(code = code, password = password)
                     _authState.value = AuthState.Success
                 } catch (e: Exception) {
                     e.printStackTrace()

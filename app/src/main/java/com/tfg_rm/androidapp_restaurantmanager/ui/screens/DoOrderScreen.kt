@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -69,10 +70,10 @@ fun DoOrderScreenPreview() {
         selectedCategory = "Todo",
         onCategorySelected = {},
         actualTable = "5",
-        BackToTables = {},
-        GetOrderDishesQuantity = { 0 }, // Devuelve un Int
-        GetOrderTotalAmount = { 0.0 }, // Devuelve un Double
-        FilterDishes = { mockDishes }, // Devuelve la lista filtrada
+        backToTables = {},
+        getOrderDishesQuantity = { 0 }, // Devuelve un Int
+        getOrderTotalAmount = { 0.0 }, // Devuelve un Double
+        filterDishes = { mockDishes }, // Devuelve la lista filtrada
         onAddDish = {},
         onPlusDish = {},
         onMinusDish = {},
@@ -89,18 +90,15 @@ fun DoOrderScreenPreview() {
 fun DoOrderScreen(
     viewModel: FoodViewModel = hiltViewModel(),
     tableViewModel: TableViewModel = hiltViewModel(),
-    BackToTables: () -> Unit = {}
+    backToTables: () -> Unit = {}
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.getDishes()
+    }
     val productosRestaurante by viewModel.dishes.collectAsState()
     val context = LocalContext.current
     val table by tableViewModel.actualTable
     when (val state = productosRestaurante) {
-        is UiState.Idle -> {
-            LaunchedEffect(Unit) {
-                viewModel.getDishes()
-            }
-        }
-
         is UiState.Loading -> LoadingScreen(stringResource(R.string.foodscreen_loading))
         is UiState.Success<List<Dishes>> -> {
             val dishes: List<Dishes> = state.data
@@ -111,10 +109,10 @@ fun DoOrderScreen(
                 dishesCategories, selectedCategory,
                 onCategorySelected = { selectedCategory = it },
                 actualTable = table.toString(),
-                BackToTables = BackToTables,
-                GetOrderDishesQuantity = { viewModel.getOrderDishesQuantity(order) },
-                GetOrderTotalAmount = { viewModel.getOrderTotalAmount(order) },
-                FilterDishes = { searchedDish ->
+                backToTables = backToTables,
+                getOrderDishesQuantity = { viewModel.getOrderDishesQuantity(order) },
+                getOrderTotalAmount = { viewModel.getOrderTotalAmount(order) },
+                filterDishes = { searchedDish ->
                     viewModel.filterDishes(
                         dishes,
                         searchedDish,
@@ -143,6 +141,39 @@ fun DoOrderScreen(
 
         }
 
+        is UiState.Error -> {
+            val error = state.message
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(stringResource(error))
+                        Button(
+                            onClick = { viewModel.getDishes() },
+                            modifier = Modifier.width(200.dp)
+                        ) {
+                            Text("Recargar")
+                        }
+                        Button(
+                            onClick = { backToTables() },
+                            modifier = Modifier.width(200.dp)
+                        ) {
+                            Text("Volver")
+                        }
+                    }
+                }
+            }
+        }
+
         else -> {}
     }
 }
@@ -153,10 +184,10 @@ fun FoodContent(
     selectedCategory: String,
     onCategorySelected: (String) -> Unit,
     actualTable: String,
-    BackToTables: () -> Unit,
-    GetOrderDishesQuantity: () -> Int,
-    GetOrderTotalAmount: () -> Double,
-    FilterDishes: (String) -> List<Dishes>,
+    backToTables: () -> Unit,
+    getOrderDishesQuantity: () -> Int,
+    getOrderTotalAmount: () -> Double,
+    filterDishes: (String) -> List<Dishes>,
     onAddDish: (Dishes) -> Unit,
     onPlusDish: (Dishes) -> Unit,
     onMinusDish: (Dishes) -> Unit,
@@ -171,13 +202,13 @@ fun FoodContent(
         topBar = {
             TopTableBar(
                 "${stringResource(R.string.table)} $actualTable",
-                onBack = { BackToTables() })
+                onBack = { backToTables() })
         },
         bottomBar = {
-            if (GetOrderDishesQuantity() > 0) {
+            if (getOrderDishesQuantity() > 0) {
                 BottomTableBar(
-                    getOrderDishesQuantity = { GetOrderDishesQuantity() },
-                    getOrderTotalAmount = { GetOrderTotalAmount() }, onSendOrder = { onSendOrder() }
+                    getOrderDishesQuantity = { getOrderDishesQuantity() },
+                    getOrderTotalAmount = { getOrderTotalAmount() }, onSendOrder = { onSendOrder() }
                 )
             }
         }
@@ -210,7 +241,7 @@ fun FoodContent(
             )
 
             DishesList(
-                FilterDishes(searchedDish),
+                filterDishes(searchedDish),
                 onAddDish = { dish -> onAddDish(dish) },
                 onPlusDish = { dish -> onPlusDish(dish) },
                 onMinusDish = { dish -> onMinusDish(dish) },
@@ -370,9 +401,7 @@ fun DishesList(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(
-
-                        ) {
+                        Column {
                             Text(dish.name)
                             Text(
                                 String.format(Locale.getDefault(), "%.2f €", dish.price),

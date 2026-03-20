@@ -138,7 +138,10 @@ fun LoginScreen(
                     is AuthState.Idle -> {
                         Button(
                             onClick = {
-                                authViewModel.login(dni, password)
+                                authViewModel.login(
+                                    dni,
+                                    password
+                                )
                             },
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(

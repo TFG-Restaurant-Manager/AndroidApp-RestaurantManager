@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +65,7 @@ fun AppNavigation(
     val orderViewModel: OrdersViewModel = hiltViewModel()
     val tableViewModel: TableViewModel = hiltViewModel()
     val foodViewModel: FoodViewModel = hiltViewModel()
+    val foodState = foodViewModel.dishes.collectAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -113,7 +115,9 @@ fun AppNavigation(
         ) {
             composable(AppScreens.LoginScreen.route) {
                 LoginScreen(
-                    loginSuccess = { navController.navigate(AppScreens.ProfileScreen.route) }
+                    loginSuccess = {
+                        navController.navigate(AppScreens.ProfileScreen.route)
+                    }
                 )
             }
             composable(AppScreens.ProfileScreen.route) {
@@ -132,7 +136,7 @@ fun AppNavigation(
             composable(AppScreens.FoodScreen.route) {
                 DoOrderScreen(
                     tableViewModel = tableViewModel,
-                    BackToTables = { navController.popBackStack() },
+                    backToTables = { navController.popBackStack() },
                     viewModel = foodViewModel
                 )
             }
