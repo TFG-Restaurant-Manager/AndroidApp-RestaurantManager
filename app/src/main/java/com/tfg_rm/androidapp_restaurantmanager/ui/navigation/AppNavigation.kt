@@ -2,6 +2,7 @@ package com.tfg_rm.androidapp_restaurantmanager.ui.navigation
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -17,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,7 +26,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.core.view.WindowCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -66,6 +70,17 @@ fun AppNavigation(
     val context = LocalContext.current
     var showExitDialog by remember { mutableStateOf(false) }
 
+    val view = LocalView.current
+
+    SideEffect {
+        val window = (view.context as Activity).window
+
+        WindowCompat
+            .getInsetsController(window, view)
+            .isAppearanceLightStatusBars = !(currentRoute in AppScreens.allBottomBarScreens()
+                || currentRoute == AppScreens.LoginScreen.route)
+    }
+
     val shouldInterceptBack = currentRoute in listOf(
         AppScreens.LoginScreen.route,
         AppScreens.ProfileScreen.route,
@@ -80,6 +95,7 @@ fun AppNavigation(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             if (currentRoute in AppScreens.allBottomBarScreens()) {
                 BottomBar(
@@ -92,7 +108,8 @@ fun AppNavigation(
         NavHost(
             navController = navController,
             startDestination = AppScreens.LoginScreen.route,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier
+                .padding(padding)
         ) {
             composable(AppScreens.LoginScreen.route) {
                 LoginScreen(

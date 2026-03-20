@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -81,7 +82,8 @@ fun TableScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFFF59E0B), RoundedCornerShape(0.dp))
-                .padding(horizontal = 16.dp, vertical = 14.dp)
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp)
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
