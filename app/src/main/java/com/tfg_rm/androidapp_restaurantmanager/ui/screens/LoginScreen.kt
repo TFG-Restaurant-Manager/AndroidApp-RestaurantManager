@@ -133,17 +133,19 @@ fun LoginScreen(
                     )
                 }
                 val context = LocalContext.current
+                LaunchedEffect(authState) {
+                    if (authState is AuthState.Error) {
+                        Toast.makeText(
+                            context,
+                            (authState as AuthState.Error).msg,
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        authViewModel.resetState()
+                    }
+                }
                 when (authState) {
                     is AuthState.Error -> {
-                        LaunchedEffect(Unit) {
-                            Toast.makeText(
-                                context,
-                                (authState as AuthState.Error).msg,
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            authViewModel.resetState()
-                        }
                     }
 
                     is AuthState.Idle -> {

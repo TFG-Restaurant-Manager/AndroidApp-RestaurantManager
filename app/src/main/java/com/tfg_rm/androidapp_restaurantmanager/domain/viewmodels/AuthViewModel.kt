@@ -42,13 +42,14 @@ class AuthViewModel @Inject constructor(
         code: String,
         password: String
     ) {
+        _authState.value = AuthState.Idle
         lastCode = code
         lastPassword = password
-        _authState.value = AuthState.Loading
 
         if (code.isEmpty() || password.isEmpty()) {
             _authState.value = AuthState.Error(R.string.loginscreen_loginerror_emptylabels)
         } else {
+            _authState.value = AuthState.Loading
             viewModelScope.launch {
                 try {
                     authService.requestToken(code = code, password = password)
@@ -56,7 +57,10 @@ class AuthViewModel @Inject constructor(
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Log.e("AuthViewModel", e.message ?: "Login failed")
-                    _authState.value = AuthState.Error(R.string.loginscreen_loginerror_common)
+                    _authState.value = AuthState.Error(
+                        if (e.message?.contains("JSON input: Invalid credentials") ?: false)
+                            R.string.loginscreen_loginerror_invalidcredentials else R.string.loginscreen_loginerror_common
+                    )
                 }
             }
         }
