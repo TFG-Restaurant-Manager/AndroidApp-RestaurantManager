@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -35,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,8 +52,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
-import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.EmployeesDto
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.Employee
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.EmployeeViewModel
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -61,14 +66,12 @@ import java.util.Locale
 @Composable
 fun PreviewProfileScreen() {
     ScheduleInformation(
-        empleado = EmployeesDto(
-            id = 1,
+        empleado = Employee(
             roleName = "Camarero",
             name = "Adsa",
             email = "email@email.com",
-            numberPhone = "123456789",
-            dni = "12345678A",
-            workSchedules = listOf(
+            phone = "123456789",
+            schedules = listOf(
                 LocalDateTime.now().minusDays(1) to LocalDateTime.now().minusDays(1).plusHours(8),
                 LocalDateTime.now().minusDays(2) to LocalDateTime.now().minusDays(2).plusHours(8),
                 LocalDateTime.now().minusDays(3) to LocalDateTime.now().minusDays(3).plusHours(8),
@@ -82,7 +85,10 @@ fun PreviewProfileScreen() {
 @Preview(showBackground = true)
 @Composable
 fun ProfileScreenPreview() {
-    ProfileScreen(BackToLogin = {})
+    ProfileScreen(
+        BackToLogin = {},
+        viewModel = hiltViewModel()
+    )
 }
 
 /**
@@ -90,58 +96,91 @@ fun ProfileScreenPreview() {
  */
 @Composable
 fun ProfileScreen(
-    BackToLogin: () -> Unit
+    BackToLogin: () -> Unit,
+    viewModel: EmployeeViewModel
 ) {
-    val empleado = EmployeesDto(
-        id = 1,
-        roleName = "Camarero",
-        name = "Adsa",
-        email = "email@email.com",
-        numberPhone = "123456789",
-        dni = "12345678A",
-        workSchedules = listOf(
-        )
-    )
-    Scaffold(
-        topBar = { TopBar(empleado) }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-        ) {
-            PersonalInformation(empleado)
-            ScheduleInformation(empleado)
-            Button(
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonColors(
-                    contentColor = Color.White,
-                    containerColor = Color.White,
-                    disabledContainerColor = Color.White,
-                    disabledContentColor = Color.White
-                ),
+    val employeeState by viewModel.employeeState.collectAsState()
+    when (employeeState) {
+        is UiState.Idle -> {
+            viewModel.getEmployeeData()
+        }
+
+        is UiState.Error -> {
+            val error = (employeeState as UiState.Error).message
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                border = BorderStroke(width = 1.dp, color = Color.Red),
-                onClick = { BackToLogin() }
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.log_out_icon),
-                    modifier = Modifier.size(16.dp),
-                    contentDescription = stringResource(R.string.logout),
-                    tint = Color.Red
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(text = stringResource(R.string.logout), color = Color.Red)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(stringResource(error))
+                        Button(
+                            onClick = { viewModel.getEmployeeData() },
+                            modifier = Modifier.width(200.dp)
+                        ) {
+                            Text("Recargar")
+                        }
+                    }
+                }
             }
         }
+
+        is UiState.Loading -> LoadingScreen(stringResource(R.string.profilescreen_loading))
+
+        is UiState.Success -> {
+            val empleado = (employeeState as UiState.Success<Employee>).data
+            Scaffold(
+                topBar = { TopBar(empleado) }
+            ) { paddingValues ->
+                Column(
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    PersonalInformation(empleado)
+                    ScheduleInformation(empleado)
+                    Button(
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonColors(
+                            contentColor = Color.White,
+                            containerColor = Color.White,
+                            disabledContainerColor = Color.White,
+                            disabledContentColor = Color.White
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        border = BorderStroke(width = 1.dp, color = Color.Red),
+                        onClick = { BackToLogin() }
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.log_out_icon),
+                            modifier = Modifier.size(16.dp),
+                            contentDescription = stringResource(R.string.logout),
+                            tint = Color.Red
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(text = stringResource(R.string.logout), color = Color.Red)
+                    }
+                }
+            }
+        }
+
+        else -> {}
     }
 }
 
 @Composable
-fun TopBar(empleado: EmployeesDto) {
+fun TopBar(empleado: Employee) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -195,7 +234,7 @@ fun TopBar(empleado: EmployeesDto) {
 }
 
 @Composable
-fun PersonalInformation(empleado: EmployeesDto) {
+fun PersonalInformation(empleado: Employee) {
     Card(
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
@@ -216,15 +255,6 @@ fun PersonalInformation(empleado: EmployeesDto) {
             )
             Spacer(modifier = Modifier.height(12.dp))
 
-            // DNI
-            Text(
-                text = stringResource(R.string.dni),
-                fontWeight = FontWeight.Medium,
-                color = Color.Gray
-            )
-            Text(text = empleado.dni, fontWeight = FontWeight.SemiBold)
-            Spacer(modifier = Modifier.height(8.dp))
-
             // Email
             Text(text = "Email", fontWeight = FontWeight.Medium, color = Color.Gray)
             Text(text = empleado.email, fontWeight = FontWeight.SemiBold)
@@ -236,13 +266,13 @@ fun PersonalInformation(empleado: EmployeesDto) {
                 fontWeight = FontWeight.Medium,
                 color = Color.Gray
             )
-            Text(text = empleado.numberPhone, fontWeight = FontWeight.SemiBold)
+            Text(text = empleado.phone, fontWeight = FontWeight.SemiBold)
         }
     }
 }
 
 @Composable
-fun ScheduleInformation(empleado: EmployeesDto) {
+fun ScheduleInformation(empleado: Employee) {
     val months = stringArrayResource(R.array.months_year)
     val actualDate = LocalDate.now();
     var daySelected by remember { mutableStateOf<LocalDate?>(null) }
@@ -335,7 +365,7 @@ fun ScheduleInformation(empleado: EmployeesDto) {
             CalendarioMes(
                 monthSelected,
                 yearSelected,
-                contarDias(empleado.workSchedules),
+                contarDias(empleado.schedules),
                 mirarDia = { daySelected = it }
             )
 
@@ -346,7 +376,7 @@ fun ScheduleInformation(empleado: EmployeesDto) {
                     dia = it.dayOfMonth,
                     mes = it.monthValue - 1,
                     año = it.year,
-                    empleado.workSchedules.filter { (inicio, fin) ->
+                    empleado.schedules.filter { (inicio, fin) ->
                         // Si el rango incluye al día concreto
                         inicio.toLocalDate() == daySelected ||
                                 fin.toLocalDate() == daySelected

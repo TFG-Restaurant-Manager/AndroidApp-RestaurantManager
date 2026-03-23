@@ -49,6 +49,8 @@
     <string name="profilescreen_nightshift">Turno de noche</string>
     <string name="profilescreen_workshift">Turno de trabajo</string>
     <string name="profilescreen_dayoff">Día de descanso</string>
+    <string name="profilescreen_loadingerror">Error al cargar los datos del usuario</string>
+    <string name="profilescreen_loading">Cargando datos de empleados</string>
 
     <!-- Table Screen -->
     <string name="tablescreen_tablesmap">Mapa de mesas</string>

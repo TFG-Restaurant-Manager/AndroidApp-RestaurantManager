@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +36,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.tfg_rm.androidapp_restaurantmanager.R
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.EmployeeViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
@@ -65,7 +65,7 @@ fun AppNavigation(
     val orderViewModel: OrdersViewModel = hiltViewModel()
     val tableViewModel: TableViewModel = hiltViewModel()
     val foodViewModel: FoodViewModel = hiltViewModel()
-    val foodState = foodViewModel.dishes.collectAsState()
+    val employeeViewModel: EmployeeViewModel = hiltViewModel()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -122,7 +122,8 @@ fun AppNavigation(
             }
             composable(AppScreens.ProfileScreen.route) {
                 ProfileScreen(
-                    BackToLogin = { navController.navigate(AppScreens.LoginScreen.route) }
+                    BackToLogin = { navController.navigate(AppScreens.LoginScreen.route) },
+                    viewModel = employeeViewModel
                 )
             }
 

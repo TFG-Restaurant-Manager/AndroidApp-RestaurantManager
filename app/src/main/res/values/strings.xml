@@ -49,6 +49,8 @@
     <string name="profilescreen_nightshift">Night shift</string>
     <string name="profilescreen_workshift">Work shift</string>
     <string name="profilescreen_dayoff">Day off</string>
+    <string name="profilescreen_loadingerror">Error loading user data</string>
+    <string name="profilescreen_loading">Loading employee data</string>
 
     <!-- Table Screen -->
     <string name="tablescreen_tablesmap">Tables map</string>
