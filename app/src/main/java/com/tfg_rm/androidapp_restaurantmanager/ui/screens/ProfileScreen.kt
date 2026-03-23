@@ -366,7 +366,8 @@ fun ScheduleInformation(empleado: Employee) {
                 monthSelected,
                 yearSelected,
                 contarDias(empleado.schedules),
-                mirarDia = { daySelected = it }
+                mirarDia = { daySelected = it },
+                daySelected
             )
 
             Spacer(Modifier.height(10.dp))
@@ -392,7 +393,8 @@ fun CalendarioMes(
     month: Int,
     year: Int,
     horario: Map<LocalDate, Int>,
-    mirarDia: (LocalDate) -> Unit
+    mirarDia: (LocalDate) -> Unit,
+    diaSeleccionado: LocalDate?
 ) {
 
     val nombresDiasSemana = stringArrayResource(R.array.days_week_short)
@@ -443,7 +445,15 @@ fun CalendarioMes(
                                     .weight(1f)
                                     .aspectRatio(1f)
                                     .padding(2.dp)
-                                    .background(Color(0xFFDFF6E3), RoundedCornerShape(6.dp))
+                                    .background(
+                                        if ((diaSeleccionado == LocalDate.of(
+                                                year,
+                                                month,
+                                                dia
+                                            )) ?: false
+                                        ) Color(0xFFC8EED0)
+                                        else Color(0xFFDFF6E3), RoundedCornerShape(6.dp)
+                                    )
                                     .clickable(onClick = {
                                         mirarDia(
                                             LocalDate.of(
@@ -475,7 +485,15 @@ fun CalendarioMes(
                                     .weight(1f)
                                     .aspectRatio(1f)
                                     .padding(2.dp)
-                                    .background(Color(0xFFF5F5F5), RoundedCornerShape(6.dp))
+                                    .background(
+                                        if ((diaSeleccionado == LocalDate.of(
+                                                year,
+                                                month,
+                                                dia
+                                            )) ?: false
+                                        ) Color(0xFFE8E8E8)
+                                        else Color(0xFFF5F5F5), RoundedCornerShape(6.dp)
+                                    )
                                     .clickable(onClick = {
                                         mirarDia(
                                             LocalDate.of(
