@@ -29,7 +29,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -55,9 +54,6 @@ import java.util.Locale
 fun OrdersScreen(
     ordersViewModel: OrdersViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(Unit) {
-        ordersViewModel.getOrders()
-    }
     val orderState by ordersViewModel.orders.collectAsState()
 
     when (orderState) {
@@ -94,7 +90,7 @@ fun OrdersScreen(
         }
 
         is UiState.Success -> {
-            val orders = (orderState as UiState.Success).data
+            val orders = (orderState as UiState.Success).data.sortedBy { it.tableId }
             Scaffold(
                 topBar = {
                     Box(
@@ -169,7 +165,7 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     StatusBadge(
-                        viewModel.getStatusStringRes(order.status),
+                        order.status,
                         viewModel
                     )
                 }
@@ -242,12 +238,27 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
 @Composable
 fun OrderItemRow(item: OrderItem) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(R.string.item_quantityformat, item.quantity, item.dish.name),
-            style = Typography.bodyLarge,
-            fontSize = 16.sp
-        )
-        if (!item.notes.isNullOrEmpty()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(
+                    R.string.item_quantityformat,
+                    item.quantity.intValue,
+                    item.dishName
+                ),
+                style = Typography.bodyLarge,
+                fontSize = 16.sp
+            )
+            Text(
+                text = "${item.quantity.intValue * item.price} €",
+                style = Typography.bodyLarge,
+                fontSize = 16.sp
+            )
+        }
+        if (item.notes != null) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(top = 4.dp)
@@ -260,7 +271,7 @@ fun OrderItemRow(item: OrderItem) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = item.notes,
+                    text = item.notes.value,
                     style = Typography.bodySmall,
                     color = Color.Gray
                 )
@@ -271,7 +282,7 @@ fun OrderItemRow(item: OrderItem) {
 
 
 @Composable
-fun StatusBadge(status: Int, viewModel: OrdersViewModel) {
+fun StatusBadge(status: String, viewModel: OrdersViewModel) {
     val colors = viewModel.getStatusColors(status)
 
     val backgroundColor = colors.first

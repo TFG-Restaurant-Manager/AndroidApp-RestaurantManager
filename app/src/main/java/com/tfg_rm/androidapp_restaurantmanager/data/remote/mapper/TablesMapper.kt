@@ -10,6 +10,6 @@ fun TablesDto.toTables(): Tables {
         section = this.section,
         posX = this.posX,
         posY = this.posY,
-        available = this.active,
+        status = this.status
     )
 }

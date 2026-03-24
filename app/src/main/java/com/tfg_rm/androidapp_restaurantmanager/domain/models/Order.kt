@@ -5,9 +5,9 @@ import java.time.LocalDateTime
 data class Order(
     val id: Int,
     val tableId: Int,
-    val status: Int,
-    val total: Float,
+    val status: String,
+    var total: Double,
     val notes: String?,
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime,
     val orderItemsList: MutableList<OrderItem> = mutableListOf()
 )

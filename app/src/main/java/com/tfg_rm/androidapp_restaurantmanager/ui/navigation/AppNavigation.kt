@@ -36,6 +36,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.tfg_rm.androidapp_restaurantmanager.R
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.EmployeeViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
@@ -66,6 +67,7 @@ fun AppNavigation(
     val tableViewModel: TableViewModel = hiltViewModel()
     val foodViewModel: FoodViewModel = hiltViewModel()
     val employeeViewModel: EmployeeViewModel = hiltViewModel()
+    val authViewModel: AuthViewModel = hiltViewModel()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -73,6 +75,13 @@ fun AppNavigation(
     var showExitDialog by remember { mutableStateOf(false) }
 
     val view = LocalView.current
+
+    val recargarEstado = {
+        orderViewModel.resetState()
+        tableViewModel.resetState()
+        foodViewModel.resetState()
+        employeeViewModel.resetState()
+    }
 
     SideEffect {
         val window = (view.context as Activity).window
@@ -115,19 +124,23 @@ fun AppNavigation(
         ) {
             composable(AppScreens.LoginScreen.route) {
                 LoginScreen(
+                    authViewModel = authViewModel,
                     loginSuccess = {
                         navController.navigate(AppScreens.ProfileScreen.route)
-                    }
+                    },
+                    recargarEstados = recargarEstado
                 )
             }
             composable(AppScreens.ProfileScreen.route) {
                 ProfileScreen(
-                    BackToLogin = { navController.navigate(AppScreens.LoginScreen.route) },
-                    viewModel = employeeViewModel
+                    BackToLogin = {
+                        navController.navigate(AppScreens.LoginScreen.route)
+                    },
+                    viewModel = employeeViewModel,
+                    authViewModel = authViewModel
                 )
             }
 
-            // ESTO DABA ERROR EN EL MERGE
             composable(AppScreens.TableScreen.route) {
                 TableScreen(
                     viewModel = tableViewModel,

@@ -20,4 +20,12 @@ class AuthRepository @Inject constructor(
 
         tokenProvider.setToken(response.token)
     }
+
+    suspend fun logout() {
+        tokenProvider.clearToken()
+    }
+
+    suspend fun loadToken(): Boolean {
+        return tokenProvider.loadToken()
+    }
 }

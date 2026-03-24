@@ -24,6 +24,11 @@ class OrdersViewModel @Inject constructor(
     private val _orders = MutableStateFlow<UiState<MutableList<Order>>>(UiState.Idle)
     val orders = _orders.asStateFlow()
 
+    fun resetState() {
+        _orders.value = UiState.Idle
+        orderService.clearCache()
+    }
+
     fun getOrders() {
         viewModelScope.launch {
             _orders.value = UiState.Loading
@@ -42,12 +47,11 @@ class OrdersViewModel @Inject constructor(
         (_orders.value as UiState.Success).data.removeAll { it.id == orderId }
     }
 
-    fun getStatusStringRes(status: Int) = when (status) {
-        1 -> R.string.order_statuscreated
-        2 -> R.string.order_statuscooked
-        3 -> R.string.order_statusready
-        4 -> R.string.order_statusdelivered
-        5 -> R.string.order_statuspaid
+    fun getStatusStringRes(status: String) = when (status) {
+        "CREATED" -> R.string.order_statuscreated
+        "COOKED" -> R.string.order_statuscooked
+        "DELIVERED" -> R.string.order_statusdelivered
+        "PAID" -> R.string.order_statuspaid
         else -> R.string.order_statuserror
     }
 
@@ -55,10 +59,10 @@ class OrdersViewModel @Inject constructor(
         return Duration.between(createdAt, LocalDateTime.now()).toMinutes()
     }
 
-    fun getStatusColors(statusId: Int): Pair<Color, Color> {
+    fun getStatusColors(statusId: String): Pair<Color, Color> {
         return when (statusId) {
-            1 -> Color(0xFFE3F2FD) to Color(0xFF1976D2)
-            2 -> Color(0xFFE8F5E9) to Color(0xFF2E7D32)
+            "CREATED" -> Color(0xFFE3F2FD) to Color(0xFF1976D2)
+            "COOKED" -> Color(0xFFE8F5E9) to Color(0xFF2E7D32)
             else -> Color(0xFFF5F5F5) to Color(0xFF616161)
         }
     }

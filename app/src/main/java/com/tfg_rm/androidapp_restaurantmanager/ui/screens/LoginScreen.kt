@@ -46,7 +46,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthState
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
@@ -56,12 +55,10 @@ import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
  */
 @Composable
 fun LoginScreen(
-    authViewModel: AuthViewModel = hiltViewModel(),
-    loginSuccess: () -> Unit
+    authViewModel: AuthViewModel,
+    loginSuccess: () -> Unit,
+    recargarEstados: () -> Unit
 ) {
-    LaunchedEffect(Unit) {
-        authViewModel.resetState()
-    }
     var code by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val authState by authViewModel.authState.collectAsState()
@@ -148,7 +145,31 @@ fun LoginScreen(
                     is AuthState.Error -> {
                     }
 
+                    is AuthState.LogOut -> {
+                        LaunchedEffect(authState) {
+                            recargarEstados()
+                        }
+                        Button(
+                            onClick = {
+                                recargarEstados()
+                                authViewModel.login(
+                                    code,
+                                    password
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFF59E0B)
+                            )
+                        ) {
+                            Text(stringResource(R.string.login))
+                        }
+                    }
+
                     is AuthState.Idle -> {
+                        LaunchedEffect(Unit) {
+                            authViewModel.login()
+                        }
                         Button(
                             onClick = {
                                 authViewModel.login(

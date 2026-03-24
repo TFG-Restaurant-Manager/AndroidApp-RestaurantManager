@@ -35,7 +35,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,9 +51,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
+import java.time.LocalDateTime
 import java.util.Locale
 
 @Preview(showBackground = true)
@@ -92,19 +93,27 @@ fun DoOrderScreen(
     tableViewModel: TableViewModel = hiltViewModel(),
     backToTables: () -> Unit = {}
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.getDishes()
-    }
     val productosRestaurante by viewModel.dishes.collectAsState()
     val context = LocalContext.current
     val table by tableViewModel.actualTable
     when (val state = productosRestaurante) {
+        is UiState.Idle -> {
+            viewModel.getDishes()
+        }
+
         is UiState.Loading -> LoadingScreen(stringResource(R.string.foodscreen_loading))
         is UiState.Success<List<Dishes>> -> {
             val dishes: List<Dishes> = state.data
             val dishesCategories: List<String> = viewModel.getDishesCategories(dishes)
             var selectedCategory by remember { mutableStateOf(dishesCategories[0]) }
-            val order = remember { mutableStateOf(viewModel.getOrder(table)) }
+            val order = remember {
+                mutableStateOf(
+                    Order(
+                        1, 1, "CREATED", 0.0, null, LocalDateTime.now()
+                    )
+                )
+            }
+            val text = stringResource(R.string.foodscreen_order_sent)
             FoodContent(
                 dishesCategories, selectedCategory,
                 onCategorySelected = { selectedCategory = it },
@@ -130,12 +139,15 @@ fun DoOrderScreen(
                 onSendOrder = {
                     // Save order to repository (per table)
                     //viewModel.saveOrder(order.value)
+
                     Toast.makeText(
                         context,
-                        context.getString(R.string.foodscreen_order_sent),
+                        text,
                         Toast.LENGTH_SHORT
                     ).show()
-                    order.value = viewModel.getOrder(table)
+                    order.value = Order(
+                        1, 1, "CREATED", 0.0, null, LocalDateTime.now()
+                    )
                 }
             )
 

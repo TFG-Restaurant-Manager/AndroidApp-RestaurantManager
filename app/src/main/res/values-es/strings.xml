@@ -34,6 +34,7 @@
     <string name="loginscreen_password_placeholder">Introduzca su contraseña</string>
     <string name="loginscreen_selectrestaurant">Seleccione restaurante</string>
     <string name="loginscreen_loginerror_emptylabels">Complete todos los campos por favor</string>
+    <string name="loginscreen_loginerror_conexion">No hay conexión a internet</string>
     <string name="loginscreen_loginerror_common">El login ha fallado</string>
     <string name="loginscreen_loginerror_invalidcredentials">Usuario o contraseña incorrectos</string>
     <string name="loginscreen_missingcredentials">Faltan credenciales</string>
@@ -57,7 +58,11 @@
     <string name="tablescreen_selectsection">Seleccionar Sección</string>
     <string name="tablescreen_selectsectiontable">Seleccione una sección y toque una mesa</string>
     <string name="tablescreen_error">Error al cargar las mesas</string>
-    <string name="tablescreen_loading">Loading the tables</string>
+    <string name="tablescreen_loading">Cargando las mesas</string>
+    <string name="tablescreen_peoplepertable_little">P</string>
+    <string name="tablescreen_peoplepertable">Personas por mesa</string>
+    <string name="tablescreen_tablenumber_little">N</string>
+    <string name="tablescreen_tablenumber">Número mesa</string>
 
     <!-- Generic words -->
     <string name="exitapp">Salir de la aplicación</string>

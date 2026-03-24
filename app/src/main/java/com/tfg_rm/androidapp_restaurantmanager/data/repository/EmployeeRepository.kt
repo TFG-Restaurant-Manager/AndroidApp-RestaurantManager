@@ -1,5 +1,6 @@
 package com.tfg_rm.androidapp_restaurantmanager.data.repository
 
+import android.util.Log
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.datasource.EmployeeRemoteDataSource
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.mapper.toEmployee
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.TokenProvider
@@ -11,6 +12,7 @@ class EmployeeRepository @Inject constructor(
     private val remote: EmployeeRemoteDataSource
 ) {
     suspend fun getEmployeeData(): Employee {
+        Log.e("EmployeeRepository", tokenProvider.getToken() ?: "null")
         return remote.getEmployeeData().toEmployee()
     }
 }

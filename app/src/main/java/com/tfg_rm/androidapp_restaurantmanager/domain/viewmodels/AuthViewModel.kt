@@ -16,6 +16,7 @@ sealed class AuthState {
     object Idle : AuthState()
     object Loading : AuthState()
     object Success : AuthState()
+    object LogOut : AuthState()
     data class Error(val msg: Int) : AuthState()
 }
 
@@ -29,7 +30,24 @@ class AuthViewModel @Inject constructor(
 
     private var lastCode: String? = null
     private var lastPassword: String? = null
-    private var lastEmployeeId: Long? = null
+
+    fun login() {
+        viewModelScope.launch {
+            try {
+                val savedToken = authService.loadToken()
+                Log.i("AuthViewModel", "token: ${savedToken ?: "null"}")
+                if (savedToken) {
+                    // Hay token, podemos considerarlo como login ya hecho
+                    _authState.value = AuthState.Success
+                } else {
+                    _authState.value = AuthState.Idle
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("AuthViewModel", e.message ?: "Error al cargar el usuario guardado")
+            }
+        }
+    }
 
     /**
      * Method to reset the state of the authentication on error displayed in the ui
@@ -42,7 +60,6 @@ class AuthViewModel @Inject constructor(
         code: String,
         password: String
     ) {
-        _authState.value = AuthState.Idle
         lastCode = code
         lastPassword = password
 
@@ -59,10 +76,18 @@ class AuthViewModel @Inject constructor(
                     Log.e("AuthViewModel", e.message ?: "Login failed")
                     _authState.value = AuthState.Error(
                         if (e.message?.contains("JSON input: Invalid credentials") ?: false)
-                            R.string.loginscreen_loginerror_invalidcredentials else R.string.loginscreen_loginerror_common
+                            R.string.loginscreen_loginerror_invalidcredentials else
+                            if (e.message?.contains("Unable to resolve host") ?: false)
+                                R.string.loginscreen_loginerror_conexion
+                            else R.string.loginscreen_loginerror_common
                     )
                 }
             }
         }
+    }
+
+    fun logout() {
+        _authState.value = AuthState.LogOut
+        viewModelScope.launch { authService.logout() }
     }
 }

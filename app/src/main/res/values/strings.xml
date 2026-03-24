@@ -33,6 +33,7 @@
     <string name="loginscreen_password_placeholder">Enter your password</string>
     <string name="loginscreen_selectrestaurant">Select restaurant</string>
     <string name="loginscreen_loginerror_emptylabels">Please fill in all the fields</string>
+    <string name="loginscreen_loginerror_conexion">There is no internet connection</string>
     <string name="loginscreen_loginerror_common">Login failed</string>
     <string name="loginscreen_loginerror_invalidcredentials">Incorrect username or password</string>
     <string name="loginscreen_missingcredentials">Missing credentials</string>
@@ -58,6 +59,10 @@
     <string name="tablescreen_selectsectiontable">Select a section and tap a table</string>
     <string name="tablescreen_error">Error loading the tables</string>
     <string name="tablescreen_loading">Cargando las mesas</string>
+    <string name="tablescreen_peoplepertable_little">P</string>
+    <string name="tablescreen_peoplepertable">People per table</string>
+    <string name="tablescreen_tablenumber_little">N</string>
+    <string name="tablescreen_tablenumber">Table number</string>
 
     <!-- Generic words -->
     <string name="exitapp">Exit the app</string>

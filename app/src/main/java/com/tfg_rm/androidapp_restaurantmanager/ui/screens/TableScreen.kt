@@ -1,5 +1,6 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,20 +21,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -74,10 +77,6 @@ fun TableScreen(
     viewModel: TableViewModel = hiltViewModel(),
     goToAddOrders: () -> Unit = {}
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.getTables()
-    }
-    val actualSection = remember { mutableIntStateOf(2) }
     val tableState by viewModel.tables.collectAsState()
 
     when (tableState) {
@@ -118,65 +117,97 @@ fun TableScreen(
 
         is UiState.Success<*> -> {
             val tables = (tableState as UiState.Success<List<Tables>>).data
-            val cards = viewModel.getTableInfo(actualSection.intValue)
-            val sectionsList = viewModel.getSections()
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color(0xFFF59E0B), RoundedCornerShape(0.dp))
-                        .statusBarsPadding()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = stringResource(R.string.tablescreen_tablesmap).uppercase(Locale.getDefault()),
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 20.sp
-                            ),
-                            color = Color.White
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(R.string.tablescreen_selectsectiontable),
-                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                            color = Color.White.copy(alpha = 0.9f)
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Divider(color = Color.White.copy(alpha = 0.18f), thickness = 1.dp)
-                    }
-                }
-
+            tables.forEach { Log.i("Mesas", it.toString()) }
+            val sectionsList = viewModel.getSections(tables)
+            val actualSection = remember { mutableStateOf(sectionsList[0]) }
+            val cards = viewModel.getTableInfo(actualSection.value, tables)
+            val helpExpanded = remember { mutableStateOf(false) }
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
                 ) {
-
-                    SelectSection(actualSection, sectionsList)
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFF59E0B), RoundedCornerShape(0.dp))
+                            .statusBarsPadding()
+                            .padding(horizontal = 16.dp, vertical = 16.dp)
                     ) {
-                        cards.forEach { infoUi ->
-                            InformationCard(
-                                infoUi = infoUi,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .aspectRatio(1f)
-                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.tablescreen_tablesmap).uppercase(
+                                        Locale.getDefault()
+                                    ),
+                                    style = MaterialTheme.typography.titleLarge.copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 20.sp
+                                    ),
+                                    color = Color.White
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = stringResource(R.string.tablescreen_selectsectiontable),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                                    color = Color.White.copy(alpha = 0.9f)
+                                )
+                            }
+                            IconButton(
+                                onClick = { helpExpanded.value = !helpExpanded.value }
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.HelpOutline,
+                                    null,
+                                    tint = Color.White
+                                )
+                            }
                         }
                     }
 
-                    TableMap(
-                        tables = tables,
-                        onTableClick = { tablesDto ->
-                            viewModel.setTable(tablesDto.id)
-                            goToAddOrders()
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+
+                        SelectSection(actualSection, sectionsList)
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            cards.forEach { infoUi ->
+                                InformationCard(
+                                    infoUi = infoUi,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .aspectRatio(1f)
+                                )
+                            }
                         }
+
+                        TableMap(
+                            tables = tables.filter { it.section == actualSection.value },
+                            onTableClick = { tablesDto ->
+                                viewModel.setTable(tablesDto.id)
+                                goToAddOrders()
+                            }
+                        )
+                    }
+                }
+                if (helpExpanded.value) {
+                    HelpOverlay(
+                        modifier = Modifier.align(Alignment.TopEnd),
+                        onClose = { helpExpanded.value = false }
                     )
                 }
             }
@@ -201,11 +232,14 @@ fun TableMap(
     val sizeTablePx = with(density) { sizeTable.toPx() }
     val marginPx = with(density) { margin.toPx() }
 
+    val minX = tables.minOf { it.posX }
+    val minY = tables.minOf { it.posY }
+
     val maxX = tables.maxOf { it.posX }
     val maxY = tables.maxOf { it.posY }
 
-    val mapWidthPx = marginPx + (maxX + 1) * (sizeTablePx + marginPx)
-    val mapHeightPx = marginPx + (maxY + 1) * (sizeTablePx + marginPx)
+    val mapWidthPx = marginPx + (maxX - minX + 1) * (sizeTablePx + marginPx)
+    val mapHeightPx = marginPx + (maxY - minY + 1) * (sizeTablePx + marginPx)
 
 
     Box(
@@ -221,8 +255,8 @@ fun TableMap(
                     val newX = offset.x + drag.x
                     val newY = offset.y + drag.y
 
-                    val minX = minOf(0f, viewportSize.width - mapWidthPx)
-                    val minY = minOf(0f, viewportSize.height - mapHeightPx)
+                    val minX = minOf(0f, viewportSize.width.toFloat() - mapWidthPx.toFloat())
+                    val minY = minOf(0f, viewportSize.height.toFloat() - mapHeightPx.toFloat())
 
                     offset = Offset(
                         x = newX.coerceIn(minX, 0f),
@@ -250,16 +284,19 @@ fun TableMap(
                 }
         ) {
             tables.forEach { table ->
-                val bgColor = if (table.available) Color(0xFF4CAF50) else Color(0xFFBDBDB)
-                val borderColor = if (table.available) Color(0xFF2E7D32) else Color(0xFF9E9E9E)
-                val textColor = if (table.available) Color.White else Color.DarkGray
+                val bgColor =
+                    if (table.status.equals("AVAILABLE")) Color(0xFF4CAF50) else Color(0xFFBDBDB)
+                val borderColor =
+                    if (table.status.equals("AVAILABLE")) Color(0xFF2E7D32) else Color(0xFF9E9E9E)
+                val textColor =
+                    if (table.status.equals("AVAILABLE")) Color.White else Color.DarkGray
 
                 Box(
                     modifier = Modifier
                         .size(sizeTable)
                         .offset(
-                            x = margin + (table.posX) * (sizeTable + margin),
-                            y = margin + (table.posY) * (sizeTable + margin)
+                            x = margin + (table.posX - minX) * (sizeTable + margin),
+                            y = margin + (table.posY - minY) * (sizeTable + margin)
                         )
                         .border(
                             width = 2.dp,
@@ -273,12 +310,22 @@ fun TableMap(
                         .clickable { onTableClick(table) },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = table.capacity.toString(),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = textColor,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "${table.capacity} ${stringResource(R.string.tablescreen_peoplepertable_little)}",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = textColor,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            text = "${stringResource(R.string.tablescreen_tablenumber_little)} ${table.id}",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = textColor,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
                 }
             }
         }
@@ -324,19 +371,22 @@ fun InformationCard(
 }
 
 @Composable
-fun SelectSection(actualSection: MutableIntState, sectionsList: List<String>) {
+fun SelectSection(actualSection: MutableState<String>, sectionsList: List<String>) {
     var expanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp)
+            .padding(top = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = stringResource(R.string.tablescreen_selectsection),
-            style = MaterialTheme.typography.titleSmall
+            style = MaterialTheme.typography.titleMedium
         )
         Box(
             modifier = Modifier
+                .fillMaxWidth()
                 .clickable { expanded = true }
                 .height(40.dp)
                 .width(100.dp)
@@ -347,7 +397,7 @@ fun SelectSection(actualSection: MutableIntState, sectionsList: List<String>) {
             Text(
                 modifier = Modifier.align(alignment = Alignment.Center),
                 textAlign = TextAlign.Center,
-                text = sectionsList[(actualSection.intValue - 1)],
+                text = actualSection.value,
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF333333)
             )
@@ -361,11 +411,44 @@ fun SelectSection(actualSection: MutableIntState, sectionsList: List<String>) {
                 DropdownMenuItem(
                     text = { Text(name) },
                     onClick = {
-                        actualSection.intValue = name.last().toString().toInt()
+                        actualSection.value = name
                         expanded = false
                     }
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun HelpOverlay(
+    modifier: Modifier = Modifier,
+    onClose: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .padding(top = 80.dp, end = 16.dp) // debajo del botón
+            .background(Color.White, RoundedCornerShape(12.dp))
+            .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+            .padding(12.dp)
+    ) {
+        Column {
+            Text("Leyenda:", fontWeight = FontWeight.Bold)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text("${stringResource(R.string.tablescreen_peoplepertable_little)}: ${stringResource(R.string.tablescreen_peoplepertable)}")
+            Text("${stringResource(R.string.tablescreen_tablenumber_little)}: ${stringResource(R.string.tablescreen_tablenumber)}")
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Cerrar",
+                color = Color.Blue,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .clickable { onClose() }
+            )
         }
     }
 }

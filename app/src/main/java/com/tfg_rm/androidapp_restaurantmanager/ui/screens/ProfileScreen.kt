@@ -56,6 +56,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Employee
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.EmployeeViewModel
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -87,7 +88,8 @@ fun PreviewProfileScreen() {
 fun ProfileScreenPreview() {
     ProfileScreen(
         BackToLogin = {},
-        viewModel = hiltViewModel()
+        viewModel = hiltViewModel(),
+        authViewModel = hiltViewModel()
     )
 }
 
@@ -97,7 +99,8 @@ fun ProfileScreenPreview() {
 @Composable
 fun ProfileScreen(
     BackToLogin: () -> Unit,
-    viewModel: EmployeeViewModel
+    viewModel: EmployeeViewModel,
+    authViewModel: AuthViewModel
 ) {
     val employeeState by viewModel.employeeState.collectAsState()
     when (employeeState) {
@@ -127,6 +130,15 @@ fun ProfileScreen(
                             modifier = Modifier.width(200.dp)
                         ) {
                             Text("Recargar")
+                        }
+                        Button(
+                            onClick = {
+                                authViewModel.logout()
+                                BackToLogin()
+                            },
+                            modifier = Modifier.width(200.dp)
+                        ) {
+                            Text("Cerrar sesion")
                         }
                     }
                 }
@@ -160,7 +172,10 @@ fun ProfileScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         border = BorderStroke(width = 1.dp, color = Color.Red),
-                        onClick = { BackToLogin() }
+                        onClick = {
+                            authViewModel.logout()
+                            BackToLogin()
+                        }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.log_out_icon),

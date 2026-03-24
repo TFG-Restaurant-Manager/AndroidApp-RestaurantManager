@@ -21,12 +21,17 @@ class EmployeeViewModel @Inject constructor(
     private val _employeeState = MutableStateFlow<UiState<Employee>>(UiState.Idle)
     val employeeState: StateFlow<UiState<Employee>> = _employeeState.asStateFlow()
 
+    fun resetState() {
+        _employeeState.value = UiState.Idle
+    }
+
     fun getEmployeeData() {
         viewModelScope.launch {
             _employeeState.value = UiState.Loading
             try {
                 val data = service.getEmployeeData()
                 _employeeState.value = UiState.Success(data)
+                Log.i("EmployeeViewModel", "Employee data recieved succesfully")
             } catch (e: Exception) {
                 e.printStackTrace()
                 Log.e("EmployeeViewModel", e.message ?: "Employee data error")

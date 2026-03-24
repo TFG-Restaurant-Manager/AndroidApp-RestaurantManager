@@ -13,4 +13,12 @@ class AuthService @Inject constructor(
         code = code,
         password = password
     )
+
+    suspend fun logout() {
+        authRepository.logout()
+    }
+
+    suspend fun loadToken(): Boolean {
+        return authRepository.loadToken()
+    }
 }

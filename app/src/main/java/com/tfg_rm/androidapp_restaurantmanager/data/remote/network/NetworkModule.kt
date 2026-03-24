@@ -1,8 +1,10 @@
 package com.tfg_rm.androidapp_restaurantmanager.data.remote.network
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -20,8 +22,12 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideTokenProvider(): TokenProvider {
-        return TokenProvider()
+    fun provideTokenProvider(
+        @ApplicationContext context: Context
+    ): TokenProvider {
+        return TokenProvider(
+            context = context
+        )
     }
 
     @Provides
@@ -43,7 +49,7 @@ object NetworkModule {
             install(WebSockets)
 
             defaultRequest {
-                url("https://elite-did-forecasts-necessarily.trycloudflare.com/")
+                url("https://across-animal-disks-newspapers.trycloudflare.com/")
 
                 tokenProvider.getToken()?.let {
                     header("Authorization", "Bearer $it")
