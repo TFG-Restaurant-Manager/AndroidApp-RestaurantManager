@@ -1,6 +1,7 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.navigation
 
 import android.app.Activity
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
@@ -18,7 +19,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +39,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.tfg_rm.androidapp_restaurantmanager.R
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthState
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.EmployeeViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
@@ -81,6 +85,22 @@ fun AppNavigation(
         tableViewModel.resetState()
         foodViewModel.resetState()
         employeeViewModel.resetState()
+    }
+
+    val authState by authViewModel.authState.collectAsState()
+
+    LaunchedEffect(authState) {
+        if (authState == AuthState.LogOut) {
+            recargarEstado()
+            navController.navigate(AppScreens.LoginScreen.route) {
+                popUpTo(0)
+            }
+            Toast.makeText(
+                context,
+                R.string.loginscreen_loginerror_reloadtoken,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     SideEffect {
@@ -133,9 +153,6 @@ fun AppNavigation(
             }
             composable(AppScreens.ProfileScreen.route) {
                 ProfileScreen(
-                    BackToLogin = {
-                        navController.navigate(AppScreens.LoginScreen.route)
-                    },
                     viewModel = employeeViewModel,
                     authViewModel = authViewModel
                 )

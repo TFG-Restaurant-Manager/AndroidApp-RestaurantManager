@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tfg_rm.androidapp_restaurantmanager.R
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.SessionManager
 import com.tfg_rm.androidapp_restaurantmanager.domain.services.AuthService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +25,15 @@ sealed class AuthState {
 class AuthViewModel @Inject constructor(
     private val authService: AuthService
 ) : ViewModel() {
+
+    init {
+        viewModelScope.launch {
+            SessionManager.sessionExpired.collect {
+                Log.e("AuthViewModel", "Auth cambiado, se supone")
+                _authState.value = AuthState.LogOut
+            }
+        }
+    }
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()

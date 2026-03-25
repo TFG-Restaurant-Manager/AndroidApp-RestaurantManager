@@ -14,7 +14,7 @@ class TokenProvider(
 
     private val TOKEN_KEY = stringPreferencesKey("token")
 
-    private var token: String? = "Prueba"
+    private var token: String? = null
 
     suspend fun loadToken(): Boolean {
         val prefs = context.dataStore.data.first()

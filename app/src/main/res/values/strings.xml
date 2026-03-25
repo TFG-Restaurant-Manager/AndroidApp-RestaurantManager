@@ -34,6 +34,7 @@
     <string name="loginscreen_selectrestaurant">Select restaurant</string>
     <string name="loginscreen_loginerror_emptylabels">Please fill in all the fields</string>
     <string name="loginscreen_loginerror_conexion">There is no internet connection</string>
+    <string name="loginscreen_loginerror_reloadtoken">You need to reset the registry</string>
     <string name="loginscreen_loginerror_common">Login failed</string>
     <string name="loginscreen_loginerror_invalidcredentials">Incorrect username or password</string>
     <string name="loginscreen_missingcredentials">Missing credentials</string>

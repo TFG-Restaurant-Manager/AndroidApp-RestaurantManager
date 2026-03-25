@@ -35,6 +35,7 @@
     <string name="loginscreen_selectrestaurant">Seleccione restaurante</string>
     <string name="loginscreen_loginerror_emptylabels">Complete todos los campos por favor</string>
     <string name="loginscreen_loginerror_conexion">No hay conexión a internet</string>
+    <string name="loginscreen_loginerror_reloadtoken">Tiene que reiniciar el registro</string>
     <string name="loginscreen_loginerror_common">El login ha fallado</string>
     <string name="loginscreen_loginerror_invalidcredentials">Usuario o contraseña incorrectos</string>
     <string name="loginscreen_missingcredentials">Faltan credenciales</string>

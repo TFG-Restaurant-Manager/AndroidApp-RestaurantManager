@@ -87,7 +87,6 @@ fun PreviewProfileScreen() {
 @Composable
 fun ProfileScreenPreview() {
     ProfileScreen(
-        BackToLogin = {},
         viewModel = hiltViewModel(),
         authViewModel = hiltViewModel()
     )
@@ -98,7 +97,6 @@ fun ProfileScreenPreview() {
  */
 @Composable
 fun ProfileScreen(
-    BackToLogin: () -> Unit,
     viewModel: EmployeeViewModel,
     authViewModel: AuthViewModel
 ) {
@@ -134,7 +132,6 @@ fun ProfileScreen(
                         Button(
                             onClick = {
                                 authViewModel.logout()
-                                BackToLogin()
                             },
                             modifier = Modifier.width(200.dp)
                         ) {
@@ -174,7 +171,6 @@ fun ProfileScreen(
                         border = BorderStroke(width = 1.dp, color = Color.Red),
                         onClick = {
                             authViewModel.logout()
-                            BackToLogin()
                         }
                     ) {
                         Icon(
