@@ -129,7 +129,7 @@ fun DoOrderScreen(
                     )
                 },
                 onAddDish = { dish -> viewModel.addDishToOrder(order, dish) },
-                onPlusDish = { dish -> viewModel.plusDishOnOrder(order, dish) },
+                onPlusDish = { dish -> viewModel.addDishToOrder(order, dish) },
                 onMinusDish = { dish -> viewModel.minusDishOnOrder(order, dish) },
                 onUpdateNote = { dish, newNote -> viewModel.updateNotes(dish, newNote, order) },
                 isDishInOrder = { dish -> viewModel.isDishInOrder(order, dish) },

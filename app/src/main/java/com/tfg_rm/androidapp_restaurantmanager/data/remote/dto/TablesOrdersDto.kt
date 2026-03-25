@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TablesOrdersDto(
     val tableId: Int,
+    val tableName: String,
     val capacity: Int,
     val posX: Double,
     val posY: Double,
@@ -15,7 +16,5 @@ data class TablesOrdersDto(
     val orderTotal: Double?,
     val orderNotes: String?,
     val orderCreatedAt: String?,
-    val dishName: String?,
-    val dishPrice: Double?,
-    val categoryNam: String?
+    val orderItems: List<OrderItemDto>?
 )

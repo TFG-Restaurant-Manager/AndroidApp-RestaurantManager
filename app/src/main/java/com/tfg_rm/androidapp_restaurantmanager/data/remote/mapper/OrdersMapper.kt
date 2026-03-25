@@ -1,7 +1,5 @@
 package com.tfg_rm.androidapp_restaurantmanager.data.remote.mapper
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderDto
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderItemDto
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
@@ -22,10 +20,10 @@ fun OrderDto.toOrder(): Order {
 
 fun OrderItemDto.toOrderItem(): OrderItem {
     return OrderItem(
-        dishName = this.dish.toDishes().name,
-        quantity = mutableIntStateOf(this.quantity),
-        notes = this.notes as MutableState<String>?,
-        price = this.unitPrice,
-        category = this.category
+        orderItemId = this.orderItemId,
+        dishId = this.dishId,
+        dishName = this.dishName,
+        notes = this.itemNotes,
+        price = this.orderItemPrice
     )
 }

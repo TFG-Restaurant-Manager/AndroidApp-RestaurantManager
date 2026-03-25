@@ -2,6 +2,8 @@ package com.tfg_rm.androidapp_restaurantmanager.data.repository
 
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.datasource.TablesOrdersDataSource
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.TablesOrdersDto
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.mapper.toOrderItem
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,9 +38,7 @@ fun TablesOrdersDto.toTablesOrders(): TablesOrders {
         orderTotal = this.orderTotal,
         orderNotes = this.orderNotes,
         orderCreatedAt = this.orderCreatedAt,
-        dishName = this.dishName,
-        dishPrice = this.dishPrice,
-        categoryNam = this.categoryNam
+        orderItems = this.orderItems?.map { it.toOrderItem() }
     )
 }
 
@@ -54,7 +54,5 @@ data class TablesOrders(
     val orderTotal: Double?,
     val orderNotes: String?,
     val orderCreatedAt: String?,
-    val dishName: String?,
-    val dishPrice: Double?,
-    val categoryNam: String?
+    val orderItems: List<OrderItem>?
 )

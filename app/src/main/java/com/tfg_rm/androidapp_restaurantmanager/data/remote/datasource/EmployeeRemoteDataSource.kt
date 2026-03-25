@@ -10,7 +10,7 @@ class EmployeeRemoteDataSource @Inject constructor(
     private val client: HttpClient
 ) {
     suspend fun getEmployeeData(): EmployeesDto {
-        val response = client.get("api/employee/getEmployeeInfo")
+        val response = client.get("api/employee/info")
         return response.body()
     }
 }

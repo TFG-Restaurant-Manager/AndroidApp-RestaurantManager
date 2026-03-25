@@ -1,10 +1,8 @@
 package com.tfg_rm.androidapp_restaurantmanager.data.repository
 
-import androidx.compose.runtime.mutableIntStateOf
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.datasource.OrderRemoteDataSource
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.TokenProvider
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
-import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
 import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -31,20 +29,7 @@ class RepositoryOrders @Inject constructor(
                     total = first.orderTotal!!,
                     notes = first.orderNotes,
                     createdAt = LocalDateTime.parse(first.orderCreatedAt),
-
-                    orderItemsList = items
-                        .groupBy { it.dishName }
-                        .map { (_, dishes) ->
-                            val firstDish = dishes.first()
-
-                            OrderItem(
-                                dishName = firstDish.dishName!!,
-                                price = firstDish.dishPrice!!,
-                                category = firstDish.categoryNam!!,
-                                quantity = mutableIntStateOf(dishes.size)
-                            )
-                        }
-                        .toMutableList()
+                    orderItemsList = first.orderItems!!.toMutableList()
                 )
             }
     }

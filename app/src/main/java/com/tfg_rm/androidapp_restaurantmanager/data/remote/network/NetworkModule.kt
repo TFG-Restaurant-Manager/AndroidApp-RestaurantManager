@@ -55,7 +55,7 @@ object NetworkModule {
             install(WebSockets)
 
             defaultRequest {
-                url("https://amy-coordinate-newport-immigration.trycloudflare.com/")
+                url("https://investigation-expects-formula-criterion.trycloudflare.com/")
 
                 tokenProvider.getToken()?.let {
                     header("Authorization", "Bearer $it")

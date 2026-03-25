@@ -189,7 +189,10 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
             )
 
             order.orderItemsList.forEach { item ->
-                OrderItemRow(item)
+                OrderItemRow(
+                    item,
+                    order.orderItemsList.count { it.dishId == item.dishId }
+                )
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -236,7 +239,7 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
 }
 
 @Composable
-fun OrderItemRow(item: OrderItem) {
+fun OrderItemRow(item: OrderItem, quantity: Int) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -246,19 +249,20 @@ fun OrderItemRow(item: OrderItem) {
             Text(
                 text = stringResource(
                     R.string.item_quantityformat,
-                    item.quantity.intValue,
+                    quantity,
                     item.dishName
                 ),
                 style = Typography.bodyLarge,
                 fontSize = 16.sp
             )
             Text(
-                text = "${item.quantity.intValue * item.price} €",
+                text = "${quantity * item.price} €",
                 style = Typography.bodyLarge,
                 fontSize = 16.sp
             )
         }
-        if (item.notes != null) {
+        val notes = item.notes
+        if (notes != null) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(top = 4.dp)
@@ -271,7 +275,7 @@ fun OrderItemRow(item: OrderItem) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = item.notes.value,
+                    text = notes,
                     style = Typography.bodySmall,
                     color = Color.Gray
                 )
