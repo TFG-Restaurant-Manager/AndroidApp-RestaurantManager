@@ -9,23 +9,37 @@
     <string name="order_statusdelivered">Entregado</string>
     <string name="order_statuspaid">Pagado</string>
     <string name="order_statuserror">Error</string>
+    <string name="order_geterror">Error al cargar las ordenes</string>
     <string name="table_label">Mesa %1$d</string>
     <string name="time_ago">Hace %1$d minutos</string>
     <string name="item_quantityformat">%1$dx %2$s</string>
     <string name="currency_format">%.2f €</string>
     <string name="mark_delivered">Marcar Entregado</string>
+    <string name="exitapp_confirmation">¿Estás seguro de que quieres cerrar la aplicación?</string>
 
     <!-- Food Screen -->
     <string name="foodscreen_loading">Cargando productos...</string>
     <string name="foodscreen_search">Buscar productos...</string>
+    <string name="foodscreen_noavailable">No disponible</string>
+    <string name="foodscreen_error">Error al cargar los platos</string>
     <string name="foodscreen_sendtokitchen">Enviar pedido a la cocina</string>
+    <string name="foodscreen_order_sent">Orden enviada</string>
     <string name="foodscreen_addobservations">Agregar observaciones</string>
     <string name="foodscreen_observationsexample">Observaciones (sin cebolla, sin sal, alergias, etc.)</string>
 
     <!-- Login Screen -->
     <string name="loginscreen_subtitle">Sistema de Gestión de Pedidos</string>
-    <string name="loginscreen_userquest">DNI del Empleado</string>
-    <string name="loginscreen_placeholder">Ingrese su DNI</string>
+    <string name="loginscreen_userquest">Usuario del Empleado</string>
+    <string name="loginscreen_placeholder">Ingrese su Usuario</string>
+    <string name="loginscreen_password_label">Contraseña</string>
+    <string name="loginscreen_password_placeholder">Introduzca su contraseña</string>
+    <string name="loginscreen_selectrestaurant">Seleccione restaurante</string>
+    <string name="loginscreen_loginerror_emptylabels">Complete todos los campos por favor</string>
+    <string name="loginscreen_loginerror_conexion">No hay conexión a internet</string>
+    <string name="loginscreen_loginerror_reloadtoken">Tiene que reiniciar el registro</string>
+    <string name="loginscreen_loginerror_common">El login ha fallado</string>
+    <string name="loginscreen_loginerror_invalidcredentials">Usuario o contraseña incorrectos</string>
+    <string name="loginscreen_missingcredentials">Faltan credenciales</string>
 
     <!-- Profile Screen -->
     <string name="profilescreen_titleself">Mi perfil</string>
@@ -38,13 +52,24 @@
     <string name="profilescreen_nightshift">Turno de noche</string>
     <string name="profilescreen_workshift">Turno de trabajo</string>
     <string name="profilescreen_dayoff">Día de descanso</string>
+    <string name="profilescreen_loadingerror">Error al cargar los datos del usuario</string>
+    <string name="profilescreen_loading">Cargando datos de empleados</string>
 
     <!-- Table Screen -->
     <string name="tablescreen_tablesmap">Mapa de mesas</string>
     <string name="tablescreen_selectsection">Seleccionar Sección</string>
     <string name="tablescreen_selectsectiontable">Seleccione una sección y toque una mesa</string>
+    <string name="tablescreen_error">Error al cargar las mesas</string>
+    <string name="tablescreen_loading">Cargando las mesas</string>
+    <string name="tablescreen_peoplepertable_little">P</string>
+    <string name="tablescreen_peoplepertable">Personas por mesa</string>
+    <string name="tablescreen_tablenumber_little">N</string>
+    <string name="tablescreen_tablenumber">Número mesa</string>
 
     <!-- Generic words -->
+    <string name="exitapp">Salir de la aplicación</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
     <string name="login">Iniciar sesión</string>
     <string name="logout">Cerrar sesión</string>
     <string name="table">Mesa</string>

@@ -1,13 +1,36 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.screens
 
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,54 +40,103 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.util.Locale
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
 import com.tfg_rm.androidapp_restaurantmanager.ui.theme.Typography
+import java.util.Locale
 
 @Composable
-fun OrdersScreen(ordersViewModel: OrdersViewModel) {
-    Scaffold(
-        topBar = {
+fun OrdersScreen(
+    ordersViewModel: OrdersViewModel = hiltViewModel()
+) {
+    val orderState by ordersViewModel.orders.collectAsState()
+
+    when (orderState) {
+        is UiState.Idle -> {
+            ordersViewModel.getOrders()
+        }
+
+        is UiState.Loading -> LoadingScreen("")
+        is UiState.Error -> {
+            val error = (orderState as UiState.Error).message
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFF59E0B))
-                    .padding(horizontal = 16.dp, vertical = 14.dp)
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.orders_title).uppercase(Locale.getDefault()),
-                        style = Typography.titleLarge.copy(fontSize = 20.sp, fontWeight = FontWeight.SemiBold),
-                        color = Color.White
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = stringResource(R.string.orders_subtitle),
-                        style = Typography.bodyMedium.copy(fontSize = 14.sp),
-                        color = Color.White.copy(alpha = 0.95f)
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Divider(color = Color.White.copy(alpha = 0.18f), thickness = 1.dp)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(stringResource(error))
+                        Button(
+                            onClick = { ordersViewModel.getOrders() },
+                            modifier = Modifier.width(200.dp)
+                        ) {
+                            Text("Recargar")
+                        }
+                    }
                 }
             }
         }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(vertical = 16.dp)
-        ) {
-            items(ordersViewModel.ordersList) { order ->
-                OrderCard(order, ordersViewModel)
+
+        is UiState.Success -> {
+            val orders = (orderState as UiState.Success).data.sortedBy { it.tableId }
+            Scaffold(
+                topBar = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFF59E0B))
+                            .statusBarsPadding()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Column {
+                            Text(
+                                text = stringResource(R.string.orders_title).uppercase(Locale.getDefault()),
+                                style = Typography.titleLarge.copy(
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                ),
+                                color = Color.White
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(R.string.orders_subtitle),
+                                style = Typography.bodyMedium.copy(fontSize = 14.sp),
+                                color = Color.White.copy(alpha = 0.95f)
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Divider(color = Color.White.copy(alpha = 0.18f), thickness = 1.dp)
+                        }
+                    }
+                }
+            ) { paddingValues ->
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(vertical = 16.dp)
+                ) {
+                    items(orders) { order ->
+                        OrderCard(order, ordersViewModel)
+                    }
+                }
             }
         }
+
+        else -> {}
     }
 }
 
@@ -92,7 +164,10 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                         fontSize = 18.sp
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    StatusBadge(order.status, viewModel)
+                    StatusBadge(
+                        order.status,
+                        viewModel
+                    )
                 }
                 Text(
                     text = stringResource(R.string.currency_format, order.total),
@@ -114,7 +189,10 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
             )
 
             order.orderItemsList.forEach { item ->
-                OrderItemRow(item)
+                OrderItemRow(
+                    item,
+                    order.orderItemsList.count { it.dishId == item.dishId }
+                )
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
@@ -129,7 +207,7 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (order.status == "READY") {
+                if (viewModel.getStatusStringRes(order.status) == R.string.order_statusready) {
                     Button(
                         onClick = { },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
@@ -161,14 +239,30 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
 }
 
 @Composable
-fun OrderItemRow(item: OrderItem) {
+fun OrderItemRow(item: OrderItem, quantity: Int) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(R.string.item_quantityformat, item.quantity, item.dish.name),
-            style = Typography.bodyLarge,
-            fontSize = 16.sp
-        )
-        if (!item.notes.isNullOrEmpty()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(
+                    R.string.item_quantityformat,
+                    quantity,
+                    item.dishName
+                ),
+                style = Typography.bodyLarge,
+                fontSize = 16.sp
+            )
+            Text(
+                text = "${quantity * item.price} €",
+                style = Typography.bodyLarge,
+                fontSize = 16.sp
+            )
+        }
+        val notes = item.notes
+        if (notes != null) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(top = 4.dp)
@@ -181,7 +275,7 @@ fun OrderItemRow(item: OrderItem) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = item.notes,
+                    text = notes,
                     style = Typography.bodySmall,
                     color = Color.Gray
                 )
@@ -208,7 +302,7 @@ fun StatusBadge(status: String, viewModel: OrdersViewModel) {
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
         ) {
             Icon(
-                painter = if (status == "COOKED") {
+                painter = if (viewModel.getStatusStringRes(status) == R.string.order_statuscreated) {
                     painterResource(id = R.drawable.time_svgrepo_com) // Tu archivo local
                 } else {
                     painterResource(id = R.drawable.check_circle_svgrepo_com)

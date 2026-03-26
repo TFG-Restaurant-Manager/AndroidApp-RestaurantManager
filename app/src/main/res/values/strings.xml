@@ -8,15 +8,19 @@
     <string name="order_statusdelivered">Delivered</string>
     <string name="order_statuspaid">Paid</string>
     <string name="order_statuserror">Error</string>
+    <string name="order_geterror">Error loading orders</string>
     <string name="table_label">Table %1$d</string>
     <string name="time_ago">%1$d minutes ago</string>
     <string name="item_quantityformat">%1$dx %2$s</string>
     <string name="currency_format">%.2f €</string>
     <string name="mark_delivered">Mark Delivered</string>
+    <string name="exitapp_confirmation">Are you sure you want to close the app?</string>
 
     <!-- Food Screen -->
     <string name="foodscreen_loading">Loading products...</string>
     <string name="foodscreen_search">Search products...</string>
+    <string name="foodscreen_noavailable">Not available</string>
+    <string name="foodscreen_error">Error loading dishes</string>
     <string name="foodscreen_sendtokitchen">Send order to the kitchen</string>
     <string name="foodscreen_order_sent">Order sent</string>
     <string name="foodscreen_addobservations">Add observations</string>
@@ -24,8 +28,18 @@
 
     <!-- Login Screen -->
     <string name="loginscreen_subtitle">Order Management System</string>
-    <string name="loginscreen_userquest">Employee ID</string>
-    <string name="loginscreen_placeholder">Enter your ID number</string>
+    <string name="loginscreen_userquest">Employee User</string>
+    <string name="loginscreen_placeholder">Enter your user</string>
+    <string name="loginscreen_password_label">Password</string>
+    <string name="loginscreen_password_placeholder">Enter your password</string>
+    <string name="loginscreen_selectrestaurant">Select restaurant</string>
+    <string name="loginscreen_loginerror_emptylabels">Please fill in all the fields</string>
+    <string name="loginscreen_loginerror_conexion">There is no internet connection</string>
+    <string name="loginscreen_loginerror_reloadtoken">You need to reset the registry</string>
+    <string name="loginscreen_loginerror_common">Login failed</string>
+    <string name="loginscreen_loginerror_invalidcredentials">Incorrect username or password</string>
+    <string name="loginscreen_missingcredentials">Missing credentials</string>
+
 
     <!-- Profile Screen -->
     <string name="profilescreen_titleself">My profile</string>
@@ -38,13 +52,24 @@
     <string name="profilescreen_nightshift">Night shift</string>
     <string name="profilescreen_workshift">Work shift</string>
     <string name="profilescreen_dayoff">Day off</string>
+    <string name="profilescreen_loadingerror">Error loading user data</string>
+    <string name="profilescreen_loading">Loading employee data</string>
 
     <!-- Table Screen -->
     <string name="tablescreen_tablesmap">Tables map</string>
     <string name="tablescreen_selectsection">Select Section</string>
     <string name="tablescreen_selectsectiontable">Select a section and tap a table</string>
+    <string name="tablescreen_error">Error loading the tables</string>
+    <string name="tablescreen_loading">Cargando las mesas</string>
+    <string name="tablescreen_peoplepertable_little">P</string>
+    <string name="tablescreen_peoplepertable">People per table</string>
+    <string name="tablescreen_tablenumber_little">N</string>
+    <string name="tablescreen_tablenumber">Table number</string>
 
     <!-- Generic words -->
+    <string name="exitapp">Exit the app</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
     <string name="login">Login</string>
     <string name="logout">Log out</string>
     <string name="table">Table</string>

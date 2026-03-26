@@ -1,10 +1,12 @@
 package com.tfg_rm.androidapp_restaurantmanager.data.remote.dto
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class OrderItemDto(
-    val id: Int,
+    val orderItemId: Int,
     val dishId: Int,
     val dishName: String,
-    val quantity: Int,
-    val unitPrice: Double,
-    val notes: String? = null
+    val orderItemPrice: Double,
+    val itemNotes: String?
 )

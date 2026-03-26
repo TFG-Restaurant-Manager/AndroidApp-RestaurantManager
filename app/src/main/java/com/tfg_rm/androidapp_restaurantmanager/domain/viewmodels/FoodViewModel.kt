@@ -1,61 +1,54 @@
 package com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tfg_rm.androidapp_restaurantmanager.data.repository.RepositoryTemporal
+import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
-import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItems
-import com.tfg_rm.androidapp_restaurantmanager.domain.models.Orders
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
-import com.tfg_rm.androidapp_restaurantmanager.domain.services.ServicioTemporal
+import com.tfg_rm.androidapp_restaurantmanager.domain.services.FoodService
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
-class FoodViewModel @Inject constructor (
-    private val servicioTemporal: ServicioTemporal
-): ViewModel(){
+class FoodViewModel @Inject constructor(
+    private val foodService: FoodService
+) : ViewModel() {
 
     private val _dishes = MutableStateFlow<UiState<List<Dishes>>>(UiState.Idle)
     val dishes = _dishes.asStateFlow()
 
+    fun resetState() {
+        _dishes.value = UiState.Idle
+    }
 
-    fun getDishes () {
+
+    fun getDishes() {
         viewModelScope.launch {
             _dishes.value = UiState.Loading
-            delay(1200)
             try {
-                _dishes.value = UiState.Success(servicioTemporal.getDishes())
+                val dishes = foodService.getDishes()
+                _dishes.value = UiState.Success(dishes)
+                Log.i("FoodViewModel", "Dishes recieved succesfully")
             } catch (e: Exception) {
-                _dishes.value = UiState.Error(e.message?:"Error: getDishes FoodViewModel", e.cause)
+                Log.e("FoodViewModel", e.message ?: "Error: getDishes FoodViewModel", e.cause)
+                _dishes.value =
+                    UiState.Error(R.string.foodscreen_error)
             }
         }
     }
-    fun getDishesCategories (dishes: List<Dishes>): List<String> {
+
+    fun getDishesCategories(dishes: List<Dishes>): List<String> {
         return dishes.map { it.category }
             .distinct().let { listOf("Todo") + it }
     }
-    fun getOrder (tableId: Int): Orders {
-        return Orders(
-            1, //Example or a order id, i a future it will need to be changed to the real id
-            tableId,
-            "Creado",
-            0.toDouble(),
-            LocalDateTime.now(),
-            mutableStateListOf<OrderItems>()
-        )
-    }
+
     fun filterDishes(
         dishes: List<Dishes>,
         searchedDish: String,
@@ -73,89 +66,91 @@ class FoodViewModel @Inject constructor (
         }
     }
 
-    fun addDishToOrder(order: MutableState<Orders>, dish: Dishes) {
-        val existing = order.value.orderDishes.firstOrNull { it == dish }
-        if (existing != null) {
-            existing.quantity.value++
-        } else {
-            val listOrderItemsIds = order.value.orderDishes.map { it.id }
-            order.value.orderDishes.add(
-                OrderItems(
-                    id = (1..if (listOrderItemsIds.isEmpty()) 1 else listOrderItemsIds.max())
-                        .firstOrNull { it !in listOrderItemsIds }
-                        ?: ((listOrderItemsIds.maxOrNull() ?: 0) + 1),
-                    dish = dish,
-                    quantity = mutableIntStateOf(1),
-                    notes = mutableStateOf("")
-                )
+    fun addDishToOrder(order: MutableState<Order>, dish: Dishes) {
+        val newList = order.value.orderItemsList.toMutableList()
+
+        newList.add(
+            OrderItem(
+                orderItemId = (newList.maxOfOrNull { it.orderItemId } ?: 0) + 1,
+                dishId = dish.id,
+                dishName = dish.name,
+                notes = "",
+                price = dish.price
             )
-            order.value.total += dish.price
+        )
+
+        order.value = order.value.copy(
+            orderItemsList = newList,
+            total = order.value.total + dish.price
+        )
+    }
+
+//    fun plusDishOnOrder(order: MutableState<Order>, dish: Dishes) {
+//        if (order.value.orderItemsList.map { it.dishId }.contains(dish.id)) {
+//            order.value.orderItemsList.first { it.dishId == dish.id }
+//                .let { it.quantity.intValue++ }
+//            order.value.total += dish.price
+//        }
+//    }
+
+    //    fun minusDishOnOrder(order: MutableState<Order>, dish: Dishes) {
+//        if (order.value.orderItemsList.map { it.dishId }.contains(dish.id)) {
+//            val orderDishLocation = order.value.orderItemsList.first { it.dishId == dish.id }
+//            orderDishLocation.let { it.quantity.value-- }
+//            order.value.total -= dish.price
+//            if (orderDishLocation.quantity.value == 0) {
+//                order.value.orderItemsList.remove(orderDishLocation)
+//            }
+//        }
+//    }
+    fun minusDishOnOrder(order: MutableState<Order>, dish: Dishes) {
+        val newList = order.value.orderItemsList.toMutableList()
+        val item = newList.firstOrNull { it.dishId == dish.id }
+
+        if (item != null) {
+            newList.remove(item)
+
+            order.value = order.value.copy(
+                orderItemsList = newList,
+                total = order.value.total - dish.price
+            )
         }
     }
 
-    fun plusDishOnOrder (order: MutableState<Orders>, dish: Dishes) {
-        if (order.value.orderDishes.map { it.dish }.contains(dish)) {
-            order.value.orderDishes.first { it.dish == dish }
-                .let { it.quantity.value++ }
-            order.value.total += dish.price
-        }
+    fun isDishInOrder(order: MutableState<Order>, dish: Dishes): Boolean {
+        return order.value.orderItemsList.any { it.dishId == dish.id }
     }
 
-    fun minusDishOnOrder (order: MutableState<Orders>, dish: Dishes) {
-        if (order.value.orderDishes.map { it.dish }.contains(dish)) {
-            val orderDishLocation = order.value.orderDishes.first { it.dish == dish }
-            orderDishLocation.let { it.quantity.value-- }
-            order.value.total -= dish.price
-            if (orderDishLocation.quantity.value == 0) {
-                order.value.orderDishes.remove(orderDishLocation)
-            }
-        }
+    fun getDishQuantityInOrder(order: MutableState<Order>, dish: Dishes): Int {
+        return order.value.orderItemsList.count { it.dishId == dish.id }
     }
 
-    fun isDishInOrder (order: MutableState<Orders>, dish: Dishes): Boolean {
-        return order.value.orderDishes.map { it.dish }
-            .contains(dish)
-                && order.value.orderDishes.first {
-            it.dish == dish
-        }.quantity.value > 0
+    fun getOrderDishesQuantity(order: MutableState<Order>): Int {
+        return order.value.orderItemsList.count()
     }
 
-    fun getDishQuantityInOrder (order: MutableState<Orders>, dish: Dishes): Int {
-        return order.value.orderDishes
-            .first { it.dish == dish }.quantity.value
-    }
-
-    fun getOrderDishesQuantity (order: MutableState<Orders>): Int {
-        return order.value.orderDishes.map { it.quantity }.sumOf { it.value }
-    }
-
-    fun getOrderTotalAmount (order: MutableState<Orders>): Double {
+    fun getOrderTotalAmount(order: MutableState<Order>): Double {
         return order.value.total
     }
 
-    fun getNotes(dish: Dishes, order: MutableState<Orders>): String {
-        return order.value.orderDishes
-            .firstOrNull { it.dish == dish }
-            ?.notes?.value
+    fun getNotes(dish: Dishes, order: MutableState<Order>): String {
+        return order.value.orderItemsList
+            .firstOrNull { it.dishId == dish.id }
+            ?.notes
             ?: ""
     }
 
-    fun isNoteEmpty (dish: Dishes, order: MutableState<Orders>): Boolean {
+    fun isNoteEmpty(dish: Dishes, order: MutableState<Order>): Boolean {
         return getNotes(dish, order).isEmpty()
     }
 
-    fun updateNotes(dish: Dishes, newNote: String, order: MutableState<Orders>) {
-        order.value.orderDishes
-            .firstOrNull { it == dish }
-            ?.notes?.value = newNote
+    fun updateNotes(dish: Dishes, newNote: String, order: MutableState<Order>) {
+        order.value.orderItemsList
+            .filter { it.dishId == dish.id }
+            .forEach { it.notes = newNote }
     }
 
-    // Temporary in-memory storage for created orders (will be Room later)
-    val pendingOrders = mutableStateListOf<Orders>()
-
-    fun saveOrderToList(order: Orders) {
-        val newId = (pendingOrders.maxOfOrNull { it.id } ?: 0) + 1
-        val orderToSave = order.copy(id = newId)
-        pendingOrders.add(0, orderToSave)
+    fun saveOrder(order: Order) {
+        foodService.saveOrder(order)
     }
 }
