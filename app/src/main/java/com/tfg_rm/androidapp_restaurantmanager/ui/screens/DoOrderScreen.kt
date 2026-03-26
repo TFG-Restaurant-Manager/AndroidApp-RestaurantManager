@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -63,7 +64,7 @@ import java.util.Locale
 fun DoOrderScreenPreview() {
     val mockDishes = listOf(
         Dishes(1, "Puré de patata", "Patatas cocidas", "Principales", 8.5, true),
-        Dishes(2, "Ensalada César", "Pollo, crutones y salsa", "Entrantes", 7.5, true),
+        Dishes(2, "Ensalada César", "Pollo, crutones y salsa", "Entrantes", 7.5, false),
     )
 
     FoodContent(
@@ -447,23 +448,52 @@ fun DishesList(
                                 }
                             }
                         } else {
-                            Button(
-                                onClick = {
-                                    onAddDish(dish)
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFF59E0B)
-                                ),
-                                shape = RoundedCornerShape(6.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "Add product ${dish.name} to the order",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.add))
+                            if (dish.available) {
+                                Button(
+                                    onClick = {
+                                        onAddDish(dish)
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFFF59E0B)
+                                    ),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Add product ${dish.name} to the order",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(stringResource(R.string.add))
+                                }
+                            } else {
+                                Card(
+                                    shape = RoundedCornerShape(6.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = Color(0xFFEF5350)
+                                    )
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(
+                                            horizontal = 12.dp,
+                                            vertical = 8.dp
+                                        ),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = "${dish.name} ${stringResource(R.string.foodscreen_noavailable)}",
+                                            tint = Color.White,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = stringResource(R.string.foodscreen_noavailable),
+                                            color = Color.White
+                                        )
+                                    }
+                                }
                             }
                         }
                     }

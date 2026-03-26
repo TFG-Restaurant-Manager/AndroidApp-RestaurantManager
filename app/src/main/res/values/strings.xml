@@ -19,6 +19,7 @@
     <!-- Food Screen -->
     <string name="foodscreen_loading">Loading products...</string>
     <string name="foodscreen_search">Search products...</string>
+    <string name="foodscreen_noavailable">Not available</string>
     <string name="foodscreen_error">Error loading dishes</string>
     <string name="foodscreen_sendtokitchen">Send order to the kitchen</string>
     <string name="foodscreen_order_sent">Order sent</string>
