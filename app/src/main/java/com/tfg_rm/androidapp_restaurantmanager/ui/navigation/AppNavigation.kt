@@ -1,33 +1,53 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.navigation
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
+import androidx.core.view.WindowCompat
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
-import androidx.compose.runtime.getValue
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.tfg_rm.androidapp_restaurantmanager.R
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthState
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.EmployeeViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
-import com.tfg_rm.androidapp_restaurantmanager.ui.screens.FoodScreen
-import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
-import com.tfg_rm.androidapp_restaurantmanager.ui.screens.OrdersScreen
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
+import com.tfg_rm.androidapp_restaurantmanager.ui.screens.DoOrderScreen
+import com.tfg_rm.androidapp_restaurantmanager.ui.screens.LoginScreen
+import com.tfg_rm.androidapp_restaurantmanager.ui.screens.OrdersScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.ProfileScreen
 import com.tfg_rm.androidapp_restaurantmanager.ui.screens.TableScreen
 
@@ -46,44 +66,108 @@ import com.tfg_rm.androidapp_restaurantmanager.ui.screens.TableScreen
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController(),
-    orderViewModel: OrdersViewModel = viewModel(),
-    tableViewModel: TableViewModel = TableViewModel()
 ) {
+    val orderViewModel: OrdersViewModel = hiltViewModel()
+    val tableViewModel: TableViewModel = hiltViewModel()
     val foodViewModel: FoodViewModel = hiltViewModel()
+    val employeeViewModel: EmployeeViewModel = hiltViewModel()
+    val authViewModel: AuthViewModel = hiltViewModel()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val context = LocalContext.current
+    var showExitDialog by remember { mutableStateOf(false) }
+
+    val view = LocalView.current
+
+    val recargarEstado = {
+        orderViewModel.resetState()
+        tableViewModel.resetState()
+        foodViewModel.resetState()
+        employeeViewModel.resetState()
+    }
+
+    val authState by authViewModel.authState.collectAsState()
+
+    LaunchedEffect(authState) {
+        if (authState == AuthState.LogOut) {
+            recargarEstado()
+            navController.navigate(AppScreens.LoginScreen.route) {
+                popUpTo(0)
+            }
+            Toast.makeText(
+                context,
+                R.string.loginscreen_loginerror_reloadtoken,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    SideEffect {
+        val window = (view.context as Activity).window
+
+        WindowCompat
+            .getInsetsController(window, view)
+            .isAppearanceLightStatusBars = !(currentRoute in AppScreens.allBottomBarScreens()
+                || currentRoute == AppScreens.LoginScreen.route)
+    }
+
+    val shouldInterceptBack = currentRoute in listOf(
+        AppScreens.LoginScreen.route,
+        AppScreens.ProfileScreen.route,
+        AppScreens.TableScreen.route,
+        AppScreens.OrdersScreen.route
+    )
+
+    if (shouldInterceptBack) {
+        BackHandler {
+            showExitDialog = true
+        }
+    }
+
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             if (currentRoute in AppScreens.allBottomBarScreens()) {
-                BottomBar(navController)
+                BottomBar(
+                    navController,
+                    currentRoute
+                )
             }
         }
     ) { padding ->
         NavHost(
             navController = navController,
             startDestination = AppScreens.LoginScreen.route,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier
+                .padding(padding)
         ) {
             composable(AppScreens.LoginScreen.route) {
                 LoginScreen(
-                    loginSuccess = { navController.navigate(AppScreens.ProfileScreen.route) }
+                    authViewModel = authViewModel,
+                    loginSuccess = {
+                        navController.navigate(AppScreens.ProfileScreen.route)
+                    },
+                    recargarEstados = recargarEstado
                 )
             }
             composable(AppScreens.ProfileScreen.route) {
                 ProfileScreen(
-                    BackToLogin = { navController.navigate(AppScreens.LoginScreen.route) }
+                    viewModel = employeeViewModel,
+                    authViewModel = authViewModel
                 )
             }
 
-            // ESTO DABA ERROR EN EL MERGE
             composable(AppScreens.TableScreen.route) {
-                TableScreen(goToAddOrders = {navController.navigate(AppScreens.FoodScreen.route)})
+                TableScreen(
+                    viewModel = tableViewModel,
+                    goToAddOrders = { navController.navigate(AppScreens.FoodScreen.route) }
+                )
             }
             composable(AppScreens.FoodScreen.route) {
-                FoodScreen(
+                DoOrderScreen(
                     tableViewModel = tableViewModel,
-                    BackToTables = {navController.popBackStack()},
+                    backToTables = { navController.popBackStack() },
                     viewModel = foodViewModel
                 )
             }
@@ -92,30 +176,72 @@ fun AppNavigation(
             }
 
         }
+        if (showExitDialog) {
+            AlertDialog(
+                onDismissRequest = { showExitDialog = false },
+                title = { Text(stringResource(R.string.exitapp)) },
+                text = { Text(stringResource(R.string.exitapp_confirmation)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        (context as Activity).finish()
+                    }) {
+                        Text(stringResource(R.string.yes))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showExitDialog = false
+                    }) {
+                        Text(stringResource(R.string.no))
+                    }
+                }
+            )
+        }
     }
 }
 
 @Composable
-fun BottomBar(navController: NavHostController) {
+fun BottomBar(
+    navController: NavHostController,
+    currentRoute: String?
+) {
     NavigationBar {
         NavigationBarItem(
-            selected = false,
+            selected = currentRoute == AppScreens.TableScreen.route,
             onClick = { navController.navigate(AppScreens.TableScreen.route) },
-            icon = { Icon(Icons.Default.Home, null) },
+            icon = {
+                Icon(
+                    if (currentRoute == AppScreens.TableScreen.route) Icons.Default.Home else Icons.Outlined.Home,
+                    null,
+                    tint = Color.Black
+                )
+            },
             label = { Text("Home") }
         )
 
         NavigationBarItem(
-            selected = false,
+            selected = currentRoute == AppScreens.OrdersScreen.route,
             onClick = { navController.navigate(AppScreens.OrdersScreen.route) },
-            icon = { Icon(Icons.AutoMirrored.Filled.List, null) },
+            icon = {
+                Icon(
+                    Icons.AutoMirrored.Filled.List,
+                    null,
+                    tint = Color.Black
+                )
+            },
             label = { Text("Orders") }
         )
 
         NavigationBarItem(
-            selected = false,
+            selected = currentRoute == AppScreens.ProfileScreen.route,
             onClick = { navController.navigate(AppScreens.ProfileScreen.route) },
-            icon = { Icon(Icons.Default.Person, null) },
+            icon = {
+                Icon(
+                    if (currentRoute == AppScreens.ProfileScreen.route) Icons.Default.Person else Icons.Outlined.Person,
+                    null,
+                    tint = Color.Black
+                )
+            },
             label = { Text("Profile") }
         )
     }

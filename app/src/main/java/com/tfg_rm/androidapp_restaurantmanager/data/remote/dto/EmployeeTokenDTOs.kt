@@ -4,13 +4,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class EmployeeTokenRequest(
-    val dni : String,
-    val password : String,
-    val employeeId : Long,
-    val restaurantId : Long
+    val code: String,
+    val password: String
 )
 
 @Serializable
 data class EmployeeTokenResponse(
-    val token : String,
+    val token: String,
 )
