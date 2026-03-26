@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -426,29 +427,48 @@ fun HelpOverlay(
     onClose: () -> Unit
 ) {
     Box(
-        modifier = modifier
-            .padding(top = 80.dp, end = 16.dp) // debajo del botón
-            .background(Color.White, RoundedCornerShape(12.dp))
-            .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
-            .padding(12.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.15f))
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
+                onClose()
+            }
     ) {
-        Column {
-            Text("Leyenda:", fontWeight = FontWeight.Bold)
+        Box(
+            modifier = modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 80.dp, end = 16.dp)
+                .background(Color.White, RoundedCornerShape(12.dp))
+                .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+                .padding(12.dp)
+        ) {
+            Column {
+                Text("Leyenda:", fontWeight = FontWeight.Bold)
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Text("${stringResource(R.string.tablescreen_peoplepertable_little)}: ${stringResource(R.string.tablescreen_peoplepertable)}")
-            Text("${stringResource(R.string.tablescreen_tablenumber_little)}: ${stringResource(R.string.tablescreen_tablenumber)}")
+                Text(
+                    "${stringResource(R.string.tablescreen_peoplepertable_little)}: ${
+                        stringResource(
+                            R.string.tablescreen_peoplepertable
+                        )
+                    }"
+                )
+                Text("${stringResource(R.string.tablescreen_tablenumber_little)}: ${stringResource(R.string.tablescreen_tablenumber)}")
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = "Cerrar",
-                color = Color.Blue,
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .clickable { onClose() }
-            )
+                Text(
+                    text = "Cerrar",
+                    color = Color.Blue,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .clickable { onClose() }
+                )
+            }
         }
     }
 }

@@ -531,7 +531,7 @@ fun DishesList(
                                     onClick = {
                                         notesOpen.value = false
                                     },
-                                    modifier = Modifier.weight(0.7f),
+                                    modifier = Modifier.weight(0.6f),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = Color(0xFF10B981),
                                         contentColor = Color.White
@@ -546,7 +546,7 @@ fun DishesList(
                                         notesOpen.value = false
                                         onUpdateNote(dish, "")
                                     },
-                                    modifier = Modifier.weight(0.3f),
+                                    modifier = Modifier.weight(0.4f),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = Color.White,
                                         contentColor = Color.DarkGray
