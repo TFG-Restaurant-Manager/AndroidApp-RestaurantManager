@@ -93,7 +93,13 @@ fun ProfileScreenPreview() {
 }
 
 /**
- * Funcion Composable para mostrar el apartado de login de la aplicacion
+ * Profile screen that displays detailed employee information and their work schedule.
+ * * Manages the different interface states ([UiState]):
+ * - **Idle/Loading:** Displays a loading screen while fetching data.
+ * - **Error:** Allows the user to retry the data fetch or log out of the session.
+ * - **Success:** Renders personal information, the shift calendar, and the logout option.
+ * @param viewModel ViewModel responsible for employee data logic.
+ * @param authViewModel ViewModel responsible for session and authentication management.
  */
 @Composable
 fun ProfileScreen(
@@ -190,6 +196,11 @@ fun ProfileScreen(
     }
 }
 
+/**
+ * Custom top bar that displays a generated avatar with the employee's initials,
+ * their full name, and their specific role within the restaurant.
+ * @param empleado The employee data object to be displayed.
+ */
 @Composable
 fun TopBar(empleado: Employee) {
     Box(
@@ -244,6 +255,10 @@ fun TopBar(empleado: Employee) {
     }
 }
 
+/**
+ * Information card that displays the employee's contact details.
+ * @param empleado Object containing the worker's email and phone number.
+ */
 @Composable
 fun PersonalInformation(empleado: Employee) {
     Card(
@@ -282,6 +297,12 @@ fun PersonalInformation(empleado: Employee) {
     }
 }
 
+/**
+ * Interactive section that manages the employee's work schedule.
+ * Allows navigation between months, resetting to the current date, and selecting
+ * specific days to consult assigned shifts via the [HorarioDia] component.
+ * @param empleado Object containing the list of time ranges ([Employee.schedules]).
+ */
 @Composable
 fun ScheduleInformation(empleado: Employee) {
     val months = stringArrayResource(R.array.months_year)
@@ -399,6 +420,16 @@ fun ScheduleInformation(empleado: Employee) {
     }
 }
 
+/**
+ * Generates a calendar grid for a specific month and year.
+ * Days with assigned shifts are visually highlighted. It supports day selection
+ * and highlights the current date (today) with a distinct border.
+ * @param month Month to display (1-12).
+ * @param year Year to display.
+ * @param horario Map containing the days with shifts and the count of shifts per day.
+ * @param mirarDia Callback executed when a day is clicked.
+ * @param diaSeleccionado The date currently marked/selected by the user.
+ */
 @Composable
 fun CalendarioMes(
     month: Int,
@@ -556,6 +587,12 @@ fun CalendarioMes(
     }
 }
 
+/**
+ * Processes the list of shifts (start and end pairs) to identify which calendar days
+ * have work activity.
+ * @param horarios List of [LocalDateTime] pairs representing clock-in and clock-out times.
+ * @return A map where the key is the [LocalDate] and the value is the number of shifts on that day.
+ */
 fun contarDias(horarios: List<Pair<LocalDateTime, LocalDateTime>>): Map<LocalDate, Int> {
     // Creamos una lista con todos los días de cada rango
     val dias = horarios.flatMap { (inicio, fin) ->
@@ -575,6 +612,15 @@ fun contarDias(horarios: List<Pair<LocalDateTime, LocalDateTime>>): Map<LocalDat
     return dias.groupingBy { it }.eachCount()
 }
 
+/**
+ * Detail card that shows the specific shifts for a selected day.
+ * Classifies shifts as "Morning", "Afternoon", or "Night" based on the start time
+ * and shows the exact time range. If no shifts exist, it indicates a day off.
+ * @param dia Day of the month.
+ * @param mes Month index (0-11).
+ * @param año Corresponding year.
+ * @param horarios Filtered list of shifts occurring on the specified date.
+ */
 @Composable
 fun HorarioDia(dia: Int, mes: Int, año: Int, horarios: List<Pair<LocalDateTime, LocalDateTime>>) {
     val meses = stringArrayResource(R.array.months_year)

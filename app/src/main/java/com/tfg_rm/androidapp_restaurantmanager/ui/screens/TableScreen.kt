@@ -73,6 +73,16 @@ fun TableScreenPreview() {
     TableScreen()
 }
 
+/**
+ * Main screen for the restaurant floor plan and table management.
+ * It manages the lifecycle of table data using [TableViewModel], handling:
+ * - **Idle/Loading:** Initiates data fetching and shows a progress spinner.
+ * - **Error:** Displays a localized error message with a retry option.
+ * - **Success:** Renders the interactive [TableMap], section selection, and a statistical
+ * summary of table availability (Available/Occupied/Total).
+ * @param viewModel ViewModel providing the table state and section logic.
+ * @param goToAddOrders Navigation callback to transition to the food ordering screen.
+ */
 @Composable
 fun TableScreen(
     viewModel: TableViewModel = hiltViewModel(),
@@ -217,6 +227,17 @@ fun TableScreen(
 
 }
 
+/**
+ * An interactive, draggable map representing the physical layout of the restaurant tables.
+ *
+ * Features:
+ * - **Dynamic Positioning:** Renders tables based on their relative X/Y coordinates.
+ * - **Gestures:** Supports drag/pan gestures to navigate large floor plans within a limited viewport.
+ * - **Status-based Styling:** Tables change color (Green/Grey) based on their availability.
+ * - **Clamping:** Ensures the map cannot be dragged beyond its calculated boundaries.
+ * @param tables List of [Tables] domain objects to be rendered in the current view.
+ * @param onTableClick Callback triggered when a specific table is selected.
+ */
 @Composable
 fun TableMap(
     tables: List<Tables>,
@@ -333,6 +354,11 @@ fun TableMap(
     }
 }
 
+/**
+ * A small summary card displaying occupancy statistics.
+ * @param infoUi Data model containing the title, count, and color theme for the card.
+ * @param modifier Modifier for sizing and layout constraints (usually for weight in a Row).
+ */
 @Composable
 fun InformationCard(
     infoUi: TableInfoUi,
@@ -371,6 +397,11 @@ fun InformationCard(
     }
 }
 
+/**
+ * A dropdown-based selector to filter tables by restaurant section (e.g., Terrace, Main Hall).
+ * @param actualSection Mutable state holding the currently selected section name.
+ * @param sectionsList List of available unique section names extracted from the table data.
+ */
 @Composable
 fun SelectSection(actualSection: MutableState<String>, sectionsList: List<String>) {
     var expanded by remember { mutableStateOf(false) }
@@ -421,6 +452,13 @@ fun SelectSection(actualSection: MutableState<String>, sectionsList: List<String
     }
 }
 
+/**
+ * An overlay window providing a legend and help documentation for the table map.
+ * Explains UI abbreviations (e.g., people per table, table numbers) and allows the
+ * user to close it by clicking outside or on the close button.
+ * @param modifier Alignment and padding modifiers for the overlay box.
+ * @param onClose Callback to dismiss the help dialog.
+ */
 @Composable
 fun HelpOverlay(
     modifier: Modifier = Modifier,

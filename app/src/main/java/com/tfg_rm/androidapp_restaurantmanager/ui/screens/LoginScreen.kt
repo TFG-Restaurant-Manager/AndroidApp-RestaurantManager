@@ -51,7 +51,16 @@ import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthState
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
 
 /**
- * Funcion Composable para mostrar el apartado de login de la aplicacion
+ * Composable function that represents the Login Screen of the application.
+ *
+ * This screen provides the user interface for staff authentication. It manages the login state
+ * through [AuthViewModel], handling inputs for employee code and password. It features
+ * background gradients, custom-styled input fields, and reactive UI elements that
+ * respond to authentication states like Loading, Success, or Error.
+ *
+ * @param authViewModel ViewModel managing the authentication logic and state.
+ * @param loginSuccess Callback triggered when authentication is successful to navigate to the next screen.
+ * @param recargarEstados Callback used to reset application-wide states upon logout or session refresh.
  */
 @Composable
 fun LoginScreen(
@@ -62,6 +71,20 @@ fun LoginScreen(
     var code by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val authState by authViewModel.authState.collectAsState()
+    val context = LocalContext.current
+
+    // Observe AuthState.Error to show localized Toast messages
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Error) {
+            Toast.makeText(
+                context,
+                (authState as AuthState.Error).msg,
+                Toast.LENGTH_SHORT
+            ).show()
+
+            authViewModel.resetState()
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -77,6 +100,7 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // Main Login Card
         Box(
             modifier = Modifier
                 .background(
@@ -91,6 +115,7 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // Branding Header
                 Box(
                     modifier = Modifier
                         .background(
@@ -107,8 +132,11 @@ fun LoginScreen(
                         modifier = Modifier.size(28.dp)
                     )
                 }
+
                 Text(text = "RestaurantePro", fontSize = 23.sp)
                 Text(stringResource(R.string.loginscreen_subtitle), fontSize = 14.sp)
+
+                // Input Fields
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -129,18 +157,8 @@ fun LoginScreen(
                         password = true
                     )
                 }
-                val context = LocalContext.current
-                LaunchedEffect(authState) {
-                    if (authState is AuthState.Error) {
-                        Toast.makeText(
-                            context,
-                            (authState as AuthState.Error).msg,
-                            Toast.LENGTH_SHORT
-                        ).show()
 
-                        authViewModel.resetState()
-                    }
-                }
+                // Reactive Button/Status area based on AuthState
                 when (authState) {
                     is AuthState.Error -> {
                     }
@@ -204,29 +222,20 @@ fun LoginScreen(
 }
 
 /**
- * Campo de texto personalizado con estilo visual propio.
+ * A highly customized text field using [BasicTextField].
+ * * Provides features like:
+ * - Specific keyboard types (Password, Email).
+ * - Password visibility toggling.
+ * - Custom border styling and placeholder support.
  *
- * Permite:
- * - Campo normal.
- * - Campo de email (configura teclado tipo Email).
- * - Campo de contraseña con opción de mostrar/ocultar texto.
- *
- * Utiliza [BasicTextField] para mayor personalización visual.
- *
- * Características:
- * - Borde dinámico en caso de error.
- * - Placeholder personalizado.
- * - Icono para mostrar/ocultar contraseña.
- * - Configuración automática del teclado según tipo.
- *
- * @param valor Texto actual del campo.
- * @param label Texto descriptivo mostrado encima del campo.
- * @param placeholder Texto mostrado cuando el campo está vacío.
- * @param onValueChange Callback que se ejecuta cuando cambia el texto.
- * @param enabled Indica si el campo está habilitado.
- * @param isError Indica si el campo presenta un estado de error visual.
- * @param password Indica si el campo es de tipo contraseña.
- * @param email Indica si el campo es de tipo email.
+ * @param valor Current text value.
+ * @param label Text shown above the input.
+ * @param placeholder Hint text when empty.
+ * @param onValueChange Callback when the text changes.
+ * @param enabled If the text field is enabled.
+ * @param isError If is on error.
+ * @param password If is a password.
+ * @param email If is an email.
  */
 @Composable
 fun PersOutlinedTextField(
