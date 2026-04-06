@@ -88,6 +88,18 @@ fun DoOrderScreenPreview() {
     )
 }
 
+/**
+ * Main entry point for the order creation process for a specific table.
+ * Orchestrates the business logic between [FoodViewModel] and [TableViewModel].
+ * It manages the dish selection, order aggregation, and provides a reactive
+ * interface that handles:
+ * - **Initial Fetching:** Automatically triggers dish loading if in [UiState.Idle].
+ * - **Category Management:** Dynamically extracts categories from the loaded dishes.
+ * - **State Sync:** Links the current order items, quantities, and notes to the UI.
+ * @param viewModel ViewModel responsible for dish data and order item manipulation.
+ * @param tableViewModel ViewModel providing context for the currently active table.
+ * @param backToTables Navigation callback to return to the restaurant floor plan.
+ */
 @Composable
 fun DoOrderScreen(
     viewModel: FoodViewModel = hiltViewModel(),
@@ -191,6 +203,13 @@ fun DoOrderScreen(
     }
 }
 
+/**
+ * Structural layout of the order screen.
+ * Uses a [Scaffold] to manage:
+ * - **Top Bar:** Displays table context and navigation.
+ * - **Bottom Bar:** Shows order summary (total/quantity) and the "Send to Kitchen" action.
+ * - **Content:** Contains the search bar, category filter, and the scrollable dish list.
+ */
 @Composable
 fun FoodContent(
     dishesCategories: List<String>,
@@ -267,6 +286,11 @@ fun FoodContent(
     }
 }
 
+/**
+ * A persistent summary bar shown when at least one item is in the current order.
+ * Displays the total item count and the final price, acting as a final check before
+ * submitting the order to the backend/kitchen.
+ */
 @Composable
 fun BottomTableBar(
     getOrderDishesQuantity: () -> Int,
@@ -305,6 +329,14 @@ fun BottomTableBar(
     }
 }
 
+/**
+ * A custom top navigation bar for the order creation screen.
+ * It serves as a contextual header that displays the current table's name (e.g., "Table 5")
+ * and provides a back navigation button to return to the restaurant's floor plan.
+ * Designed to be lightweight and fit within the status bar padding for a seamless UI.
+ * @param tableName The localized string representing the table currently being served.
+ * @param onBack Callback function triggered when the user clicks the back arrow icon.
+ */
 @Composable
 fun TopTableBar(tableName: String, onBack: () -> Unit) {
     Box(
@@ -330,6 +362,11 @@ fun TopTableBar(tableName: String, onBack: () -> Unit) {
     }
 }
 
+/**
+ * A horizontal scrolling selector for menu categories (e.g., Starters, Drinks, Desserts).
+ * Provides visual feedback for the currently active category using distinct colors
+ * and elevation to help the user filter the menu quickly.
+ */
 @Composable
 fun CategorySelector(
     categories: List<String>,
@@ -374,6 +411,16 @@ fun CategorySelector(
     )
 }
 
+/**
+ * A reactive list of menu items available for ordering.
+ * Each item is rendered in a [Card] with logic to:
+ * - **Add/Remove:** Increase or decrease quantities for items already in the order.
+ * - **Availability Check:** Disables selection and shows an error badge if the dish is out of stock.
+ * - **Notes Management:** Toggles an inline text field to add special kitchen instructions
+ * (observations) for specific dishes.
+ * @param dishes The filtered list of [Dishes] to display.
+ * @param onUpdateNote Callback used to attach specific text instructions to a dish.
+ */
 @Composable
 fun DishesList(
     dishes: List<Dishes>,

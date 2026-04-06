@@ -20,10 +20,24 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
+/**
+ * Dagger Hilt module responsible for providing network-related dependencies at the application level.
+ *
+ * This module configures the global [HttpClient] using Ktor, sets up the base URL,
+ * handles JSON serialization, and manages authentication headers. It also includes
+ * an [HttpResponseValidator] to intercept authorization errors (401/403),
+ * clearing the token and notifying the system when a session expires.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
+    /**
+     * Provides a singleton instance of [TokenProvider].
+     *
+     * @param context The application context required for the [TokenProvider] to access storage.
+     * @return A [TokenProvider] instance for managing authentication tokens.
+     */
     @Provides
     @Singleton
     fun provideTokenProvider(
@@ -34,6 +48,20 @@ object NetworkModule {
         )
     }
 
+    /**
+     * Provides a singleton instance of the Ktor [HttpClient].
+     *
+     * The client is configured with:
+     * * **OkHttp Engine:** For efficient network operations.
+     * * **ContentNegotiation:** Using Kotlinx Serialization, configured to ignore unknown JSON keys.
+     * * **WebSockets:** To support real-time communication.
+     * * **Default Request:** Sets the base API URL and injects the "Authorization: Bearer" header if a token exists.
+     * * **Response Validation:** Intercepts 401 (Unauthorized) and 403 (Forbidden) HTTP status codes
+     * to handle session expiration by clearing the stored token.
+     *
+     * @param tokenProvider The provider used to retrieve and manage the authentication token.
+     * @return A fully configured [HttpClient] instance.
+     */
     @Provides
     @Singleton
     fun provideHttpClient(
