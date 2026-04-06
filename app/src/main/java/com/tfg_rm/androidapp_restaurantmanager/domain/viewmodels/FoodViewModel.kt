@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tfg_rm.androidapp_restaurantmanager.R
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.SocketEvent
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
@@ -18,8 +19,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FoodViewModel @Inject constructor(
-    private val foodService: FoodService
+    private val service: FoodService
 ) : ViewModel() {
+
+    init {
+        observeSocket()
+    }
 
     private val _dishes = MutableStateFlow<UiState<List<Dishes>>>(UiState.Idle)
     val dishes = _dishes.asStateFlow()
@@ -33,7 +38,7 @@ class FoodViewModel @Inject constructor(
         viewModelScope.launch {
             _dishes.value = UiState.Loading
             try {
-                val dishes = foodService.getDishes()
+                val dishes = service.getDishes()
                 _dishes.value = UiState.Success(dishes)
                 Log.i("FoodViewModel", "Dishes recieved succesfully")
             } catch (e: Exception) {
@@ -151,6 +156,22 @@ class FoodViewModel @Inject constructor(
     }
 
     fun saveOrder(order: Order) {
-        foodService.saveOrder(order)
+        viewModelScope.launch {
+            service.saveOrder(order)
+        }
+    }
+
+    private fun observeSocket() {
+        viewModelScope.launch {
+            service.events.collect { event ->
+                when (event) {
+                    is SocketEvent.DishUpdated -> {
+                        Log.i("FoodViewModel", "Plato actualizado: ${event.data}")
+                    }
+
+                    else -> {}
+                }
+            }
+        }
     }
 }

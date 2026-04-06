@@ -6,13 +6,9 @@ import kotlinx.serialization.Serializable
 data class OrderDto(
     val id: Int,
     val tableId: Int,
-    val clientId: Int,
     val statusId: String,
     val total: Float,
     val notes: String?,
     val createdAt: String,
-    val orderTypeId: Int,
-    val deliveryAddress: String?,
-    val deliveryNotes: String?,
-    val orderItemsList: MutableList<OrderItemDto> = mutableListOf()
+    val orderItems: List<OrderItemDto>
 )

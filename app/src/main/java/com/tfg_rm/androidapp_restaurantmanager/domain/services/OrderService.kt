@@ -7,11 +7,17 @@ import javax.inject.Singleton
 
 @Singleton
 class OrderService @Inject constructor(
-    private val repositoryOrders: RepositoryOrders
+    private val repository: RepositoryOrders
 ) {
-    suspend fun getOrders(): MutableList<Order> = repositoryOrders.getOrders().toMutableList()
+    suspend fun getOrders(): MutableList<Order> = repository.getOrders().toMutableList()
 
     fun clearCache() {
-        repositoryOrders.clearCache()
+        repository.clearCache()
+    }
+
+    val events = repository.events
+
+    suspend fun sendUpdate(message: String) {
+        repository.sendUpdate(message)
     }
 }

@@ -8,11 +8,13 @@ import javax.inject.Singleton
 
 @Singleton
 class FoodService @Inject constructor(
-    private val repositoryFood: RepositoryFood
+    private val repository: RepositoryFood
 ) {
-    suspend fun getDishes(): List<Dishes> = repositoryFood.getDishes()
+    suspend fun getDishes(): List<Dishes> = repository.getDishes()
 
-    fun saveOrder(order: Order) {
-        repositoryFood.saveOrder(order)
+    suspend fun saveOrder(order: Order) {
+        repository.saveOrder(order)
     }
+
+    val events = repository.events
 }

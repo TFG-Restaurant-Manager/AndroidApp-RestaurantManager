@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tfg_rm.androidapp_restaurantmanager.R
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.SocketEvent
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.TableInfoUi
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Tables
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
@@ -20,8 +21,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TableViewModel @Inject constructor(
-    private val tableService: TableService
+    private val service: TableService
 ) : ViewModel() {
+
+    init {
+        observeSocket()
+    }
 
     private val _actualTable = mutableStateOf(1)
 
@@ -46,7 +51,7 @@ class TableViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _tables.value = UiState.Loading
-                val tablesData = tableService.getTables()
+                val tablesData = service.getTables()
                 _tables.value = UiState.Success(tablesData)
             } catch (e: Exception) {
                 Log.e("TableViewModel", e.message ?: "Error al cargar las mesas")
@@ -77,5 +82,19 @@ class TableViewModel @Inject constructor(
                 color = Color(0xFF2196F3) // azul
             )
         )
+    }
+
+    private fun observeSocket() {
+        viewModelScope.launch {
+            service.events.collect { event ->
+                when (event) {
+                    is SocketEvent.TableUpdated -> {
+                        Log.i("TableViewModel", "Mesa actualizado: ${event.data}")
+                    }
+
+                    else -> {}
+                }
+            }
+        }
     }
 }

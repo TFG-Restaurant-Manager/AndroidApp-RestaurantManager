@@ -7,9 +7,15 @@ import javax.inject.Singleton
 
 @Singleton
 class TableService @Inject constructor(
-    private val repositoryTable: RepositoryTable
+    private val repository: RepositoryTable
 ) {
     suspend fun getTables(): List<Tables> {
-        return repositoryTable.getTables()
+        return repository.getTables()
+    }
+
+    val events = repository.events
+
+    suspend fun sendUpdate(message: String) {
+        repository.sendUpdate(message)
     }
 }

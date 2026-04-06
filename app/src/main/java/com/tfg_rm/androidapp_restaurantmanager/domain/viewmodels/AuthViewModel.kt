@@ -45,6 +45,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val savedToken = authService.loadToken()
+                connectWS()
                 Log.i("AuthViewModel", "token: ${savedToken ?: "null"}")
                 if (savedToken) {
                     // Hay token, podemos considerarlo como login ya hecho
@@ -80,6 +81,7 @@ class AuthViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     authService.requestToken(code = code, password = password)
+                    connectWS()
                     _authState.value = AuthState.Success
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -98,6 +100,15 @@ class AuthViewModel @Inject constructor(
 
     fun logout() {
         _authState.value = AuthState.LogOut
-        viewModelScope.launch { authService.logout() }
+        viewModelScope.launch {
+            authService.disconnectWS()
+            authService.logout()
+        }
+    }
+
+    fun connectWS() {
+        viewModelScope.launch {
+            authService.connectWS()
+        }
     }
 }

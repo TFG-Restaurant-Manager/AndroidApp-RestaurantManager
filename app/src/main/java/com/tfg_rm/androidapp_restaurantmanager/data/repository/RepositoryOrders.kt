@@ -2,6 +2,7 @@ package com.tfg_rm.androidapp_restaurantmanager.data.repository
 
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.datasource.OrderRemoteDataSource
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.TokenProvider
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.WebSocketManager
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -11,7 +12,8 @@ import javax.inject.Singleton
 class RepositoryOrders @Inject constructor(
     private val remote: OrderRemoteDataSource,
     private val dataDouble: TablesOrdersRepository,
-    private val tokenProvider: TokenProvider
+    private val tokenProvider: TokenProvider,
+    private val webSocketManager: WebSocketManager
 ) {
 
     suspend fun getOrders(): List<Order> {
@@ -36,5 +38,11 @@ class RepositoryOrders @Inject constructor(
 
     fun clearCache() {
         dataDouble.clearCache()
+    }
+
+    val events = webSocketManager.events
+
+    suspend fun sendUpdate(message: String) {
+        webSocketManager.sendMessage(message)
     }
 }

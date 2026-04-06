@@ -7,6 +7,13 @@ import javax.inject.Inject
 class EmployeeService @Inject constructor(
     private val repository: EmployeeRepository
 ) {
+
+    val events = repository.events
+
+    suspend fun sendUpdate(message: String) {
+        repository.sendUpdate(message)
+    }
+
     suspend fun getEmployeeData(): Employee {
         return repository.getEmployeeData()
     }

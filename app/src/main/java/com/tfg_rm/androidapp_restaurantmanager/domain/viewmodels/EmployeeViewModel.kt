@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tfg_rm.androidapp_restaurantmanager.R
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.SocketEvent
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Employee
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
 import com.tfg_rm.androidapp_restaurantmanager.domain.services.EmployeeService
@@ -18,6 +19,11 @@ import javax.inject.Inject
 class EmployeeViewModel @Inject constructor(
     private val service: EmployeeService
 ) : ViewModel() {
+
+    init {
+        observeSocket()
+    }
+
     private val _employeeState = MutableStateFlow<UiState<Employee>>(UiState.Idle)
     val employeeState: StateFlow<UiState<Employee>> = _employeeState.asStateFlow()
 
@@ -36,6 +42,20 @@ class EmployeeViewModel @Inject constructor(
                 e.printStackTrace()
                 Log.e("EmployeeViewModel", e.message ?: "Employee data error")
                 _employeeState.value = UiState.Error(R.string.profilescreen_loadingerror)
+            }
+        }
+    }
+
+    private fun observeSocket() {
+        viewModelScope.launch {
+            service.events.collect { event ->
+                when (event) {
+                    is SocketEvent.EmployeeUpdated -> {
+                        Log.i("EmployeeViewModel", "Empleado actualizado: ${event.data}")
+                    }
+
+                    else -> {}
+                }
             }
         }
     }

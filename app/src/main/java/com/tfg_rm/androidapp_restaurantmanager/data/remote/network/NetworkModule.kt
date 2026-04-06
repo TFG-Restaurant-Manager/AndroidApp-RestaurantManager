@@ -36,6 +36,14 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideWebSocketManager(
+        client: HttpClient
+    ): WebSocketManager {
+        return WebSocketManager(client)
+    }
+
+    @Provides
+    @Singleton
     fun provideHttpClient(
         tokenProvider: TokenProvider
     ): HttpClient {
@@ -55,7 +63,7 @@ object NetworkModule {
             install(WebSockets)
 
             defaultRequest {
-                url("https://compounds-purchased-waiting-exempt.trycloudflare.com/")
+                url("https://before-items-spending-dramatic.trycloudflare.com/")
 
                 tokenProvider.getToken()?.let {
                     header("Authorization", "Bearer $it")

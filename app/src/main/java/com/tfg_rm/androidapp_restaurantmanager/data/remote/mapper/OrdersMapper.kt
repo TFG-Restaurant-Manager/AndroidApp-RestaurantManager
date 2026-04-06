@@ -14,7 +14,7 @@ fun OrderDto.toOrder(): Order {
         total = this.total.toDouble(),
         notes = this.notes,
         createdAt = LocalDateTime.parse(this.createdAt),
-        orderItemsList = this.orderItemsList.map { it.toOrderItem() }.toMutableList()
+        orderItemsList = this.orderItems.map { it.toOrderItem() }.toMutableList()
     )
 }
 
@@ -25,5 +25,27 @@ fun OrderItemDto.toOrderItem(): OrderItem {
         dishName = this.dishName,
         notes = this.itemNotes,
         price = this.orderItemPrice
+    )
+}
+
+fun Order.toOrderDto(): OrderDto {
+    return OrderDto(
+        id = this.id,
+        tableId = this.tableId,
+        statusId = this.status,
+        total = this.total.toFloat(),
+        notes = this.notes,
+        createdAt = this.createdAt.toString(),
+        orderItems = this.orderItemsList.map { it.toOrderItemDto() }
+    )
+}
+
+fun OrderItem.toOrderItemDto(): OrderItemDto {
+    return OrderItemDto(
+        orderItemId = this.orderItemId,
+        dishId = this.dishId,
+        dishName = this.dishName,
+        orderItemPrice = this.price,
+        itemNotes = this.notes
     )
 }
