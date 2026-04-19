@@ -10,7 +10,7 @@ class FoodRemoteDataSource @Inject constructor(
     private val client: HttpClient
 ) {
     suspend fun getDishes(): List<DishesDto> {
-        val response = client.get("api/dish/info")
+        val response = client.get("api/dish")
         return response.body()
     }
 }

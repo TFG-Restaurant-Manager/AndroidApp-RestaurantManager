@@ -21,7 +21,6 @@ import javax.inject.Singleton
 class WebSocketManager @Inject constructor(
     private val client: HttpClient
 ) {
-    private val urlbase = "before-items-spending-dramatic.trycloudflare.com"
     private var session: DefaultClientWebSocketSession? = null
     private val _events = MutableSharedFlow<SocketEvent>()
     val events = _events.asSharedFlow()
@@ -29,7 +28,7 @@ class WebSocketManager @Inject constructor(
     suspend fun connect() {
         try {
             session = client.webSocketSession {
-                url("wss://$urlbase/api/ws")
+                url("${NetworkConfig.WS_URL}api/ws")
             }
             Log.i("WebSocketManager", "WebSocket Conectado")
             listen()

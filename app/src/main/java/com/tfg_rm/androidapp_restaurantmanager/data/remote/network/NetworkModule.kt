@@ -63,7 +63,7 @@ object NetworkModule {
             install(WebSockets)
 
             defaultRequest {
-                url("https://before-items-spending-dramatic.trycloudflare.com/")
+                url(NetworkConfig.BASE_URL)
 
                 tokenProvider.getToken()?.let {
                     header("Authorization", "Bearer $it")

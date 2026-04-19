@@ -10,6 +10,6 @@ class TablesOrdersDataSource @Inject constructor(
     private val client: HttpClient
 ) {
     suspend fun getTablesOrders(): List<TablesOrdersDto> {
-        return client.get("api/table/info").body()
+        return client.get("api/table").body()
     }
 }
