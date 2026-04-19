@@ -50,6 +50,15 @@ import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
 import com.tfg_rm.androidapp_restaurantmanager.ui.theme.Typography
 import java.util.Locale
 
+/**
+ * Screen that displays the list of active customer orders in the restaurant.
+ * It uses [OrdersViewModel] to manage the state of the orders list. It features a
+ * styled TopBar and a [LazyColumn] for efficient scrolling through order cards.
+ * - **Idle/Loading:** Triggers the fetch process and shows a loading indicator.
+ * - **Error:** Displays a localized error message with a manual refresh option.
+ * - **Success:** Lists all current orders sorted by their table identifier.
+ * @param ordersViewModel ViewModel responsible for fetching and managing order states.
+ */
 @Composable
 fun OrdersScreen(
     ordersViewModel: OrdersViewModel = hiltViewModel()
@@ -140,6 +149,16 @@ fun OrdersScreen(
     }
 }
 
+/**
+ * A detailed card representing a single customer order.
+ * Displays essential information including:
+ * - Table number and current order status (via [StatusBadge]).
+ * - Total monetary amount and elapsed time since creation.
+ * - A detailed list of ordered items (via [OrderItemRow]).
+ * - Action buttons for marking orders as delivered or removing them from the view.
+ * @param order The [Order] domain model containing the data to display.
+ * @param viewModel ViewModel used to handle status formatting and order removal logic.
+ */
 @Composable
 fun OrderCard(order: Order, viewModel: OrdersViewModel) {
     Card(
@@ -238,6 +257,14 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
     }
 }
 
+/**
+ * Renders a single row for an item within an order.
+ * It shows the quantity, dish name, and the calculated total price for that specific item.
+ * If the item contains specific kitchen notes (e.g., "no salt"), an additional
+ * row with an edit icon and the note text is displayed.
+ * @param item The specific [OrderItem] to be displayed.
+ * @param quantity The total count of this specific dish within the order.
+ */
 @Composable
 fun OrderItemRow(item: OrderItem, quantity: Int) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -284,7 +311,14 @@ fun OrderItemRow(item: OrderItem, quantity: Int) {
     }
 }
 
-
+/**
+ * A visual indicator (badge) representing the current state of an order.
+ * Dynamically adjusts its background color, text color, and icon based on the
+ * status identifier (e.g., "CREATED", "COOKED"). This helps staff quickly
+ * distinguish between pending, ready, or delivered items at a glance.
+ * @param status The technical status string from the backend.
+ * @param viewModel ViewModel used to map the status to specific colors and localized strings.
+ */
 @Composable
 fun StatusBadge(status: String, viewModel: OrdersViewModel) {
     val colors = viewModel.getStatusColors(status)
