@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -175,31 +177,46 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = stringResource(R.string.table_label, order.tableId),
-                        style = Typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    StatusBadge(
-                        order.status,
-                        viewModel
-                    )
-                }
                 Text(
-                    text = stringResource(R.string.currency_format, order.total),
+                    text = stringResource(R.string.table_label, order.tableId ?: 0),
+                    style = Typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                Text(
+                    text = stringResource(
+                        R.string.currency_format,
+                        order.orderItemsList.sumOf { it.price }),
                     style = Typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
             }
-            Text(
-                text = stringResource(R.string.time_ago, viewModel.getMinutesAgo(order.createdAt)),
-                style = Typography.bodySmall,
-                color = Color.Gray,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(
+                        R.string.time_ago,
+                        viewModel.getMinutesAgo(order.createdAt)
+                    ),
+                    style = Typography.bodySmall,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+                Text(
+                    text = "${stringResource(R.string.total)}: ${order.orderItemsList.size} ${
+                        stringResource(
+                            R.string.products
+                        )
+                    }",
+                    style = Typography.bodySmall,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
 
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 8.dp),
@@ -207,13 +224,17 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                 color = Color.LightGray
             )
 
-            order.orderItemsList.forEach { item ->
-                OrderItemRow(
-                    item,
-                    order.orderItemsList.count { it.dishId == item.dishId }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+            order.orderItemsList.filter { it.status == "CREATED" || it.status == "COOKED" }
+                .forEach { item ->
+                    OrderItemRow(
+                        item,
+                        order.orderItemsList.count { it.dishId == item.dishId },
+                        { viewModel.updateOrderItemState(order = order, it.orderItemId) },
+                        getStatusColor = { viewModel.getStatusColors(it) },
+                        getStatusStringRes = { viewModel.getStatusStringRes(it) }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 8.dp),
@@ -228,7 +249,9 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
             ) {
                 if (viewModel.getStatusStringRes(order.status) == R.string.order_statusready) {
                     Button(
-                        onClick = { },
+                        onClick = {
+                            viewModel.updateOrderState(order)
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
@@ -266,7 +289,13 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
  * @param quantity The total count of this specific dish within the order.
  */
 @Composable
-fun OrderItemRow(item: OrderItem, quantity: Int) {
+fun OrderItemRow(
+    item: OrderItem,
+    quantity: Int,
+    onItemDelivered: (OrderItem) -> Unit,
+    getStatusColor: (String) -> Pair<Color, Color>,
+    getStatusStringRes: (String) -> Int
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -282,12 +311,26 @@ fun OrderItemRow(item: OrderItem, quantity: Int) {
                 style = Typography.bodyLarge,
                 fontSize = 16.sp
             )
-            Text(
-                text = "${quantity * item.price} €",
-                style = Typography.bodyLarge,
-                fontSize = 16.sp
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "${quantity * item.price} €",
+                    style = Typography.bodyLarge,
+                    fontSize = 16.sp
+                )
+                IconButton(
+                    onClick = { onItemDelivered(item) }
+                ) {
+                    Icon(Icons.Outlined.Close, null, tint = Color.Red)
+                }
+            }
         }
+        StatusBadge(
+            item.status,
+            getStatusColor = getStatusColor,
+            getStatusStringRes = getStatusStringRes
+        )
         val notes = item.notes
         if (notes != null) {
             Row(
@@ -320,8 +363,12 @@ fun OrderItemRow(item: OrderItem, quantity: Int) {
  * @param viewModel ViewModel used to map the status to specific colors and localized strings.
  */
 @Composable
-fun StatusBadge(status: String, viewModel: OrdersViewModel) {
-    val colors = viewModel.getStatusColors(status)
+fun StatusBadge(
+    status: String,
+    getStatusColor: (String) -> Pair<Color, Color>,
+    getStatusStringRes: (String) -> Int
+) {
+    val colors = getStatusColor(status)
 
     val backgroundColor = colors.first
     val contentColor = colors.second
@@ -336,8 +383,8 @@ fun StatusBadge(status: String, viewModel: OrdersViewModel) {
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
         ) {
             Icon(
-                painter = if (viewModel.getStatusStringRes(status) == R.string.order_statuscreated) {
-                    painterResource(id = R.drawable.time_svgrepo_com) // Tu archivo local
+                painter = if (getStatusStringRes(status) == R.string.order_statuscreated) {
+                    painterResource(id = R.drawable.time_svgrepo_com)
                 } else {
                     painterResource(id = R.drawable.check_circle_svgrepo_com)
                 },
@@ -349,7 +396,7 @@ fun StatusBadge(status: String, viewModel: OrdersViewModel) {
             Spacer(modifier = Modifier.width(4.dp))
 
             Text(
-                text = stringResource(viewModel.getStatusStringRes(status)),
+                text = stringResource(getStatusStringRes(status)),
                 color = contentColor,
                 style = Typography.labelSmall,
                 fontWeight = FontWeight.Bold

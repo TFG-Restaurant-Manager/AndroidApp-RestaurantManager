@@ -1,8 +1,14 @@
 package com.tfg_rm.androidapp_restaurantmanager.data.repository
 
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.datasource.OrderRemoteDataSource
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.WebsocketMessage
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.mapper.toOrderRequest
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.SocketManager
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.TokenProvider
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.encodeToJsonElement
 import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,7 +28,8 @@ import javax.inject.Singleton
 class RepositoryOrders @Inject constructor(
     private val remote: OrderRemoteDataSource,
     private val dataDouble: TablesOrdersRepository,
-    private val tokenProvider: TokenProvider
+    private val tokenProvider: TokenProvider,
+    private val socketManager: SocketManager
 ) {
 
     /**
@@ -49,7 +56,13 @@ class RepositoryOrders @Inject constructor(
                     total = first.orderTotal!!,
                     notes = first.orderNotes,
                     createdAt = LocalDateTime.parse(first.orderCreatedAt),
-                    orderItemsList = first.orderItems!!.toMutableList()
+                    orderItemsList = first.orderItems!!.toMutableList(),
+                    type = "",
+                    orderType = "",
+                    clientId = null,
+                    deliveryAddress = null,
+                    deliveryNotes = null,
+                    pickupTime = null
                 )
             }
     }
@@ -61,5 +74,36 @@ class RepositoryOrders @Inject constructor(
      */
     fun clearCache() {
         dataDouble.clearCache()
+    }
+
+    fun observeMessages() = socketManager.messages
+
+    suspend fun disconnectWS() = socketManager.disconnect()
+    suspend fun addOrder(order: Order) {
+        val json = Json {
+            encodeDefaults = true
+        }
+        socketManager.sendMessage(
+            json.encodeToJsonElement(
+                WebsocketMessage(
+                    type = "CREATE_ORDER",
+                    payload = json.encodeToJsonElement(order.toOrderRequest()) as JsonObject
+                )
+            ).toString()
+        )
+    }
+
+    suspend fun updateOrder(order: Order) {
+        val json = Json {
+            encodeDefaults = true
+        }
+        socketManager.sendMessage(
+            json.encodeToJsonElement(
+                WebsocketMessage(
+                    type = "UPDATE_ORDER",
+                    payload = json.encodeToJsonElement(order.toOrderRequest()) as JsonObject
+                )
+            ).toString()
+        )
     }
 }

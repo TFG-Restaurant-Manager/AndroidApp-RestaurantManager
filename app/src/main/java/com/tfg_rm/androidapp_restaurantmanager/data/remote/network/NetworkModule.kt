@@ -48,6 +48,14 @@ object NetworkModule {
         )
     }
 
+    @Provides
+    @Singleton
+    fun provideWebSocketManager(
+        client: HttpClient
+    ): SocketManager {
+        return SocketManager(client)
+    }
+
     /**
      * Provides a singleton instance of the Ktor [HttpClient].
      *
@@ -83,7 +91,7 @@ object NetworkModule {
             install(WebSockets)
 
             defaultRequest {
-                url("https://separation-zinc-placed-hence.trycloudflare.com/")
+                url(NetworkConfig.BASE_URL)
 
                 tokenProvider.getToken()?.let {
                     header("Authorization", "Bearer $it")

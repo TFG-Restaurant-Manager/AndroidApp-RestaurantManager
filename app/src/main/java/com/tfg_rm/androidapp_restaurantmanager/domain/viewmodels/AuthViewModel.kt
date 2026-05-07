@@ -30,11 +30,11 @@ sealed class AuthState {
  * logout, and automatic session expiration monitoring. It exposes an [AuthState]
  * to the view to drive the navigation and loading states.
  *
- * @property authService The domain service handling authentication logic.
+ * @property service The domain service handling authentication logic.
  */
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authService: AuthService
+    private val service: AuthService
 ) : ViewModel() {
 
     /**
@@ -68,8 +68,9 @@ class AuthViewModel @Inject constructor(
     fun login() {
         viewModelScope.launch {
             try {
-                val savedToken = authService.loadToken()
+                val savedToken = service.loadToken()
                 if (savedToken) {
+                    connectWS()
                     _authState.value = AuthState.Success
                 } else {
                     _authState.value = AuthState.Idle
@@ -107,7 +108,8 @@ class AuthViewModel @Inject constructor(
             _authState.value = AuthState.Loading
             viewModelScope.launch {
                 try {
-                    authService.requestToken(code = code, password = password)
+                    service.requestToken(code = code, password = password)
+                    connectWS()
                     _authState.value = AuthState.Success
                 } catch (e: Exception) {
                     _authState.value = AuthState.Error(
@@ -122,12 +124,23 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    fun connectWS() {
+        viewModelScope.launch {
+            try {
+                service.connectBS()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("AuthViewModel", "Error al conectar los websockets")
+            }
+        }
+    }
+
     /**
      * Logs the user out by clearing the remote session and updating the UI state
      * to trigger a redirection to the login screen.
      */
     fun logout() {
         _authState.value = AuthState.LogOut
-        viewModelScope.launch { authService.logout() }
+        viewModelScope.launch { service.logout() }
     }
 }

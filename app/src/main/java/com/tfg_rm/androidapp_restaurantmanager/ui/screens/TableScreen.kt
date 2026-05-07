@@ -1,6 +1,5 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -128,7 +127,6 @@ fun TableScreen(
 
         is UiState.Success<*> -> {
             val tables = (tableState as UiState.Success<List<Tables>>).data
-            tables.forEach { Log.i("Mesas", it.toString()) }
             val sectionsList = viewModel.getSections(tables)
             val actualSection = remember { mutableStateOf(sectionsList[0]) }
             val cards = viewModel.getTableInfo(actualSection.value, tables)

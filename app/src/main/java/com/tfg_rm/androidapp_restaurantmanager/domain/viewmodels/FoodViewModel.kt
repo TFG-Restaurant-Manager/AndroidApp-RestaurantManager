@@ -10,7 +10,9 @@ import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
 import com.tfg_rm.androidapp_restaurantmanager.domain.services.FoodService
+import com.tfg_rm.androidapp_restaurantmanager.domain.services.OrderService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -27,7 +29,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class FoodViewModel @Inject constructor(
-    private val foodService: FoodService
+    private val foodService: FoodService,
+    private val orderService: OrderService
 ) : ViewModel() {
 
     private val _dishes = MutableStateFlow<UiState<List<Dishes>>>(UiState.Idle)
@@ -98,7 +101,8 @@ class FoodViewModel @Inject constructor(
                 dishId = dish.id,
                 dishName = dish.name,
                 notes = "",
-                price = dish.price
+                price = dish.price,
+                status = "CREATED"
             )
         )
 
@@ -200,6 +204,18 @@ class FoodViewModel @Inject constructor(
      * Persists the current order state via the food service.
      */
     fun saveOrder(order: Order) {
-        foodService.saveOrder(order)
+        viewModelScope.launch {
+            try {
+                orderService.saveOrder(order = order)
+            } catch (e: UnresolvedAddressException) {
+                Log.e(
+                    "FoodViewModel",
+                    "Error on submitOrder in NewOrderViewModel, direccion ip no existente"
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("FoodViewModel", "Error on submitOrder in NewOrderViewModel")
+            }
+        }
     }
 }

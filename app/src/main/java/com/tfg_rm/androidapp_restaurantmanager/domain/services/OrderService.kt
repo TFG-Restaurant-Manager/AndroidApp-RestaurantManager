@@ -10,11 +10,11 @@ import javax.inject.Singleton
  * * This service acts as a mediator for order-related operations, ensuring the presentation
  * layer receives data in a manageable format and providing mechanisms to refresh the state.
  *
- * @property repositoryOrders The repository responsible for consolidating and providing order data.
+ * @property repository The repository responsible for consolidating and providing order data.
  */
 @Singleton
 class OrderService @Inject constructor(
-    private val repositoryOrders: RepositoryOrders
+    private val repository: RepositoryOrders
 ) {
     /**
      * Retrieves the current list of active orders as a mutable collection.
@@ -23,7 +23,7 @@ class OrderService @Inject constructor(
      *
      * @return A mutable list of [Order] domain objects.
      */
-    suspend fun getOrders(): MutableList<Order> = repositoryOrders.getOrders().toMutableList()
+    suspend fun getOrders(): MutableList<Order> = repository.getOrders().toMutableList()
 
     /**
      * Invalidates the underlying data cache.
@@ -31,6 +31,17 @@ class OrderService @Inject constructor(
      * ensuring data consistency across the application.
      */
     fun clearCache() {
-        repositoryOrders.clearCache()
+        repository.clearCache()
+    }
+
+    fun observeMessages() = repository.observeMessages()
+
+    suspend fun disconnectWS() = repository.disconnectWS()
+    suspend fun saveOrder(order: Order) {
+        repository.addOrder(order)
+    }
+
+    suspend fun updateOrderState(order: Order) {
+        repository.updateOrder(order)
     }
 }

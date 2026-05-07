@@ -2,6 +2,20 @@ package com.tfg_rm.androidapp_restaurantmanager.data.remote.dto
 
 import kotlinx.serialization.Serializable
 
+@Serializable
+data class OrderResponse(
+    val orderId: Int,
+    val type: String,
+    val status: String,
+    val total: Double,
+    val notes: String?,
+    val createdAt: String,
+    val items: List<OrderItemResponse>,
+    val pickupTime: String?,
+    val deliveryAddress: String?,
+    val tableId: Int?
+)
+
 /**
  * Data Transfer Object (DTO) representing an individual item or line within an order.
  *
@@ -13,9 +27,10 @@ import kotlinx.serialization.Serializable
  * @property dishName Name of the requested dish.
  * @property orderItemPrice Unit price of the dish recorded at the time the order was placed.
  * @property itemNotes Specific observations for this item (e.g., "No salt", "Rare").
+ * @property status Specific status for this item (e.g., "COOKED", "CREATED").
  */
 @Serializable
-data class OrderItemDto(
+data class OrderItemResponse(
     val orderItemId: Int,
     val dishId: Int,
     val dishName: String,

@@ -43,4 +43,6 @@ class AuthService @Inject constructor(
     suspend fun loadToken(): Boolean {
         return authRepository.loadToken()
     }
+
+    suspend fun connectBS() = authRepository.connectWS()
 }

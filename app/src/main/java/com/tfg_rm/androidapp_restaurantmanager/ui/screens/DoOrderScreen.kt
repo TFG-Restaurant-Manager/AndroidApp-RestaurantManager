@@ -1,6 +1,5 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -45,7 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,7 +54,6 @@ import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
-import java.time.LocalDateTime
 import java.util.Locale
 
 @Preview(showBackground = true)
@@ -107,7 +104,6 @@ fun DoOrderScreen(
     backToTables: () -> Unit = {}
 ) {
     val productosRestaurante by viewModel.dishes.collectAsState()
-    val context = LocalContext.current
     val table by tableViewModel.actualTable
     when (val state = productosRestaurante) {
         is UiState.Idle -> {
@@ -122,11 +118,15 @@ fun DoOrderScreen(
             val order = remember {
                 mutableStateOf(
                     Order(
-                        1, 1, "CREATED", 0.0, null, LocalDateTime.now()
+                        0,
+                        table,
+                        "TABLE",
+                        "CREATED",
+                        0.0,
                     )
                 )
             }
-            val text = stringResource(R.string.foodscreen_order_sent)
+
             FoodContent(
                 dishesCategories, selectedCategory,
                 onCategorySelected = { selectedCategory = it },
@@ -150,17 +150,9 @@ fun DoOrderScreen(
                 getNotes = { dish -> viewModel.getNotes(dish, order) },
                 isNoteEmpty = { dish -> viewModel.isNoteEmpty(dish, order) },
                 onSendOrder = {
-                    // Save order to repository (per table)
-                    //viewModel.saveOrder(order.value)
+                    viewModel.saveOrder(order.value)
 
-                    Toast.makeText(
-                        context,
-                        text,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    order.value = Order(
-                        1, 1, "CREATED", 0.0, null, LocalDateTime.now()
-                    )
+                    backToTables()
                 }
             )
 
@@ -240,7 +232,8 @@ fun FoodContent(
             if (getOrderDishesQuantity() > 0) {
                 BottomTableBar(
                     getOrderDishesQuantity = { getOrderDishesQuantity() },
-                    getOrderTotalAmount = { getOrderTotalAmount() }, onSendOrder = { onSendOrder() }
+                    getOrderTotalAmount = { getOrderTotalAmount() },
+                    onSendOrder = { onSendOrder() }
                 )
             }
         }

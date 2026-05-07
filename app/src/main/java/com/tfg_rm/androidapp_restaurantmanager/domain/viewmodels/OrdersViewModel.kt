@@ -5,16 +5,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tfg_rm.androidapp_restaurantmanager.R
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderResponse
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.WebsocketMessage
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.mapper.toOrder
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
+import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
 import com.tfg_rm.androidapp_restaurantmanager.domain.services.OrderService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromJsonElement
 import java.time.Duration
 import java.time.LocalDateTime
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * ViewModel responsible for managing the state and business logic of customer orders.
@@ -22,11 +31,11 @@ import javax.inject.Inject
  * provides helper methods to process order status, elapsed time, and UI styling
  * (colors and strings) based on the order's state.
  *
- * @property orderService The domain service providing access to order-related operations and cache management.
+ * @property service The domain service providing access to order-related operations and cache management.
  */
 @HiltViewModel
 class OrdersViewModel @Inject constructor(
-    private val orderService: OrderService
+    private val service: OrderService
 ) : ViewModel() {
 
     private val _orders = MutableStateFlow<UiState<MutableList<Order>>>(UiState.Idle)
@@ -42,8 +51,9 @@ class OrdersViewModel @Inject constructor(
      * This ensures that the next data fetch will retrieve fresh information from the remote source.
      */
     fun resetState() {
+        socketJob?.cancel()
         _orders.value = UiState.Idle
-        orderService.clearCache()
+        service.clearCache()
     }
 
     /**
@@ -55,7 +65,8 @@ class OrdersViewModel @Inject constructor(
         viewModelScope.launch {
             _orders.value = UiState.Loading
             try {
-                val ordenes = orderService.getOrders()
+                val ordenes = service.getOrders()
+                observeSocketMessages()
                 _orders.value = UiState.Success(ordenes)
             } catch (e: Exception) {
                 Log.e("OrdersViewModel", e.message ?: "Error loading orders")
@@ -109,6 +120,97 @@ class OrdersViewModel @Inject constructor(
             "CREATED" -> Color(0xFFE3F2FD) to Color(0xFF1976D2) // Blue theme
             "COOKED" -> Color(0xFFE8F5E9) to Color(0xFF2E7D32)  // Green theme
             else -> Color(0xFFF5F5F5) to Color(0xFF616161)      // Grey theme (Default)
+        }
+    }
+
+    fun updateOrderState(order: Order) {
+        viewModelScope.launch {
+            try {
+                service.updateOrderState(order.copy(status = "DELIVERED"))
+            } catch (e: Exception) {
+                Log.e("OrdersViewModel", e.message ?: "Error al actualizar el estado de la orden")
+            }
+        }
+    }
+
+    fun updateOrderItemState(order: Order, orderItemId: Int) {
+        viewModelScope.launch {
+            try {
+                val orderUpdated = order.copy(
+                    orderItemsList = order.orderItemsList.map {
+                        if (it.orderItemId == orderItemId) {
+                            it.copy(status = "DELIVERED")
+                        } else it
+                    } as MutableList<OrderItem>
+                )
+                service.updateOrderState(orderUpdated)
+            } catch (e: Exception) {
+                Log.e("OrdersViewModel", e.message ?: "Error al actualizar el estado de la orden")
+            }
+        }
+    }
+
+    private var socketJob: Job? = null
+
+    private fun observeSocketMessages() {
+
+        socketJob = viewModelScope.launch {
+            try {
+                service.observeMessages().collect { message ->
+                    println("Mensaje recibido en OrdersViewModel: $message")
+                    when {
+                        message.contains("ORDER_CREATED") -> {
+                            val result = Json.decodeFromString<WebsocketMessage>(message)
+                            val newOrder =
+                                Json.decodeFromJsonElement<OrderResponse>(result.payload).toOrder()
+                            Log.i("OrdersViewModel", "Orden a añadir: $newOrder")
+                            _orders.update { state ->
+                                if (state is UiState.Success<MutableList<Order>>) {
+                                    val list = state.data + newOrder
+                                    UiState.Success(list.toMutableList())
+                                } else state
+                            }
+                            println("Mensaje websocket, orden creada")
+                        }
+
+                        message.contains("ORDER_UPDATED") -> {
+                            val result = Json.decodeFromString<WebsocketMessage>(message)
+                            val orderModified =
+                                Json.decodeFromJsonElement<OrderResponse>(result.payload).toOrder()
+                            Log.i("OrdersViewModel", "Orden a modificar: $orderModified")
+                            _orders.update { state ->
+                                if (state is UiState.Success) {
+                                    UiState.Success(state.data.map { currentOrder ->
+                                        if (currentOrder.id == orderModified.id) {
+                                            orderModified
+                                        } else {
+                                            currentOrder
+                                        }
+                                    }.toMutableList())
+                                } else state
+                            }
+                            println("Mensaje websocket, orden modificada")
+                        }
+
+                        message.contains("FAILED_CREATE_ORDER") -> {
+                            println("Error al crear la orden FAILED_CREATE_ORDER")
+                        }
+
+                        message.contains("FAILED_UNHANDLED_MESSAGE ") -> {
+                            println("Mensaje erroneo, no tiene formato del json requerido")
+                        }
+
+                        message.contains("FAILED_UNKNOWN_TYPE") -> {
+                            println("Error desconocido")
+                        }
+                    }
+                }
+            } catch (_: CancellationException) {
+                service.disconnectWS()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                println(e.message)
+            }
         }
     }
 }
