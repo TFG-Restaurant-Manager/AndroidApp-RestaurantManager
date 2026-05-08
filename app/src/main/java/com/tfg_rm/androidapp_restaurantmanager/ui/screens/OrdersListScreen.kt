@@ -17,8 +17,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -50,6 +51,15 @@ import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
 import com.tfg_rm.androidapp_restaurantmanager.ui.theme.Typography
 import java.util.Locale
 
+/**
+ * Screen that displays the list of active customer orders in the restaurant.
+ * It uses [OrdersViewModel] to manage the state of the orders list. It features a
+ * styled TopBar and a [LazyColumn] for efficient scrolling through order cards.
+ * - **Idle/Loading:** Triggers the fetch process and shows a loading indicator.
+ * - **Error:** Displays a localized error message with a manual refresh option.
+ * - **Success:** Lists all current orders sorted by their table identifier.
+ * @param ordersViewModel ViewModel responsible for fetching and managing order states.
+ */
 @Composable
 fun OrdersScreen(
     ordersViewModel: OrdersViewModel = hiltViewModel()
@@ -90,7 +100,9 @@ fun OrdersScreen(
         }
 
         is UiState.Success -> {
-            val orders = (orderState as UiState.Success).data.sortedBy { it.tableId }
+            val orders = (orderState as UiState.Success).data
+                .filter { it.status == "CREATED" && it.tableId != null }
+                .sortedBy { it.tableId }
             Scaffold(
                 topBar = {
                     Box(
@@ -140,6 +152,16 @@ fun OrdersScreen(
     }
 }
 
+/**
+ * A detailed card representing a single customer order.
+ * Displays essential information including:
+ * - Table number and current order status (via [StatusBadge]).
+ * - Total monetary amount and elapsed time since creation.
+ * - A detailed list of ordered items (via [OrderItemRow]).
+ * - Action buttons for marking orders as delivered or removing them from the view.
+ * @param order The [Order] domain model containing the data to display.
+ * @param viewModel ViewModel used to handle status formatting and order removal logic.
+ */
 @Composable
 fun OrderCard(order: Order, viewModel: OrdersViewModel) {
     Card(
@@ -156,31 +178,52 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = stringResource(R.string.table_label, order.tableId),
-                        style = Typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    StatusBadge(
-                        order.status,
-                        viewModel
-                    )
-                }
                 Text(
-                    text = stringResource(R.string.currency_format, order.total),
+                    text = "${stringResource(R.string.table_label)} ${
+                        if (order.tableName!!.isEmpty()) order.tableId.toString()
+                        else if (order.tableName.length >= 3) order.tableName.substring(
+                            3
+                        )
+                        else order.tableName
+                    }",
+                    style = Typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                Text(
+                    text = stringResource(
+                        R.string.currency_format,
+                        order.orderItemsList.sumOf { it.price }),
                     style = Typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
             }
-            Text(
-                text = stringResource(R.string.time_ago, viewModel.getMinutesAgo(order.createdAt)),
-                style = Typography.bodySmall,
-                color = Color.Gray,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(
+                        R.string.time_ago,
+                        viewModel.getMinutesAgo(order.createdAt)
+                    ),
+                    style = Typography.bodySmall,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+                Text(
+                    text = "${stringResource(R.string.total)}: ${order.orderItemsList.size} ${
+                        stringResource(
+                            R.string.products
+                        )
+                    }",
+                    style = Typography.bodySmall,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
 
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 8.dp),
@@ -188,13 +231,17 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                 color = Color.LightGray
             )
 
-            order.orderItemsList.forEach { item ->
-                OrderItemRow(
-                    item,
-                    order.orderItemsList.count { it.dishId == item.dishId }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+            order.orderItemsList.filter { it.status == "CREATED" || it.status == "COOKED" }
+                .forEach { item ->
+                    OrderItemRow(
+                        item,
+                        order.orderItemsList.count { it.dishId == item.dishId },
+                        { viewModel.updateOrderItemState(order = order, it.orderItemId) },
+                        getStatusColor = { viewModel.getStatusColors(it) },
+                        getStatusStringRes = { viewModel.getStatusStringRes(it) }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 8.dp),
@@ -207,26 +254,7 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (viewModel.getStatusStringRes(order.status) == R.string.order_statusready) {
-                    Button(
-                        onClick = { },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(end = 16.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.check_circle_svgrepo_com),
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(stringResource(R.string.mark_delivered), fontWeight = FontWeight.Bold)
-                    }
-                }
-
-                IconButton(onClick = { viewModel.removeOrderById(order.id) }) {
+                IconButton(onClick = { viewModel.updateOrderState(order) }) {
                     Icon(
                         painter = painterResource(R.drawable.cross_svgrepo_com),
                         contentDescription = "Cancel",
@@ -238,8 +266,22 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
     }
 }
 
+/**
+ * Renders a single row for an item within an order.
+ * It shows the quantity, dish name, and the calculated total price for that specific item.
+ * If the item contains specific kitchen notes (e.g., "no salt"), an additional
+ * row with an edit icon and the note text is displayed.
+ * @param item The specific [OrderItem] to be displayed.
+ * @param quantity The total count of this specific dish within the order.
+ */
 @Composable
-fun OrderItemRow(item: OrderItem, quantity: Int) {
+fun OrderItemRow(
+    item: OrderItem,
+    quantity: Int,
+    onItemDelivered: (OrderItem) -> Unit,
+    getStatusColor: (String) -> Pair<Color, Color>,
+    getStatusStringRes: (String) -> Int
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -255,12 +297,26 @@ fun OrderItemRow(item: OrderItem, quantity: Int) {
                 style = Typography.bodyLarge,
                 fontSize = 16.sp
             )
-            Text(
-                text = "${quantity * item.price} €",
-                style = Typography.bodyLarge,
-                fontSize = 16.sp
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "${quantity * item.price} €",
+                    style = Typography.bodyLarge,
+                    fontSize = 16.sp
+                )
+                IconButton(
+                    onClick = { onItemDelivered(item) }
+                ) {
+                    Icon(Icons.Outlined.Close, null, tint = Color.Red)
+                }
+            }
         }
+        StatusBadge(
+            item.status,
+            getStatusColor = getStatusColor,
+            getStatusStringRes = getStatusStringRes
+        )
         val notes = item.notes
         if (notes != null) {
             Row(
@@ -284,10 +340,21 @@ fun OrderItemRow(item: OrderItem, quantity: Int) {
     }
 }
 
-
+/**
+ * A visual indicator (badge) representing the current state of an order.
+ * Dynamically adjusts its background color, text color, and icon based on the
+ * status identifier (e.g., "CREATED", "COOKED"). This helps staff quickly
+ * distinguish between pending, ready, or delivered items at a glance.
+ * @param status The technical status string from the backend.
+ * @param viewModel ViewModel used to map the status to specific colors and localized strings.
+ */
 @Composable
-fun StatusBadge(status: String, viewModel: OrdersViewModel) {
-    val colors = viewModel.getStatusColors(status)
+fun StatusBadge(
+    status: String,
+    getStatusColor: (String) -> Pair<Color, Color>,
+    getStatusStringRes: (String) -> Int
+) {
+    val colors = getStatusColor(status)
 
     val backgroundColor = colors.first
     val contentColor = colors.second
@@ -302,8 +369,8 @@ fun StatusBadge(status: String, viewModel: OrdersViewModel) {
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
         ) {
             Icon(
-                painter = if (viewModel.getStatusStringRes(status) == R.string.order_statuscreated) {
-                    painterResource(id = R.drawable.time_svgrepo_com) // Tu archivo local
+                painter = if (getStatusStringRes(status) == R.string.order_statuscreated) {
+                    painterResource(id = R.drawable.time_svgrepo_com)
                 } else {
                     painterResource(id = R.drawable.check_circle_svgrepo_com)
                 },
@@ -315,7 +382,7 @@ fun StatusBadge(status: String, viewModel: OrdersViewModel) {
             Spacer(modifier = Modifier.width(4.dp))
 
             Text(
-                text = stringResource(viewModel.getStatusStringRes(status)),
+                text = stringResource(getStatusStringRes(status)),
                 color = contentColor,
                 style = Typography.labelSmall,
                 fontWeight = FontWeight.Bold

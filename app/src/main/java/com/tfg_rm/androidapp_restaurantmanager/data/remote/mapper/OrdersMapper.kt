@@ -1,29 +1,85 @@
 package com.tfg_rm.androidapp_restaurantmanager.data.remote.mapper
 
-import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderDto
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderItemDto
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderItemRequest
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderItemResponse
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderRequest
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderResponse
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
 import java.time.LocalDateTime
 
-fun OrderDto.toOrder(): Order {
-    return Order(
-        id = this.id,
-        tableId = this.tableId,
-        status = this.statusId,
-        total = this.total.toDouble(),
+
+fun Order.toOrderRequest(): OrderRequest =
+    OrderRequest(
+        id = id.toLong(),
+        status = this.status,
+        type = this.orderType,
+        tableId = this.tableId?.toLong(),
+        notes = this.notes,
+        deliveryAddress = this.deliveryAddress,
+        deliveryNotes = this.deliveryNotes,
+        createdAt = this.createdAt.toString(),
+        items = this.orderItemsList.map { item -> item.toOrderItemRequest() }
+    )
+
+fun OrderResponse.toOrder(): Order =
+    Order(
+        id = this.orderId,
+        type = this.type,
+        status = this.status,
+        total = this.total,
         notes = this.notes,
         createdAt = LocalDateTime.parse(this.createdAt),
-        orderItemsList = this.orderItemsList.map { it.toOrderItem() }.toMutableList()
+        orderItemsList = this.items.map { it.toOrderItem() } as MutableList<OrderItem>,
+        pickupTime = if (this.pickupTime != null) LocalDateTime.parse(this.pickupTime) else null,
+        deliveryAddress = this.deliveryAddress,
+        tableId = this.tableId,
+        tableName = this.tablName
+    )
+
+fun OrderItem.toOrderItemRequest(): OrderItemRequest =
+    OrderItemRequest(
+        id = this.orderItemId.toLong(),
+        dishId = this.dishId.toLong(),
+        notes = this.notes,
+        status = this.status
+    )
+
+/**
+ * Extension of the [OrderItemResponse] model to facilitate conversion to an [OrderItem] domain object.
+ *
+ * This function maps individual line items from their data transfer format (DTO)
+ * into a domain model usable by the business logic.
+ *
+ * @return An [OrderItem] instance with the corresponding item details.
+ */
+fun OrderItemResponse.toOrderItem(): OrderItem {
+    return OrderItem(
+        orderItemId = this.orderItemId,
+        dishId = this.dishId,
+        dishName = this.dishName,
+        notes = this.itemNotes,
+        price = this.orderItemPrice,
+        status = this.status
     )
 }
 
+/**
+ * Extension of the [OrderItemDto] model to facilitate conversion to an [OrderItem] domain object.
+ *
+ * This function maps individual line items from their data transfer format (DTO)
+ * into a domain model usable by the business logic.
+ *
+ * @return An [OrderItem] instance with the corresponding item details.
+ */
 fun OrderItemDto.toOrderItem(): OrderItem {
     return OrderItem(
         orderItemId = this.orderItemId,
         dishId = this.dishId,
         dishName = this.dishName,
         notes = this.itemNotes,
-        price = this.orderItemPrice
+        price = this.orderItemPrice,
+        status = this.status
     )
 }

@@ -9,22 +9,36 @@ import com.tfg_rm.androidapp_restaurantmanager.ui.theme.AndroidAppRestaurantMana
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
- * Clase principal del programa la cual inicializa el contenido mediante la navegacion
- * @see AppNavigation
- * Y con la configuracion del Thema predefinido
- * @see AndroidAppRestaurantManagerTheme
+ * The main entry point of the Android application.
  *
- * @author Equipo Restaurant Manager
+ * This activity is responsible for bootstrapping the application's UI and
+ * initializing the dependency injection container through Hilt. It sets up
+ * the top-level Compose content, including the custom theme and the
+ * navigation graph.
+ *
+ * @see AppNavigation
+ * @see AndroidAppRestaurantManagerTheme
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    /**
+     * Called when the activity is first created.
+     *
+     * * [enableEdgeToEdge] is invoked to allow the layout to utilize the
+     * full screen real estate, including the area behind system bars.
+     * * [setContent] defines the UI composition, wrapping the [AppNavigation]
+     * within the application's global [AndroidAppRestaurantManagerTheme].
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Funcion para hacer que la aplicacion ocupe toda la pantalla
+
+        // Configure the app to draw under system bars for a modern look
         enableEdgeToEdge()
+
         setContent {
             AndroidAppRestaurantManagerTheme {
-                // Inicializo la navegacion
+                // Initialize the central navigation controller
                 AppNavigation()
             }
         }

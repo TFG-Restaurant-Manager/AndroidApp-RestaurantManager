@@ -11,9 +11,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+/**
+ * A reusable Composable screen used to display a standardized loading state across the app.
+ * * It features a centered layout containing a [CircularProgressIndicator] and a
+ * customizable message. This component is typically used as a placeholder while
+ * asynchronous domain operations (like fetching orders or tables) are in progress.
+ *
+ * @param mensaje The text to be displayed below the loading spinner, providing
+ * context to the user about what is being loaded.
+ */
 @Composable
 fun LoadingScreen(mensaje: String) {
-    // Box ocupa toda la pantalla y centra el contenido
+    // Box occupies the full screen and centers its children both horizontally and vertically
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -24,7 +33,7 @@ fun LoadingScreen(mensaje: String) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // El círculo de progreso
+            // Material 3 Circular progress indicator using the theme's primary color
             CircularProgressIndicator(
                 modifier = Modifier.size(50.dp),
                 color = MaterialTheme.colorScheme.primary,
@@ -33,7 +42,7 @@ fun LoadingScreen(mensaje: String) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // El texto personalizado
+            // Informative text for the user
             Text(
                 text = mensaje,
                 style = MaterialTheme.typography.bodyLarge,

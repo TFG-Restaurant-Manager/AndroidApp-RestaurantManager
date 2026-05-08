@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Represents the distinct states of the authentication process.
+ */
 sealed class AuthState {
     object Idle : AuthState()
     object Loading : AuthState()
@@ -21,33 +24,53 @@ sealed class AuthState {
     data class Error(val msg: Int) : AuthState()
 }
 
+/**
+ * ViewModel responsible for managing the authentication lifecycle and session state.
+ * * It acts as the bridge between the UI and [AuthService], handling user login,
+ * logout, and automatic session expiration monitoring. It exposes an [AuthState]
+ * to the view to drive the navigation and loading states.
+ *
+ * @property service The domain service handling authentication logic.
+ */
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authService: AuthService
+    private val service: AuthService
 ) : ViewModel() {
 
+    /**
+     * Internal initialization block that subscribes to global session expiration events.
+     * If the [SessionManager] signals an expired session, the UI state is automatically
+     * shifted to [AuthState.LogOut].
+     */
     init {
         viewModelScope.launch {
             SessionManager.sessionExpired.collect {
-                Log.e("AuthViewModel", "Auth cambiado, se supone")
+                Log.e("AuthViewModel", "Session expired or auth changed")
                 _authState.value = AuthState.LogOut
             }
         }
     }
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
+
+    /**
+     * Observable state flow representing the current authentication status.
+     */
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     private var lastCode: String? = null
     private var lastPassword: String? = null
 
+    /**
+     * Checks if a valid session token already exists locally.
+     * If found, transitions the state directly to [AuthState.Success] to bypass the login screen.
+     */
     fun login() {
         viewModelScope.launch {
             try {
-                val savedToken = authService.loadToken()
-                Log.i("AuthViewModel", "token: ${savedToken ?: "null"}")
+                val savedToken = service.loadToken()
                 if (savedToken) {
-                    // Hay token, podemos considerarlo como login ya hecho
+                    connectWS()
                     _authState.value = AuthState.Success
                 } else {
                     _authState.value = AuthState.Idle
@@ -60,16 +83,22 @@ class AuthViewModel @Inject constructor(
     }
 
     /**
-     * Method to reset the state of the authentication on error displayed in the ui
+     * Resets the authentication state to [AuthState.Idle].
+     * Useful for clearing error messages and allowing the user to try again.
      */
     fun resetState() {
         _authState.value = AuthState.Idle
     }
 
-    fun login(
-        code: String,
-        password: String
-    ) {
+    /**
+     * Performs a login attempt with the provided credentials.
+     * * Validates input locally before calling the service. It manages the [AuthState.Loading]
+     * state and maps various network or credential exceptions to specific UI string resources.
+     *
+     * @param code The employee's identification code.
+     * @param password The employee's password.
+     */
+    fun login(code: String, password: String) {
         lastCode = code
         lastPassword = password
 
@@ -79,11 +108,10 @@ class AuthViewModel @Inject constructor(
             _authState.value = AuthState.Loading
             viewModelScope.launch {
                 try {
-                    authService.requestToken(code = code, password = password)
+                    service.requestToken(code = code, password = password)
+                    connectWS()
                     _authState.value = AuthState.Success
                 } catch (e: Exception) {
-                    e.printStackTrace()
-                    Log.e("AuthViewModel", e.message ?: "Login failed")
                     _authState.value = AuthState.Error(
                         if (e.message?.contains("JSON input: Invalid credentials") ?: false)
                             R.string.loginscreen_loginerror_invalidcredentials else
@@ -96,8 +124,23 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    fun connectWS() {
+        viewModelScope.launch {
+            try {
+                service.connectBS()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("AuthViewModel", "Error al conectar los websockets")
+            }
+        }
+    }
+
+    /**
+     * Logs the user out by clearing the remote session and updating the UI state
+     * to trigger a redirection to the login screen.
+     */
     fun logout() {
         _authState.value = AuthState.LogOut
-        viewModelScope.launch { authService.logout() }
+        viewModelScope.launch { service.logout() }
     }
 }

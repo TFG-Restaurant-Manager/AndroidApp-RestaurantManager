@@ -1,6 +1,5 @@
 package com.tfg_rm.androidapp_restaurantmanager.ui.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -45,7 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,8 +53,8 @@ import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
-import java.time.LocalDateTime
 import java.util.Locale
 
 @Preview(showBackground = true)
@@ -88,37 +86,61 @@ fun DoOrderScreenPreview() {
     )
 }
 
+/**
+ * Main entry point for the order creation process for a specific table.
+ * Orchestrates the business logic between [FoodViewModel] and [TableViewModel].
+ * It manages the dish selection, order aggregation, and provides a reactive
+ * interface that handles:
+ * - **Initial Fetching:** Automatically triggers dish loading if in [UiState.Idle].
+ * - **Category Management:** Dynamically extracts categories from the loaded dishes.
+ * - **State Sync:** Links the current order items, quantities, and notes to the UI.
+ * @param viewModel ViewModel responsible for dish data and order item manipulation.
+ * @param tableViewModel ViewModel providing context for the currently active table.
+ * @param backToTables Navigation callback to return to the restaurant floor plan.
+ */
 @Composable
 fun DoOrderScreen(
     viewModel: FoodViewModel = hiltViewModel(),
     tableViewModel: TableViewModel = hiltViewModel(),
+    ordersViewModel: OrdersViewModel = hiltViewModel(),
     backToTables: () -> Unit = {}
 ) {
-    val productosRestaurante by viewModel.dishes.collectAsState()
-    val context = LocalContext.current
+    val state by viewModel.dishes.collectAsState()
     val table by tableViewModel.actualTable
-    when (val state = productosRestaurante) {
-        is UiState.Idle -> {
+    val orderState by ordersViewModel.orders.collectAsState()
+    when {
+        state is UiState.Idle || orderState is UiState.Idle -> {
             viewModel.getDishes()
+            if (orderState == UiState.Idle) ordersViewModel.getOrders()
         }
 
-        is UiState.Loading -> LoadingScreen(stringResource(R.string.foodscreen_loading))
-        is UiState.Success<List<Dishes>> -> {
-            val dishes: List<Dishes> = state.data
+        state is UiState.Loading || orderState is UiState.Loading -> LoadingScreen(stringResource(R.string.foodscreen_loading))
+        state is UiState.Success && orderState is UiState.Success -> {
+            val dishes: List<Dishes> = (state as UiState.Success<List<Dishes>>).data
+            val orders: List<Order> = (orderState as UiState.Success).data
             val dishesCategories: List<String> = viewModel.getDishesCategories(dishes)
             var selectedCategory by remember { mutableStateOf(dishesCategories[0]) }
             val order = remember {
                 mutableStateOf(
-                    Order(
-                        1, 1, "CREATED", 0.0, null, LocalDateTime.now()
+                    orders.find { it.tableId == table.id && it.status == "CREATED" } ?: Order(
+                        0,
+                        table.id,
+                        table.name,
+                        "TABLE",
+                        "CREATED",
+                        0.0,
                     )
                 )
             }
-            val text = stringResource(R.string.foodscreen_order_sent)
+
             FoodContent(
                 dishesCategories, selectedCategory,
                 onCategorySelected = { selectedCategory = it },
-                actualTable = table.toString(),
+                actualTable = if (table.name.isEmpty()) table.id.toString()
+                else if (table.name.length >= 3) table.name.substring(
+                    3
+                )
+                else table.name,
                 backToTables = backToTables,
                 getOrderDishesQuantity = { viewModel.getOrderDishesQuantity(order) },
                 getOrderTotalAmount = { viewModel.getOrderTotalAmount(order) },
@@ -138,24 +160,18 @@ fun DoOrderScreen(
                 getNotes = { dish -> viewModel.getNotes(dish, order) },
                 isNoteEmpty = { dish -> viewModel.isNoteEmpty(dish, order) },
                 onSendOrder = {
-                    // Save order to repository (per table)
-                    //viewModel.saveOrder(order.value)
+                    viewModel.saveOrder(order.value)
 
-                    Toast.makeText(
-                        context,
-                        text,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    order.value = Order(
-                        1, 1, "CREATED", 0.0, null, LocalDateTime.now()
-                    )
+                    backToTables()
                 }
             )
 
         }
 
-        is UiState.Error -> {
-            val error = state.message
+        state is UiState.Error || orderState is UiState.Error -> {
+            val error = if (state is UiState.Error) (state as UiState.Error).message
+            else (orderState as UiState.Error).message
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -171,7 +187,10 @@ fun DoOrderScreen(
                     ) {
                         Text(stringResource(error))
                         Button(
-                            onClick = { viewModel.getDishes() },
+                            onClick = {
+                                viewModel.getDishes()
+                                if (orderState is UiState.Error) ordersViewModel.getOrders()
+                            },
                             modifier = Modifier.width(200.dp)
                         ) {
                             Text("Recargar")
@@ -187,10 +206,19 @@ fun DoOrderScreen(
             }
         }
 
-        else -> {}
+        else -> {
+            Text("Else estados:\n\n estado platos: $state estado ordenes: $orderState")
+        }
     }
 }
 
+/**
+ * Structural layout of the order screen.
+ * Uses a [Scaffold] to manage:
+ * - **Top Bar:** Displays table context and navigation.
+ * - **Bottom Bar:** Shows order summary (total/quantity) and the "Send to Kitchen" action.
+ * - **Content:** Contains the search bar, category filter, and the scrollable dish list.
+ */
 @Composable
 fun FoodContent(
     dishesCategories: List<String>,
@@ -221,7 +249,8 @@ fun FoodContent(
             if (getOrderDishesQuantity() > 0) {
                 BottomTableBar(
                     getOrderDishesQuantity = { getOrderDishesQuantity() },
-                    getOrderTotalAmount = { getOrderTotalAmount() }, onSendOrder = { onSendOrder() }
+                    getOrderTotalAmount = { getOrderTotalAmount() },
+                    onSendOrder = { onSendOrder() }
                 )
             }
         }
@@ -267,6 +296,11 @@ fun FoodContent(
     }
 }
 
+/**
+ * A persistent summary bar shown when at least one item is in the current order.
+ * Displays the total item count and the final price, acting as a final check before
+ * submitting the order to the backend/kitchen.
+ */
 @Composable
 fun BottomTableBar(
     getOrderDishesQuantity: () -> Int,
@@ -305,6 +339,14 @@ fun BottomTableBar(
     }
 }
 
+/**
+ * A custom top navigation bar for the order creation screen.
+ * It serves as a contextual header that displays the current table's name (e.g., "Table 5")
+ * and provides a back navigation button to return to the restaurant's floor plan.
+ * Designed to be lightweight and fit within the status bar padding for a seamless UI.
+ * @param tableName The localized string representing the table currently being served.
+ * @param onBack Callback function triggered when the user clicks the back arrow icon.
+ */
 @Composable
 fun TopTableBar(tableName: String, onBack: () -> Unit) {
     Box(
@@ -330,6 +372,11 @@ fun TopTableBar(tableName: String, onBack: () -> Unit) {
     }
 }
 
+/**
+ * A horizontal scrolling selector for menu categories (e.g., Starters, Drinks, Desserts).
+ * Provides visual feedback for the currently active category using distinct colors
+ * and elevation to help the user filter the menu quickly.
+ */
 @Composable
 fun CategorySelector(
     categories: List<String>,
@@ -374,6 +421,16 @@ fun CategorySelector(
     )
 }
 
+/**
+ * A reactive list of menu items available for ordering.
+ * Each item is rendered in a [Card] with logic to:
+ * - **Add/Remove:** Increase or decrease quantities for items already in the order.
+ * - **Availability Check:** Disables selection and shows an error badge if the dish is out of stock.
+ * - **Notes Management:** Toggles an inline text field to add special kitchen instructions
+ * (observations) for specific dishes.
+ * @param dishes The filtered list of [Dishes] to display.
+ * @param onUpdateNote Callback used to attach specific text instructions to a dish.
+ */
 @Composable
 fun DishesList(
     dishes: List<Dishes>,
