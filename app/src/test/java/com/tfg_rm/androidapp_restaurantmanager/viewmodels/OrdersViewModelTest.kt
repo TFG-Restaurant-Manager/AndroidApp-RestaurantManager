@@ -11,7 +11,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -41,7 +41,7 @@ class OrdersViewModelTest {
     @Before
     fun setUp() {
         service = mockk(relaxed = true)
-        every { service.observeMessages() } returns emptyFlow()
+        every { service.observeMessages() } returns MutableSharedFlow<String>()
         viewModel = OrdersViewModel(service)
     }
 

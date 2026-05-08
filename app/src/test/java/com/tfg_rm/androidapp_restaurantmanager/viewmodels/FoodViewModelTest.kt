@@ -1,6 +1,6 @@
 package com.tfg_rm.androidapp_restaurantmanager.viewmodels
 
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.MutableState
 import app.cash.turbine.test
 import com.tfg_rm.androidapp_restaurantmanager.R
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
@@ -14,7 +14,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -55,11 +55,18 @@ class FoodViewModelTest {
         status = "CREATED", total = 0.0
     )
 
+    private fun mutableOrderOf(order: Order = emptyOrder()): MutableState<Order> =
+        object : MutableState<Order> {
+            override var value: Order = order
+            override fun component1(): Order = value
+            override fun component2(): (Order) -> Unit = { value = it }
+        }
+
     @Before
     fun setUp() {
         foodService = mockk(relaxed = true)
         orderService = mockk(relaxed = true)
-        every { orderService.observeMessages() } returns emptyFlow()
+        every { orderService.observeMessages() } returns MutableSharedFlow<String>()
         viewModel = FoodViewModel(foodService, orderService)
     }
 
@@ -200,7 +207,7 @@ class FoodViewModelTest {
 
     @Test
     fun `addDishToOrder adds item and updates total`() {
-        val order = mutableStateOf(emptyOrder())
+        val order = mutableOrderOf()
         val pizza = dish(1, name = "Pizza", price = 12.0)
 
         viewModel.addDishToOrder(order, pizza)
@@ -212,7 +219,7 @@ class FoodViewModelTest {
 
     @Test
     fun `addDishToOrder twice adds two items with accumulated total`() {
-        val order = mutableStateOf(emptyOrder())
+        val order = mutableOrderOf()
         val burger = dish(2, name = "Burger", price = 8.0)
 
         viewModel.addDishToOrder(order, burger)
@@ -224,7 +231,7 @@ class FoodViewModelTest {
 
     @Test
     fun `minusDishOnOrder removes one item and updates total`() {
-        val order = mutableStateOf(emptyOrder())
+        val order = mutableOrderOf()
         val salad = dish(3, name = "Salad", price = 7.0)
 
         viewModel.addDishToOrder(order, salad)
@@ -238,7 +245,7 @@ class FoodViewModelTest {
 
     @Test
     fun `minusDishOnOrder on absent dish does not change order`() {
-        val order = mutableStateOf(emptyOrder())
+        val order = mutableOrderOf()
         val salad = dish(3, name = "Salad", price = 7.0)
 
         viewModel.minusDishOnOrder(order, salad) // nothing to remove
@@ -251,7 +258,7 @@ class FoodViewModelTest {
 
     @Test
     fun `isDishInOrder returns true when dish is present`() {
-        val order = mutableStateOf(emptyOrder())
+        val order = mutableOrderOf()
         val pasta = dish(4, name = "Pasta", price = 9.0)
         viewModel.addDishToOrder(order, pasta)
 
@@ -260,7 +267,7 @@ class FoodViewModelTest {
 
     @Test
     fun `isDishInOrder returns false when dish is absent`() {
-        val order = mutableStateOf(emptyOrder())
+        val order = mutableOrderOf()
         val pasta = dish(4, name = "Pasta", price = 9.0)
 
         assertFalse(viewModel.isDishInOrder(order, pasta))
@@ -268,7 +275,7 @@ class FoodViewModelTest {
 
     @Test
     fun `getDishQuantityInOrder returns correct count`() {
-        val order = mutableStateOf(emptyOrder())
+        val order = mutableOrderOf()
         val sushi = dish(5, name = "Sushi", price = 15.0)
 
         viewModel.addDishToOrder(order, sushi)
