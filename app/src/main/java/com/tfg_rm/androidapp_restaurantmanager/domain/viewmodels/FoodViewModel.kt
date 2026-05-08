@@ -97,7 +97,7 @@ class FoodViewModel @Inject constructor(
 
         newList.add(
             OrderItem(
-                orderItemId = (newList.maxOfOrNull { it.orderItemId } ?: 0) + 1,
+                orderItemId = 0,
                 dishId = dish.id,
                 dishName = dish.name,
                 notes = "",
@@ -206,7 +206,9 @@ class FoodViewModel @Inject constructor(
     fun saveOrder(order: Order) {
         viewModelScope.launch {
             try {
-                orderService.saveOrder(order = order)
+                if (order.id == 0) {
+                    orderService.saveOrder(order = order)
+                } else orderService.updateOrderState(order = order)
             } catch (e: UnresolvedAddressException) {
                 Log.e(
                     "FoodViewModel",

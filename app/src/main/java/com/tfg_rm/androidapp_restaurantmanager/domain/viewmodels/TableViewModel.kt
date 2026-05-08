@@ -34,8 +34,18 @@ class TableViewModel @Inject constructor(
      * Currently selected table identifier.
      * Used to track which table the user is interacting with in the UI.
      */
-    private val _actualTable = mutableStateOf(1)
-    val actualTable: State<Int> = _actualTable
+    private val _actualTable = mutableStateOf(
+        Tables(
+            id = 1,
+            name = "T1",
+            capacity = 4,
+            section = "",
+            posX = 1.0,
+            posY = 1.0,
+            status = ""
+        )
+    )
+    val actualTable: State<Tables> = _actualTable
 
     private val _tables = MutableStateFlow<UiState<List<Tables>>>(UiState.Idle)
 
@@ -54,10 +64,10 @@ class TableViewModel @Inject constructor(
 
     /**
      * Updates the currently selected table ID.
-     * @param idTable The unique identifier of the selected table.
+     * @param table The actual table to make the order.
      */
-    fun setTable(idTable: Int) {
-        _actualTable.value = idTable
+    fun setTable(table: Tables) {
+        _actualTable.value = table
     }
 
     /**

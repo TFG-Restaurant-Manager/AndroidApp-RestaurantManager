@@ -1,6 +1,5 @@
 package com.tfg_rm.androidapp_restaurantmanager.data.remote.mapper
 
-import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderDto
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderItemDto
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderItemRequest
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.OrderItemResponse
@@ -10,36 +9,11 @@ import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.OrderItem
 import java.time.LocalDateTime
 
-/**
- * Extension of the [OrderDto] model to facilitate conversion to an [Order] domain object.
- *
- * This mapping function transforms the order data received from the API into a domain model,
- * performing necessary type conversions such as parsing date strings into [LocalDateTime]
- * and mapping the list of order items using [toOrderItem].
- *
- * @return An [Order] instance with the processed data.
- */
-fun OrderDto.toOrder(): Order {
-    return Order(
-        id = this.id,
-        tableId = this.tableId,
-        status = this.statusId,
-        total = this.total.toDouble(),
-        notes = this.notes,
-        createdAt = LocalDateTime.parse(this.createdAt),
-        orderItemsList = this.orderItemsList.map { it.toOrderItem() }.toMutableList(),
-        type = "",
-        orderType = "",
-        clientId = null,
-        deliveryAddress = this.deliveryAddress,
-        deliveryNotes = this.deliveryNotes,
-        pickupTime = null
-    )
-}
 
 fun Order.toOrderRequest(): OrderRequest =
     OrderRequest(
         id = id.toLong(),
+        status = this.status,
         type = this.orderType,
         tableId = this.tableId?.toLong(),
         notes = this.notes,
@@ -60,7 +34,8 @@ fun OrderResponse.toOrder(): Order =
         orderItemsList = this.items.map { it.toOrderItem() } as MutableList<OrderItem>,
         pickupTime = if (this.pickupTime != null) LocalDateTime.parse(this.pickupTime) else null,
         deliveryAddress = this.deliveryAddress,
-        tableId = this.tableId
+        tableId = this.tableId,
+        tableName = this.tablName
     )
 
 fun OrderItem.toOrderItemRequest(): OrderItemRequest =

@@ -206,8 +206,8 @@ fun TableScreen(
 
                         TableMap(
                             tables = tables.filter { it.section == actualSection.value },
-                            onTableClick = { tablesDto ->
-                                viewModel.setTable(tablesDto.id)
+                            onTableClick = { table ->
+                                viewModel.setTable(table)
                                 goToAddOrders()
                             }
                         )
@@ -340,7 +340,11 @@ fun TableMap(
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
-                            text = "${stringResource(R.string.tablescreen_tablenumber_little)} ${table.id}",
+                            text = if (table.name.isEmpty()) "${stringResource(R.string.tablescreen_tablenumber_little)} ${table.id}"
+                            else if (table.name.length >= 3) table.name.substring(
+                                3
+                            )
+                            else table.name,
                             style = MaterialTheme.typography.titleMedium,
                             color = textColor,
                             fontWeight = FontWeight.Bold,

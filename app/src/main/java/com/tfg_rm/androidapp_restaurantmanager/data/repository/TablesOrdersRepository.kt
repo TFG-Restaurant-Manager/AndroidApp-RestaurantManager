@@ -60,6 +60,7 @@ class TablesOrdersRepository @Inject constructor(
 fun TablesOrdersDto.toTablesOrders(): TablesOrders {
     return TablesOrders(
         tableId = this.tableId,
+        tableName = this.tableName,
         capacity = this.capacity,
         posX = this.posX,
         posY = this.posY,
@@ -92,6 +93,7 @@ fun TablesOrdersDto.toTablesOrders(): TablesOrders {
  */
 data class TablesOrders(
     val tableId: Int,
+    val tableName: String,
     val capacity: Int,
     val posX: Double,
     val posY: Double,

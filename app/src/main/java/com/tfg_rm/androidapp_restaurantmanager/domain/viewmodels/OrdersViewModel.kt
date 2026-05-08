@@ -53,7 +53,6 @@ class OrdersViewModel @Inject constructor(
     fun resetState() {
         socketJob?.cancel()
         _orders.value = UiState.Idle
-        service.clearCache()
     }
 
     /**
@@ -75,17 +74,6 @@ class OrdersViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Removes a specific order from the current success state's data list.
-     * Note: This only affects the current UI state in memory.
-     * * @param orderId The ID of the order to be removed.
-     */
-    fun removeOrderById(orderId: Int) {
-        val currentState = _orders.value
-        if (currentState is UiState.Success) {
-            currentState.data.removeAll { it.id == orderId }
-        }
-    }
 
     /**
      * Maps the technical status string from the backend to a localized string resource.
@@ -124,6 +112,7 @@ class OrdersViewModel @Inject constructor(
     }
 
     fun updateOrderState(order: Order) {
+        Log.i("OrdersViewModel", "Orden enviada completamente")
         viewModelScope.launch {
             try {
                 service.updateOrderState(order.copy(status = "DELIVERED"))
@@ -153,11 +142,13 @@ class OrdersViewModel @Inject constructor(
     private var socketJob: Job? = null
 
     private fun observeSocketMessages() {
+        Log.i("OrdersViewModel", "Obserbando mensajes en OrdersViewModel")
 
         socketJob = viewModelScope.launch {
-            try {
-                service.observeMessages().collect { message ->
-                    println("Mensaje recibido en OrdersViewModel: $message")
+
+            service.observeMessages().collect { message ->
+                Log.i("OrdersViewModel", "Mensaje recibido en OrdersViewModel: $message")
+                try {
                     when {
                         message.contains("ORDER_CREATED") -> {
                             val result = Json.decodeFromString<WebsocketMessage>(message)
@@ -170,7 +161,7 @@ class OrdersViewModel @Inject constructor(
                                     UiState.Success(list.toMutableList())
                                 } else state
                             }
-                            println("Mensaje websocket, orden creada")
+                            Log.i("OrdersViewModel", "Mensaje websocket, orden creada")
                         }
 
                         message.contains("ORDER_UPDATED") -> {
@@ -189,28 +180,33 @@ class OrdersViewModel @Inject constructor(
                                     }.toMutableList())
                                 } else state
                             }
-                            println("Mensaje websocket, orden modificada")
+                            Log.i("OrdersViewModel", "Mensaje websocket, orden modificada")
                         }
 
                         message.contains("FAILED_CREATE_ORDER") -> {
-                            println("Error al crear la orden FAILED_CREATE_ORDER")
+                            Log.i("OrdersViewModel", "Error al crear la orden FAILED_CREATE_ORDER")
                         }
 
                         message.contains("FAILED_UNHANDLED_MESSAGE ") -> {
-                            println("Mensaje erroneo, no tiene formato del json requerido")
+                            Log.i(
+                                "OrdersViewModel",
+                                "Mensaje erroneo, no tiene formato del json requerido"
+                            )
                         }
 
                         message.contains("FAILED_UNKNOWN_TYPE") -> {
-                            println("Error desconocido")
+                            Log.i("OrdersViewModel", "Error desconocido")
                         }
                     }
+                } catch (_: CancellationException) {
+                    Log.e("OrdersViewModel", "Hilo cerrado")
+                    service.disconnectWS()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Log.e("OrdersViewModel", e.message ?: "Excepcion no encontrada")
                 }
-            } catch (_: CancellationException) {
-                service.disconnectWS()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                println(e.message)
             }
+
         }
     }
 }

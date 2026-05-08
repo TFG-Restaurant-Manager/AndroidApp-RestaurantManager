@@ -53,6 +53,7 @@ import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.UiState
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.FoodViewModel
+import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.OrdersViewModel
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.TableViewModel
 import java.util.Locale
 
@@ -101,25 +102,30 @@ fun DoOrderScreenPreview() {
 fun DoOrderScreen(
     viewModel: FoodViewModel = hiltViewModel(),
     tableViewModel: TableViewModel = hiltViewModel(),
+    ordersViewModel: OrdersViewModel = hiltViewModel(),
     backToTables: () -> Unit = {}
 ) {
-    val productosRestaurante by viewModel.dishes.collectAsState()
+    val state by viewModel.dishes.collectAsState()
     val table by tableViewModel.actualTable
-    when (val state = productosRestaurante) {
-        is UiState.Idle -> {
+    val orderState by ordersViewModel.orders.collectAsState()
+    when {
+        state is UiState.Idle || orderState is UiState.Idle -> {
             viewModel.getDishes()
+            if (orderState == UiState.Idle) ordersViewModel.getOrders()
         }
 
-        is UiState.Loading -> LoadingScreen(stringResource(R.string.foodscreen_loading))
-        is UiState.Success<List<Dishes>> -> {
-            val dishes: List<Dishes> = state.data
+        state is UiState.Loading || orderState is UiState.Loading -> LoadingScreen(stringResource(R.string.foodscreen_loading))
+        state is UiState.Success && orderState is UiState.Success -> {
+            val dishes: List<Dishes> = (state as UiState.Success<List<Dishes>>).data
+            val orders: List<Order> = (orderState as UiState.Success).data
             val dishesCategories: List<String> = viewModel.getDishesCategories(dishes)
             var selectedCategory by remember { mutableStateOf(dishesCategories[0]) }
             val order = remember {
                 mutableStateOf(
-                    Order(
+                    orders.find { it.tableId == table.id && it.status == "CREATED" } ?: Order(
                         0,
-                        table,
+                        table.id,
+                        table.name,
                         "TABLE",
                         "CREATED",
                         0.0,
@@ -130,7 +136,11 @@ fun DoOrderScreen(
             FoodContent(
                 dishesCategories, selectedCategory,
                 onCategorySelected = { selectedCategory = it },
-                actualTable = table.toString(),
+                actualTable = if (table.name.isEmpty()) table.id.toString()
+                else if (table.name.length >= 3) table.name.substring(
+                    3
+                )
+                else table.name,
                 backToTables = backToTables,
                 getOrderDishesQuantity = { viewModel.getOrderDishesQuantity(order) },
                 getOrderTotalAmount = { viewModel.getOrderTotalAmount(order) },
@@ -158,8 +168,10 @@ fun DoOrderScreen(
 
         }
 
-        is UiState.Error -> {
-            val error = state.message
+        state is UiState.Error || orderState is UiState.Error -> {
+            val error = if (state is UiState.Error) (state as UiState.Error).message
+            else (orderState as UiState.Error).message
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -175,7 +187,10 @@ fun DoOrderScreen(
                     ) {
                         Text(stringResource(error))
                         Button(
-                            onClick = { viewModel.getDishes() },
+                            onClick = {
+                                viewModel.getDishes()
+                                if (orderState is UiState.Error) ordersViewModel.getOrders()
+                            },
                             modifier = Modifier.width(200.dp)
                         ) {
                             Text("Recargar")
@@ -191,7 +206,9 @@ fun DoOrderScreen(
             }
         }
 
-        else -> {}
+        else -> {
+            Text("Else estados:\n\n estado platos: $state estado ordenes: $orderState")
+        }
     }
 }
 

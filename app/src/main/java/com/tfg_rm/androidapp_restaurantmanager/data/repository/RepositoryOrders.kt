@@ -2,6 +2,7 @@ package com.tfg_rm.androidapp_restaurantmanager.data.repository
 
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.datasource.OrderRemoteDataSource
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.dto.WebsocketMessage
+import com.tfg_rm.androidapp_restaurantmanager.data.remote.mapper.toOrder
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.mapper.toOrderRequest
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.SocketManager
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.TokenProvider
@@ -9,7 +10,6 @@ import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
-import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -42,38 +42,7 @@ class RepositoryOrders @Inject constructor(
      * @throws Exception If there is an error during data retrieval or date parsing.
      */
     suspend fun getOrders(): List<Order> {
-        return dataDouble.getTablesAndOrders()
-            .filter { it.orderId != null }
-            .groupBy { it.orderId }
-            .map { (_, items) ->
-
-                val first = items.first()
-
-                Order(
-                    id = first.orderId!!,
-                    tableId = first.tableId,
-                    status = first.orderStatus!!,
-                    total = first.orderTotal!!,
-                    notes = first.orderNotes,
-                    createdAt = LocalDateTime.parse(first.orderCreatedAt),
-                    orderItemsList = first.orderItems!!.toMutableList(),
-                    type = "",
-                    orderType = "",
-                    clientId = null,
-                    deliveryAddress = null,
-                    deliveryNotes = null,
-                    pickupTime = null
-                )
-            }
-    }
-
-    /**
-     * Clears the cached data in the underlying combined repository.
-     * * This ensures that subsequent calls to [getOrders] will fetch fresh data
-     * rather than returning stale information.
-     */
-    fun clearCache() {
-        dataDouble.clearCache()
+        return remote.getOrders().map { it.toOrder() }
     }
 
     fun observeMessages() = socketManager.messages

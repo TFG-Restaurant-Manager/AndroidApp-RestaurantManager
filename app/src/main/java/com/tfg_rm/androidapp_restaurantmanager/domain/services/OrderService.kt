@@ -25,15 +25,6 @@ class OrderService @Inject constructor(
      */
     suspend fun getOrders(): MutableList<Order> = repository.getOrders().toMutableList()
 
-    /**
-     * Invalidates the underlying data cache.
-     * * This forces the system to fetch updated information from the server on the next request,
-     * ensuring data consistency across the application.
-     */
-    fun clearCache() {
-        repository.clearCache()
-    }
-
     fun observeMessages() = repository.observeMessages()
 
     suspend fun disconnectWS() = repository.disconnectWS()

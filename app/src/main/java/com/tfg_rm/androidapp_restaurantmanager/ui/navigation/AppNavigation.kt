@@ -159,7 +159,7 @@ fun AppNavigation(
             composable(AppScreens.LoginScreen.route) {
                 LoginScreen(
                     authViewModel = authViewModel,
-                    loginSuccess = { navController.navigate(AppScreens.ProfileScreen.route) },
+                    loginSuccess = { navController.navigate(AppScreens.OrdersScreen.route) },
                     recargarEstados = recargarEstado
                 )
             }
@@ -175,6 +175,7 @@ fun AppNavigation(
             composable(AppScreens.FoodScreen.route) {
                 DoOrderScreen(
                     tableViewModel = tableViewModel,
+                    ordersViewModel = orderViewModel,
                     backToTables = { navController.popBackStack() },
                     viewModel = foodViewModel
                 )

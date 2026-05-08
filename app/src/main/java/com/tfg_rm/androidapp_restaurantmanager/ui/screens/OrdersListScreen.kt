@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -101,7 +100,9 @@ fun OrdersScreen(
         }
 
         is UiState.Success -> {
-            val orders = (orderState as UiState.Success).data.sortedBy { it.tableId }
+            val orders = (orderState as UiState.Success).data
+                .filter { it.status == "CREATED" && it.tableId != null }
+                .sortedBy { it.tableId }
             Scaffold(
                 topBar = {
                     Box(
@@ -178,7 +179,13 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = stringResource(R.string.table_label, order.tableId ?: 0),
+                    text = "${stringResource(R.string.table_label)} ${
+                        if (order.tableName!!.isEmpty()) order.tableId.toString()
+                        else if (order.tableName.length >= 3) order.tableName.substring(
+                            3
+                        )
+                        else order.tableName
+                    }",
                     style = Typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
@@ -247,28 +254,7 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (viewModel.getStatusStringRes(order.status) == R.string.order_statusready) {
-                    Button(
-                        onClick = {
-                            viewModel.updateOrderState(order)
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(end = 16.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.check_circle_svgrepo_com),
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(stringResource(R.string.mark_delivered), fontWeight = FontWeight.Bold)
-                    }
-                }
-
-                IconButton(onClick = { viewModel.removeOrderById(order.id) }) {
+                IconButton(onClick = { viewModel.updateOrderState(order) }) {
                     Icon(
                         painter = painterResource(R.drawable.cross_svgrepo_com),
                         contentDescription = "Cancel",

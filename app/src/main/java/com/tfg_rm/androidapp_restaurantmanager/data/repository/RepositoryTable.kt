@@ -40,6 +40,7 @@ class RepositoryTable @Inject constructor(
             .map {
                 Tables(
                     id = it.tableId,
+                    name = it.tableName,
                     capacity = it.capacity,
                     section = it.sectionTitle,
                     posX = it.posX,
