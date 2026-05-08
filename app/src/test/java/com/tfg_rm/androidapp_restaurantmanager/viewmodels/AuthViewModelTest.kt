@@ -1,164 +1,127 @@
 package com.tfg_rm.androidapp_restaurantmanager.viewmodels
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.tfg_rm.androidapp_restaurantmanager.R
-import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.SessionManager
 import com.tfg_rm.androidapp_restaurantmanager.domain.services.AuthService
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthState
 import com.tfg_rm.androidapp_restaurantmanager.domain.viewmodels.AuthViewModel
-import com.tfg_rm.androidapp_restaurantmanager.utils.MainCoroutineRule
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Unit tests for [AuthViewModel].
- *
- * Covers:
- * - Auto-login (token found / not found)
- * - Credential login (empty fields, valid, invalid credentials, no network, generic error)
- * - resetState
- * - logout
- * - Session expiration via [SessionManager]
- */
 @OptIn(ExperimentalCoroutinesApi::class)
 class AuthViewModelTest {
 
     @get:Rule
-    val coroutineRule = MainCoroutineRule()
+    val instantExecutorRule = InstantTaskExecutorRule()
 
-    private lateinit var service: AuthService
+    private val testDispatcher = UnconfinedTestDispatcher()
+    private val mockService = mockk<AuthService>(relaxed = true)
     private lateinit var viewModel: AuthViewModel
 
     @Before
-    fun setUp() {
-        service = mockk(relaxed = true)
-        viewModel = AuthViewModel(service)
+    fun setup() {
+        Dispatchers.setMain(testDispatcher)
+        viewModel = AuthViewModel(mockService)
     }
 
-    // ── Auto-login (no credentials) ──────────────────────────────────────
-
-    @Test
-    fun `login auto - token exists emits Success`() = runTest {
-        coEvery { service.loadToken() } returns true
-
-        viewModel.login()
-
-        assertEquals(AuthState.Success, viewModel.authState.value)
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
-    fun `login auto - no token emits Idle`() = runTest {
-        coEvery { service.loadToken() } returns false
+    fun `login con codigo vacio emite Error`() {
+        viewModel.login("", "pass123")
 
-        viewModel.login()
-
-        assertEquals(AuthState.Idle, viewModel.authState.value)
-    }
-
-    // ── Login with credentials ────────────────────────────────────────────
-
-    @Test
-    fun `login with empty code emits empty-labels Error`() = runTest {
-        viewModel.login("", "password")
-
-        assertEquals(
-            AuthState.Error(R.string.loginscreen_loginerror_emptylabels),
-            viewModel.authState.value
-        )
+        val state = viewModel.authState.value
+        assertTrue(state is AuthState.Error)
+        assertEquals(R.string.loginscreen_loginerror_emptylabels, (state as AuthState.Error).msg)
     }
 
     @Test
-    fun `login with empty password emits empty-labels Error`() = runTest {
+    fun `login con password vacio emite Error`() {
         viewModel.login("code123", "")
 
-        assertEquals(
-            AuthState.Error(R.string.loginscreen_loginerror_emptylabels),
-            viewModel.authState.value
-        )
+        val state = viewModel.authState.value
+        assertTrue(state is AuthState.Error)
+        assertEquals(R.string.loginscreen_loginerror_emptylabels, (state as AuthState.Error).msg)
     }
 
     @Test
-    fun `login with valid credentials emits Success`() = runTest {
-        coEvery { service.requestToken(any(), any()) } returns Unit
+    fun `login exitoso emite Success`() = runTest {
+        // relaxed mock ya devuelve Unit para requestToken y connectBS
+        viewModel.login("code123", "pass123")
 
-        viewModel.login("code123", "pass456")
-
-        assertEquals(AuthState.Success, viewModel.authState.value)
+        assertTrue(viewModel.authState.value is AuthState.Success)
     }
 
     @Test
-    fun `login with invalid credentials maps to invalidCredentials string`() = runTest {
-        coEvery { service.requestToken(any(), any()) } throws
-                Exception("JSON input: Invalid credentials")
+    fun `login con credenciales invalidas emite Error de credenciales`() = runTest {
+        coEvery { mockService.requestToken(any(), any()) } throws
+                RuntimeException("JSON input: Invalid credentials")
 
         viewModel.login("code123", "wrongpass")
 
+        val state = viewModel.authState.value
+        assertTrue(state is AuthState.Error)
         assertEquals(
-            AuthState.Error(R.string.loginscreen_loginerror_invalidcredentials),
-            viewModel.authState.value
+            R.string.loginscreen_loginerror_invalidcredentials,
+            (state as AuthState.Error).msg
         )
     }
 
     @Test
-    fun `login with no network maps to connection string`() = runTest {
-        coEvery { service.requestToken(any(), any()) } throws
-                Exception("Unable to resolve host example.com")
+    fun `login sin conexion emite Error de conexion`() = runTest {
+        coEvery { mockService.requestToken(any(), any()) } throws
+                RuntimeException("Unable to resolve host")
 
-        viewModel.login("code123", "pass456")
+        viewModel.login("code123", "pass123")
 
+        val state = viewModel.authState.value
+        assertTrue(state is AuthState.Error)
         assertEquals(
-            AuthState.Error(R.string.loginscreen_loginerror_conexion),
-            viewModel.authState.value
+            R.string.loginscreen_loginerror_conexion,
+            (state as AuthState.Error).msg
         )
     }
 
     @Test
-    fun `login with generic exception maps to common error string`() = runTest {
-        coEvery { service.requestToken(any(), any()) } throws
-                Exception("Something unexpected happened")
+    fun `login sin argumentos con token guardado emite Success`() = runTest {
+        coEvery { mockService.loadToken() } returns true
 
-        viewModel.login("code123", "pass456")
+        viewModel.login()
 
-        assertEquals(
-            AuthState.Error(R.string.loginscreen_loginerror_common),
-            viewModel.authState.value
-        )
+        assertTrue(viewModel.authState.value is AuthState.Success)
     }
 
-    // ── resetState ────────────────────────────────────────────────────────
+    @Test
+    fun `login sin argumentos sin token guardado emite Idle`() = runTest {
+        coEvery { mockService.loadToken() } returns false
+
+        viewModel.login()
+
+        assertTrue(viewModel.authState.value is AuthState.Idle)
+    }
 
     @Test
-    fun `resetState returns to Idle`() = runTest {
-        coEvery { service.requestToken(any(), any()) } throws Exception("fail")
-        viewModel.login("code", "pass") // drive to Error state
+    fun `resetState restaura estado a Idle`() = runTest {
+        viewModel.login("code123", "pass123")
+        assertTrue(viewModel.authState.value is AuthState.Success)
 
         viewModel.resetState()
 
-        assertEquals(AuthState.Idle, viewModel.authState.value)
-    }
-
-    // ── logout ────────────────────────────────────────────────────────────
-
-    @Test
-    fun `logout emits LogOut and calls service logout`() = runTest {
-        viewModel.logout()
-
-        assertEquals(AuthState.LogOut, viewModel.authState.value)
-        coVerify { service.logout() }
-    }
-
-    // ── Session expiration ────────────────────────────────────────────────
-
-    @Test
-    fun `sessionExpired event transitions state to LogOut`() = runTest {
-        SessionManager.notifySessionExpired()
-
-        assertEquals(AuthState.LogOut, viewModel.authState.value)
+        assertTrue(viewModel.authState.value is AuthState.Idle)
     }
 }

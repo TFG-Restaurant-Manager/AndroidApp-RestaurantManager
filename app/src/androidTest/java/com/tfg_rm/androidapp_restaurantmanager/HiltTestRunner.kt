@@ -6,17 +6,16 @@ import androidx.test.runner.AndroidJUnitRunner
 import dagger.hilt.android.testing.HiltTestApplication
 
 /**
- * Custom test runner that replaces the Application with [HiltTestApplication],
- * enabling Hilt dependency injection in instrumented tests annotated with
- * [@HiltAndroidTest][dagger.hilt.android.testing.HiltAndroidTest].
- *
- * Configured in app/build.gradle.kts as the testInstrumentationRunner.
+ * Custom test runner that replaces the real Application with [HiltTestApplication].
+ * Referenciado en build.gradle.kts: testInstrumentationRunner.
  */
 class HiltTestRunner : AndroidJUnitRunner() {
 
     override fun newApplication(
         cl: ClassLoader?,
-        name: String?,
+        className: String?,
         context: Context?
-    ): Application = super.newApplication(cl, HiltTestApplication::class.java.name, context)
+    ): Application {
+        return super.newApplication(cl, HiltTestApplication::class.java.name, context)
+    }
 }
