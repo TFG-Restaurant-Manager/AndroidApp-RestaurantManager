@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AndroidApp-RestaurantManager</string>
+
+    <!-- Order Screen -->
     <string name="orders_title">Pedidos Activos</string>
     <string name="orders_subtitle">Gestión y seguimiento de pedidos</string>
     <string name="order_statuscreated">Creado</string>
+    <string name="order_noorders">No hay órdenes creadas todavia</string>
     <string name="order_statuscooked">En cocina</string>
     <string name="order_statusready">Listo</string>
     <string name="order_statusdelivered">Entregado</string>
     <string name="order_statuspaid">Pagado</string>
     <string name="order_statuserror">Error</string>
     <string name="order_geterror">Error al cargar las ordenes</string>
+
+    <!-- Table Screen -->
     <string name="table_label">Mesa</string>
+    <string name="no_tables">No hay tablas creadas</string>
     <string name="time_ago">Hace %1$d minutos</string>
     <string name="item_quantityformat">%1$dx %2$s</string>
     <string name="currency_format">%.2f €</string>

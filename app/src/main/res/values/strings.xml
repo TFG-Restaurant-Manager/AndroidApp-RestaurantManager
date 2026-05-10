@@ -1,15 +1,21 @@
 <resources>
     <string name="app_name">AndroidApp-RestaurantManager</string>
+
+    <!-- Order Screen -->
     <string name="orders_title">Active Orders</string>
     <string name="orders_subtitle">Order management and tracking</string>
     <string name="order_statuscreated">Created</string>
+    <string name="order_noorders">No orders have been created yet</string>
     <string name="order_statuscooked">In kitchen</string>
     <string name="order_statusready">Ready</string>
     <string name="order_statusdelivered">Delivered</string>
     <string name="order_statuspaid">Paid</string>
     <string name="order_statuserror">Error</string>
     <string name="order_geterror">Error loading orders</string>
+
+    <!-- Table Screen -->
     <string name="table_label">Table</string>
+    <string name="no_tables">No tables have been created</string>
     <string name="time_ago">%1$d minutes ago</string>
     <string name="item_quantityformat">%1$dx %2$s</string>
     <string name="currency_format">%.2f €</string>
