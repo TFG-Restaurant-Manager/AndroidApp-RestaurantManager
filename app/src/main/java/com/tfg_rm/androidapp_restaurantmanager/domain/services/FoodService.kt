@@ -2,7 +2,6 @@ package com.tfg_rm.androidapp_restaurantmanager.domain.services
 
 import com.tfg_rm.androidapp_restaurantmanager.data.repository.RepositoryFood
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
-import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,12 +23,4 @@ class FoodService @Inject constructor(
      */
     suspend fun getDishes(): List<Dishes> = repositoryFood.getDishes()
 
-    /**
-     * Processes and stores a new or updated customer order.
-     *
-     * @param order The [Order] domain object to be saved in the system.
-     */
-    fun saveOrder(order: Order) {
-        repositoryFood.saveOrder(order)
-    }
 }

@@ -21,13 +21,11 @@ import javax.inject.Singleton
  * to provide a coherent view of all active orders.
  *
  * @property remote The remote data source for direct order operations.
- * @property dataDouble The repository providing combined table and order data (TablesOrdersRepository).
  * @property tokenProvider The provider responsible for managing authentication tokens.
  */
 @Singleton
 class RepositoryOrders @Inject constructor(
     private val remote: OrderRemoteDataSource,
-    private val dataDouble: TablesOrdersRepository,
     private val tokenProvider: TokenProvider,
     private val socketManager: SocketManager
 ) {
