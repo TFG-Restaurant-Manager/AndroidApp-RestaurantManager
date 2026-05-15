@@ -22,10 +22,10 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -101,8 +101,8 @@ fun OrdersScreen(
 
         is UiState.Success -> {
             val orders = (orderState as UiState.Success).data
-                .filter { it.status == "CREATED" && it.tableId != null }
-                .sortedBy { it.tableId }
+                .filter { it.status == "CREATED" }
+                .sortedBy { it.id }
             Scaffold(
                 topBar = {
                     Box(
@@ -128,27 +128,46 @@ fun OrdersScreen(
                                 color = Color.White.copy(alpha = 0.95f)
                             )
                             Spacer(modifier = Modifier.height(10.dp))
-                            Divider(color = Color.White.copy(alpha = 0.18f), thickness = 1.dp)
+                            HorizontalDivider(
+                                Modifier,
+                                thickness = 1.dp,
+                                color = Color.White.copy(alpha = 0.18f)
+                            )
                         }
                     }
                 }
             ) { paddingValues ->
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(vertical = 16.dp)
-                ) {
-                    items(orders) { order ->
-                        OrderCard(order, ordersViewModel)
+                if (orders.isNotEmpty()) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(vertical = 16.dp)
+                    ) {
+                        items(orders) { order ->
+                            OrderCard(order, ordersViewModel)
+                        }
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = stringResource(R.string.order_noorders),
+                                fontSize = MaterialTheme.typography.titleMedium.fontSize
+                            )
+                        }
                     }
                 }
             }
         }
-
-        else -> {}
     }
 }
 
@@ -179,13 +198,22 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "${stringResource(R.string.table_label)} ${
-                        if (order.tableName!!.isEmpty()) order.tableId.toString()
-                        else if (order.tableName.length >= 3) order.tableName.substring(
-                            3
-                        )
-                        else order.tableName
-                    }",
+                    text = when (order.type) {
+                        "TABLE" -> "${stringResource(R.string.table_label)} ${
+                            if (order.tableName != null) {
+                                if (order.tableName.isEmpty()) order.tableId.toString()
+                                else if (order.tableName.length >= 3) order.tableName.substring(
+                                    3
+                                )
+                                else order.tableName
+                            } else if (order.tableId == null)
+                                stringResource(R.string.no_table_label) else order.tableId.toString()
+                        }"
+
+                        "DELIVERY" -> stringResource(R.string.delivery_label)
+                        "PICKUP" -> stringResource(R.string.pickup_label)
+                        else -> "---"
+                    },
                     style = Typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp

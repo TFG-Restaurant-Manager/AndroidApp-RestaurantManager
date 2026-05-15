@@ -14,11 +14,14 @@ import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.client.plugins.websocket.pingInterval
 import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 /**
  * Dagger Hilt module responsible for providing network-related dependencies at the application level.
@@ -88,7 +91,10 @@ object NetworkModule {
                 )
             }
 
-            install(WebSockets)
+            install(WebSockets) {
+                // Envía un ping cada 20 segundos para mantener viva la conexión
+                pingInterval = 20.toDuration(DurationUnit.SECONDS)
+            }
 
             defaultRequest {
                 url(NetworkConfig.BASE_URL)

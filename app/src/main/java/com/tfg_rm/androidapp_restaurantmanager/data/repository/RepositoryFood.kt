@@ -4,7 +4,6 @@ import com.tfg_rm.androidapp_restaurantmanager.data.remote.datasource.FoodRemote
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.mapper.toDishes
 import com.tfg_rm.androidapp_restaurantmanager.data.remote.network.TokenProvider
 import com.tfg_rm.androidapp_restaurantmanager.domain.models.Dishes
-import com.tfg_rm.androidapp_restaurantmanager.domain.models.Order
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,12 +32,4 @@ class RepositoryFood @Inject constructor(
         return remote.getDishes().map { it.toDishes() }
     }
 
-    /**
-     * Saves or submits an order to the system.
-     *
-     * @param order The [Order] domain object containing the details to be persisted or sent.
-     */
-    fun saveOrder(order: Order) {
-        // Implementation pending
-    }
 }

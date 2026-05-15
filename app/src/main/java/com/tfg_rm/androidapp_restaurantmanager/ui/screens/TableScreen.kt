@@ -128,7 +128,8 @@ fun TableScreen(
         is UiState.Success<*> -> {
             val tables = (tableState as UiState.Success<List<Tables>>).data
             val sectionsList = viewModel.getSections(tables)
-            val actualSection = remember { mutableStateOf(sectionsList[0]) }
+            val actualSection =
+                remember { mutableStateOf(if (sectionsList.isNotEmpty()) sectionsList[0] else "---") }
             val cards = viewModel.getTableInfo(actualSection.value, tables)
             val helpExpanded = remember { mutableStateOf(false) }
             Box(
@@ -204,13 +205,30 @@ fun TableScreen(
                             }
                         }
 
-                        TableMap(
-                            tables = tables.filter { it.section == actualSection.value },
-                            onTableClick = { table ->
-                                viewModel.setTable(table)
-                                goToAddOrders()
+                        if (tables.isNotEmpty()) {
+                            TableMap(
+                                tables = tables.filter { it.section == actualSection.value },
+                                onTableClick = { table ->
+                                    viewModel.setTable(table)
+                                    goToAddOrders()
+                                }
+                            )
+                        } else {
+                            Row(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.no_tables),
+                                        fontSize = MaterialTheme.typography.titleMedium.fontSize
+                                    )
+                                }
                             }
-                        )
+                        }
                     }
                 }
                 if (helpExpanded.value) {
