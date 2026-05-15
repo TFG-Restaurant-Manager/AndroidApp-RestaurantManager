@@ -118,6 +118,7 @@ class OrdersViewModel @Inject constructor(
                 service.updateOrderState(order.copy(status = "DELIVERED"))
             } catch (e: Exception) {
                 Log.e("OrdersViewModel", e.message ?: "Error al actualizar el estado de la orden")
+                e.printStackTrace()
             }
         }
     }
@@ -135,6 +136,7 @@ class OrdersViewModel @Inject constructor(
                 service.updateOrderState(orderUpdated)
             } catch (e: Exception) {
                 Log.e("OrdersViewModel", e.message ?: "Error al actualizar el estado de la orden")
+                e.printStackTrace()
             }
         }
     }

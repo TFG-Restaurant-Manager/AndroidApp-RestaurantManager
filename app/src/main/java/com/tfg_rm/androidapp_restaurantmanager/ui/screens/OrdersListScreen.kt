@@ -101,8 +101,8 @@ fun OrdersScreen(
 
         is UiState.Success -> {
             val orders = (orderState as UiState.Success).data
-                .filter { it.status == "CREATED" && it.tableId != null }
-                .sortedBy { it.tableId }
+                .filter { it.status == "CREATED" }
+                .sortedBy { it.id }
             Scaffold(
                 topBar = {
                     Box(
@@ -198,13 +198,22 @@ fun OrderCard(order: Order, viewModel: OrdersViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "${stringResource(R.string.table_label)} ${
-                        if (order.tableName!!.isEmpty()) order.tableId.toString()
-                        else if (order.tableName.length >= 3) order.tableName.substring(
-                            3
-                        )
-                        else order.tableName
-                    }",
+                    text = when (order.type) {
+                        "TABLE" -> "${stringResource(R.string.table_label)} ${
+                            if (order.tableName != null) {
+                                if (order.tableName.isEmpty()) order.tableId.toString()
+                                else if (order.tableName.length >= 3) order.tableName.substring(
+                                    3
+                                )
+                                else order.tableName
+                            } else if (order.tableId == null)
+                                stringResource(R.string.no_table_label) else order.tableId.toString()
+                        }"
+
+                        "DELIVERY" -> stringResource(R.string.delivery_label)
+                        "PICKUP" -> stringResource(R.string.pickup_label)
+                        else -> "---"
+                    },
                     style = Typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp

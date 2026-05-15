@@ -16,6 +16,9 @@
 
     <!-- Table Screen -->
     <string name="table_label">Mesa</string>
+    <string name="delivery_label">A domicilio</string>
+    <string name="pickup_label">Para recoger</string>
+    <string name="no_table_label">Eliminada</string>
     <string name="no_tables">No hay tablas creadas</string>
     <string name="time_ago">Hace %1$d minutos</string>
     <string name="item_quantityformat">%1$dx %2$s</string>
